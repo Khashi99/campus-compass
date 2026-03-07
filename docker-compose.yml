@@ -1,0 +1,57 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: campus_compass
+      POSTGRES_USER: campus_compass
+      POSTGRES_PASSWORD: campus_compass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgis://campus_compass:campus_compass@db:5432/campus_compass
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "8000:8000"
+    command: >
+      sh -c "python manage.py migrate &&
+             daphne -b 0.0.0.0 -p 8000 campus_compass.asgi:application"
+
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgis://campus_compass:campus_compass@db:5432/campus_compass
+      REDIS_URL: redis://redis:6379
+    command: celery -A campus_compass worker -l info
+
+volumes:
+  postgres_data:
