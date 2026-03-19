@@ -1,3 +1,4 @@
+import 'package:campus_compass/screens/onboarding_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:campus_compass/theme/app_colors.dart';
 
@@ -31,49 +32,10 @@ class MyApp extends StatelessWidget {
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primary,
+          seedColor: AppColors.primaryBlue,
         ),
       ),
-      home: const MyHomePage(title: 'Campus Compass'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-
-  //add setState
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: .center,
-          children: [
-            //add screen elements here
-            Center(
-              child: Text('Navigate calmly. Stay informed', style: Theme.of(context).textTheme.headlineSmall),
-            ),
-            SizedBox(height: 15),
-            Center(
-              child: Text('Campus Compass is a tool that helps you navigate your campus\n and stay informed about the latest news and events.'),
-            ),
-          ],
-        ),
-      ),
+      home: const OnboardingScreen(),
     );
   }
 }
