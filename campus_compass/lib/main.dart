@@ -38,11 +38,11 @@ class MyApp extends StatelessWidget {
           seedColor: AppColors.primaryBlue,
         ),
       ),
-      //home: const OnboardingScreen(),
+      home: const OnboardingScreen(),
       
       // For testing: Use MapScreen directly
       // For production: Use OnboardingScreen and navigate to MapScreen after
-      home: const MapScreen(),
+      //home: const MapScreen(),
 
     );
   }
