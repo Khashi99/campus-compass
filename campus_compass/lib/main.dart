@@ -1,6 +1,9 @@
 import 'package:campus_compass/screens/onboarding_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:campus_compass/theme/app_colors.dart';
+import 'package:campus_compass/screens/map_screen.dart';
+import 'package:campus_compass/screens/incident_detail_screen.dart';
+import 'package:campus_compass/models/incident.dart';
 
 void main() {
   runApp(const MyApp());
@@ -36,6 +39,12 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: const OnboardingScreen(),
+      
+      // For testing: Use MapScreen directly
+      // For production: Use OnboardingScreen and navigate to MapScreen after
+      //home: const MapScreen(),
+
     );
   }
 }
+
