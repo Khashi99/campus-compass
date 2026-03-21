@@ -1,7 +1,9 @@
 import 'package:campus_compass/screens/onboarding_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:campus_compass/theme/app_colors.dart';
+import 'package:campus_compass/theme/app_theme.dart';
 import 'package:campus_compass/screens/map_screen.dart';
+import 'package:campus_compass/screens/login_Screen.dart';
 import 'package:campus_compass/screens/incident_detail_screen.dart';
 import 'package:campus_compass/models/incident.dart';
 
@@ -16,24 +18,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      routes:{
+        '/login': (context) => const LoginScreen(),
+        '/map': (context) => const MapScreen(),
+      },
       title: 'Campus Compass',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
+      // AppTheme holds elevatedButtonTheme, textButtonTheme, textTheme, etc.
+      theme: AppTheme.appTheme.copyWith(
         colorScheme: ColorScheme.fromSeed(
           seedColor: AppColors.primaryBlue,
         ),

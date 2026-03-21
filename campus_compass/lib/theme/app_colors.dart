@@ -5,6 +5,7 @@ class AppColors {
   AppColors._(); // private constructor to prevent instantiation
 
   static const primaryBlue = Color(0xFF369DF4);
+  static const secondaryBlue = Color(0xFFb8d7fe);
   static const pageBackground = Color(0xFFF7F7F8);
   static const softBackground = Color(0xFFF7F7F8);
   static const darkText = Color(0xFF171717);
