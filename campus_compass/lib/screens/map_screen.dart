@@ -325,7 +325,8 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   void _navigateToSafety() {
-    _showSnackBar('Calculating safe route...', isSuccess: true);
+    // _showSnackBar('Calculating safe route...', isSuccess: true);
+    Navigator.pushNamed(context, '/safety-route');
     // In real app: Open navigation with safe route
   }
 

@@ -1,4 +1,5 @@
 import 'package:campus_compass/screens/onboarding_screen.dart';
+import 'package:campus_compass/screens/safety_route_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:campus_compass/theme/app_colors.dart';
 import 'package:campus_compass/theme/app_theme.dart';
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
       routes:{
         '/login': (context) => const LoginScreen(),
         '/map': (context) => const MapScreen(),
+        '/safety-route': (context) => const SafetyRouteScreen(),
       },
       title: 'Campus Compass',
       debugShowCheckedModeBanner: false,
