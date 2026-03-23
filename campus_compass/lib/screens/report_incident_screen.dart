@@ -512,7 +512,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                     ),
                   ),
                   TextSpan(
-                    text: '555-0199',
+                    text: '+1 514-555-0199',
                     style: TextStyle(
                       color: AppColors.darkText,
                       fontWeight: FontWeight.bold,
@@ -621,7 +621,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
         const SizedBox(height: 16),
 
         _buildReviewCard(
-          icon: Icons.warning_outlined,
+          icon: Icons.warning_amber_rounded,
           label: 'INCIDENT TYPE',
           value: _selectedType?.displayName ?? 'Not selected',
         ),
