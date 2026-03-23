@@ -2,8 +2,10 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:campus_compass/models/incident.dart';
 import 'package:campus_compass/theme/app_colors.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
@@ -38,6 +40,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
 
   // Step state
   int _currentStep = 1; // 1 or 2
+  bool _isSubmitting = false;
 
   final ImagePicker _imagePicker = ImagePicker();
 
@@ -1124,7 +1127,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: _submitReport,
+            onPressed: _isSubmitting ? null : _submitReport,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primaryBlue,
               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -1132,19 +1135,30 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'Submit Report',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                if (_isSubmitting)
+                  const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                else ...[
+                  const Text(
+                    'Submit Report',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-                SizedBox(width: 8),
-                Icon(Icons.arrow_forward_rounded, color: Colors.white),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.arrow_forward_rounded, color: Colors.white),
+                ],
               ],
             ),
           ),
@@ -1346,19 +1360,143 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
 
   // ============ ACTIONS ============
 
-  void _submitReport() {
-    // In a real app, send data to backend
-    _showSnackBar('Report submitted successfully!', isSuccess: true);
-    
-    // Navigate back after brief delay
-    Future.delayed(
-      const Duration(milliseconds: 1500),
-      () {
-        if (mounted) {
-          Navigator.pop(context);
-        }
-      },
-    );
+  Future<void> _submitReport() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      _showSnackBar('Sign in required before submitting a report.');
+      return;
+    }
+
+    if (_selectedType == null || _selectedLocation == null || _descriptionController.text.trim().isEmpty) {
+      _showSnackBar('Please complete all required fields.');
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    try {
+      final now = DateTime.now();
+      final reportedAt = _incidentTime != null
+          ? DateTime(now.year, now.month, now.day, _incidentTime!.hour, _incidentTime!.minute)
+          : now;
+      final locationCoordinates = _coordinatesForLocation(_selectedLocation!);
+      final firestore = FirebaseFirestore.instance;
+
+      await firestore.collection('incidentReports').add({
+        'campusId': _campusIdForLocation(_selectedLocation!),
+        'title': _titleForType(_selectedType!),
+        'description': _descriptionController.text.trim(),
+        'location': _selectedLocation,
+        'coordinates': {
+          'latitude': locationCoordinates.$1,
+          'longitude': locationCoordinates.$2,
+        },
+        'buildingCode': _buildingCodeForLocation(_selectedLocation!),
+        'type': _typeToBackendValue(_selectedType!),
+        'status': 'submitted',
+        'verificationLevel': 'userReported',
+        'createdBy': user.uid,
+        'linkedIncidentId': null,
+        'reportedTime': Timestamp.fromDate(reportedAt),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      _showSnackBar('Report submitted successfully!', isSuccess: true);
+
+      await Future<void>.delayed(const Duration(milliseconds: 900));
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      _showSnackBar('Failed to submit report: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
+  }
+
+  String _titleForType(IncidentType type) {
+    switch (type) {
+      case IncidentType.protest:
+        return 'Protest / Gathering reported';
+      case IncidentType.construction:
+        return 'Construction disruption reported';
+      case IncidentType.gathering:
+        return 'Large gathering reported';
+      case IncidentType.blockage:
+        return 'Entrance blockage reported';
+      case IncidentType.emergency:
+        return 'Emergency situation reported';
+      case IncidentType.maintenance:
+        return 'Maintenance issue reported';
+    }
+  }
+
+  String _typeToBackendValue(IncidentType type) {
+    switch (type) {
+      case IncidentType.protest:
+        return 'protest';
+      case IncidentType.construction:
+        return 'construction';
+      case IncidentType.gathering:
+        return 'gathering';
+      case IncidentType.blockage:
+        return 'blockage';
+      case IncidentType.emergency:
+        return 'emergency';
+      case IncidentType.maintenance:
+        return 'maintenance';
+    }
+  }
+
+  String _campusIdForLocation(String location) {
+    if (location.toLowerCase().contains('loyola')) {
+      return 'loyola';
+    }
+    return 'sgw';
+  }
+
+  String _buildingCodeForLocation(String location) {
+    switch (location) {
+      case 'Hall Building Entrance':
+        return 'H';
+      case 'Library':
+        return 'LB';
+      case 'Engineering Building':
+        return 'EV';
+      case 'Science Building':
+        return 'SP';
+      case 'Student Center':
+        return 'SC';
+      default:
+        return 'GEN';
+    }
+  }
+
+  (double, double) _coordinatesForLocation(String location) {
+    switch (location) {
+      case 'Hall Building Entrance':
+        return (45.4971, -73.5789);
+      case 'Library':
+        return (45.4974, -73.5783);
+      case 'Engineering Building':
+        return (45.4969, -73.5778);
+      case 'Science Building':
+        return (45.4959, -73.5790);
+      case 'Student Center':
+        return (45.4976, -73.5793);
+      case 'Loyola Campus':
+        return (45.4580, -73.6405);
+      case 'SGW Campus':
+      case 'Main Campus':
+      default:
+        return (45.4973, -73.5790);
+    }
   }
 
   void _showSnackBar(String message, {bool isSuccess = false}) {
