@@ -27,7 +27,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         curve: Curves.easeInOut,
       );
     } else {
-      // TODO: navigate to login page
+      // TODO: navigate to login page if notLoggedIn, 
+      //else either register/guest
+      Navigator.pushNamed(context, '/login');
     }
   }
 

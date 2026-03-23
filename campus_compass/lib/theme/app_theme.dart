@@ -6,12 +6,27 @@ class AppTheme {
   AppTheme._(); // private constructor to prevent instantiation
 
   // Button Theme Data
-  static ButtonThemeData buttonTheme = ButtonThemeData(
-    buttonColor: AppColors.primaryBlue,
-    textTheme: ButtonTextTheme.primary,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(8),
-    ),
+  static ElevatedButtonThemeData elevatedButtonTheme = ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: AppColors.primaryBlue,
+      textStyle: TextStyle(color: AppColors.white, fontSize: 14),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ), 
+      elevation: 1.4,
+    )
+  );
+
+  // Button Theme Data
+  static TextButtonThemeData textButtonTheme = TextButtonThemeData(
+    style: TextButton.styleFrom(
+      textStyle: linkStyle,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ), 
+      elevation: 1.4,
+
+    )
   );
 
   // Text Theme Data
@@ -25,8 +40,9 @@ class AppTheme {
 
   // App Theme Data
   static ThemeData appTheme = ThemeData(
-    buttonTheme: buttonTheme,
     textTheme: textTheme,
+    textButtonTheme: textButtonTheme, 
+    elevatedButtonTheme: elevatedButtonTheme,
   );
 
   // MaterialBanner theme data
@@ -71,5 +87,12 @@ class AppTheme {
     height: 1.6,
     color: AppColors.mutedText,
     fontStyle: FontStyle.italic,
+  );
+
+    static const TextStyle linkStyle = TextStyle(
+    fontSize: 14.5,
+    height: 1.6,
+    color: AppColors.primaryBlue,
+    fontWeight: FontWeight.bold,
   );
 }
