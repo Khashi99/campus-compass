@@ -56,6 +56,9 @@ class IncidentDetailScreen extends StatelessWidget {
             // Incident title and time
             _buildTitleSection(),
             
+            // Photo gallery (if available)
+            if (incident.imageUrl != null) _buildPhotoSection(),
+            
             // Map preview
             _buildMapPreview(context),
             
@@ -162,37 +165,134 @@ class IncidentDetailScreen extends StatelessWidget {
               height: 1.3,
             ),
           ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              const Icon(
-                Icons.access_time,
-                size: 14,
-                color: AppColors.mutedText,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                'Reported ${incident.timeAgo}',
-                style: const TextStyle(
-                  fontSize: 13,
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.pageBackground,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.cardBorder),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.access_time,
+                      size: 14,
+                      color: AppColors.mutedText,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Incident Time: ${_formatDateTime(incident.reportedTime)}',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.darkText,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.schedule,
+                      size: 14,
+                      color: AppColors.mutedText,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Reported ${incident.timeAgo}',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.mutedText,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.people_outline,
+                      size: 14,
+                      color: AppColors.mutedText,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      '${incident.userReports} User Reports',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.mutedText,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPhotoSection() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.cardBorder),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 200,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: AppColors.pageBackground,
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Image.network(
+              incident.imageUrl!,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  color: AppColors.pageBackground,
+                  child: const Center(
+                    child: Icon(
+                      Icons.image_not_supported_outlined,
+                      color: AppColors.mutedText,
+                      size: 48,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.photo_library,
+                  size: 16,
                   color: AppColors.mutedText,
                 ),
-              ),
-              const SizedBox(width: 16),
-              const Icon(
-                Icons.people_outline,
-                size: 14,
-                color: AppColors.mutedText,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                '${incident.userReports} User Reports',
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: AppColors.mutedText,
+                const SizedBox(width: 6),
+                const Text(
+                  'Incident Photo',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.mutedText,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -596,5 +696,25 @@ class IncidentDetailScreen extends StatelessWidget {
       case IncidentStatus.resolved:
         return 'Resolved';
     }
+  }
+
+  String _formatDateTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final dateToCheck = DateTime(dateTime.year, dateTime.month, dateTime.day);
+
+    String dateStr;
+    if (dateToCheck == today) {
+      dateStr = 'Today';
+    } else if (dateToCheck == yesterday) {
+      dateStr = 'Yesterday';
+    } else {
+      dateStr = '${dateTime.month}/${dateTime.day}/${dateTime.year}';
+    }
+
+    final timeStr =
+        '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+    return '$dateStr at $timeStr';
   }
 }

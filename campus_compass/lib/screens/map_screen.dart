@@ -6,6 +6,7 @@ import 'package:campus_compass/widgets/map_placeholder.dart';
 import 'package:campus_compass/widgets/incident_card.dart';
 import 'package:campus_compass/models/incident.dart';
 import 'package:campus_compass/screens/incident_detail_screen.dart';
+import 'package:campus_compass/screens/report_incident_screen.dart';
 
 /// Main map screen that dynamically updates based on campus status
 /// This is the primary screen users see after onboarding
@@ -301,7 +302,12 @@ class _MapScreenState extends State<MapScreen> {
       case 0: // Map - already here
         break;
       case 1: // Report
-        _showSnackBar('Report incident feature coming soon!');
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const ReportIncidentScreen(),
+          ),
+        );
         break;
       case 2: // Alerts
         _showSnackBar('Alerts history coming soon!');
