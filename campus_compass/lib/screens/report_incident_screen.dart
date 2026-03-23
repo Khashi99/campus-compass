@@ -545,7 +545,9 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
       child: ElevatedButton(
         onPressed: isFormValid
             ? () {
-                setState(() => _currentStep = 2);
+                setState(() {
+                  _currentStep = 2;
+                });
               }
             : null,
         style: ElevatedButton.styleFrom(
@@ -654,8 +656,10 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             Expanded(
               child: _buildSmallReviewCard(
                 icon: Icons.access_time_outlined,
-                label: 'REPORTED',
-                value: 'Just now',
+                label: 'INCIDENT TIME',
+                value: _incidentTime != null
+                    ? _incidentTime!.format(context)
+                    : 'Not set',
               ),
             ),
           ],
