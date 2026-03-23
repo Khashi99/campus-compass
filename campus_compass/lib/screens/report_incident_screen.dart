@@ -1,6 +1,12 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:campus_compass/models/incident.dart';
 import 'package:campus_compass/theme/app_colors.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:video_player/video_player.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 
 /// Screen for reporting a new incident on campus
 class ReportIncidentScreen extends StatefulWidget {
@@ -10,16 +16,30 @@ class ReportIncidentScreen extends StatefulWidget {
   State<ReportIncidentScreen> createState() => _ReportIncidentScreenState();
 }
 
+class EvidenceFile {
+  final XFile file;
+  final bool isVideo;
+  final Uint8List? thumbnail;
+
+  EvidenceFile({
+    required this.file,
+    required this.isVideo,
+    this.thumbnail,
+  });
+}
+
 class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
   // Form state
   IncidentType? _selectedType;
   final TextEditingController _descriptionController = TextEditingController();
   String? _selectedLocation;
-  bool _hasEvidence = true;
+  final List<EvidenceFile> _evidenceFiles = [];
   TimeOfDay? _incidentTime;
 
   // Step state
   int _currentStep = 1; // 1 or 2
+
+  final ImagePicker _imagePicker = ImagePicker();
 
   @override
   void dispose() {
@@ -436,45 +456,442 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
           ],
         ),
         const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          child: GestureDetector(
-            onTap: () {
-              setState(() => _hasEvidence = !_hasEvidence);
-              if (_hasEvidence) {
-                _showSnackBar('Photo/video upload: Coming soon');
-              }
-            },
-            child: DashedBorderPainter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 12),
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.photo_camera_outlined,
-                      size: 32,
-                      color: _hasEvidence
-                          ? AppColors.primaryBlue
-                          : AppColors.mutedText,
+        if (_evidenceFiles.isEmpty)
+          SizedBox(
+            width: double.infinity,
+            child: GestureDetector(
+              onTap: _showMediaPickerOptions,
+              child: DashedBorderPainter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 12),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.photo_camera_outlined,
+                        size: 32,
+                        color: AppColors.primaryBlue,
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Tap to add photo or video',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.primaryBlue,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          )
+        else
+          SizedBox(
+            width: double.infinity,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  ..._evidenceFiles.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final evidence = entry.value;
+                    return _buildEvidenceCard(evidence, index);
+                  }),
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: _showMediaPickerOptions,
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: AppColors.primaryBlue,
+                          width: 2,
+                          style: BorderStyle.solid,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.add,
+                        color: AppColors.primaryBlue,
+                        size: 32,
+                      ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      _hasEvidence ? '1 Photo' : 'Tap to add photo or video',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: _hasEvidence
-                            ? AppColors.primaryBlue
-                            : AppColors.mutedText,
-                        fontWeight: _hasEvidence ? FontWeight.w600 : FontWeight.normal,
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildEvidenceCard(EvidenceFile evidence, int index) {
+    return GestureDetector(
+      onTap: () => _showEvidencePreview(evidence, index),
+      child: Stack(
+        children: [
+          Container(
+            width: 100,
+            height: 100,
+            margin: const EdgeInsets.only(right: 8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.cardBorder),
+              color: AppColors.white,
+            ),
+            child: evidence.isVideo
+                ? (evidence.thumbnail != null
+                    ? Image.memory(
+                        evidence.thumbnail!,
+                        fit: BoxFit.cover,
+                      )
+                    : Center(
+                        child: Icon(
+                          Icons.videocam,
+                          color: AppColors.primaryBlue,
+                          size: 40,
+                        ),
+                      ))
+                : Image.file(
+                    File(evidence.file.path),
+                    fit: BoxFit.cover,
+                  ),
+          ),
+          if (evidence.isVideo)
+            Positioned(
+              bottom: 4,
+              left: 4,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Icon(
+                  Icons.play_arrow,
+                  color: Colors.white,
+                  size: 16,
+                ),
+              ),
+            ),
+          Positioned(
+            top: 2,
+            right: 2,
+            child: GestureDetector(
+              onTap: () {
+                setState(() => _evidenceFiles.removeAt(index));
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.all(4),
+                child: const Icon(
+                  Icons.close,
+                  color: Colors.white,
+                  size: 16,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showMediaPickerOptions() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Add Evidence',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.darkText,
+                ),
+              ),
+              const SizedBox(height: 24),
+              _buildMediaOption(
+                icon: Icons.camera_alt_outlined,
+                label: 'Take Photo',
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImageFromCamera();
+                },
+              ),
+              const SizedBox(height: 12),
+              _buildMediaOption(
+                icon: Icons.videocam_outlined,
+                label: 'Take Video',
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickVideoFromCamera();
+                },
+              ),
+              const SizedBox(height: 12),
+              _buildMediaOption(
+                icon: Icons.image_outlined,
+                label: 'Pick Photo from Gallery',
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImageFromGallery();
+                },
+              ),
+              const SizedBox(height: 12),
+              _buildMediaOption(
+                icon: Icons.folder_outlined,
+                label: 'Pick Video from Gallery',
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickVideoFromGallery();
+                },
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.mutedText,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildMediaOption({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.cardBorder),
+          borderRadius: BorderRadius.circular(8),
+          color: AppColors.white,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: AppColors.primaryBlue,
+              size: 24,
+            ),
+            const SizedBox(width: 12),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.darkText,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickImageFromCamera() async {
+    try {
+      final XFile? photo = await _imagePicker.pickImage(source: ImageSource.camera);
+      if (photo != null) {
+        setState(() => _evidenceFiles.add(EvidenceFile(file: photo, isVideo: false)));
+      }
+    } catch (e) {
+      _showSnackBar('Error picking image: $e');
+    }
+  }
+
+  Future<void> _pickVideoFromCamera() async {
+    try {
+      final XFile? video = await _imagePicker.pickVideo(source: ImageSource.camera);
+      if (video != null) {
+        final thumbnail = await VideoThumbnail.thumbnailData(
+          video: video.path,
+          imageFormat: ImageFormat.JPEG,
+          maxWidth: 128,
+          quality: 70,
+        );
+        setState(() => _evidenceFiles.add(EvidenceFile(file: video, isVideo: true, thumbnail: thumbnail)));
+      }
+    } catch (e) {
+      _showSnackBar('Error picking video: $e');
+    }
+  }
+
+  Future<void> _pickImageFromGallery() async {
+    try {
+      final XFile? photo = await _imagePicker.pickImage(source: ImageSource.gallery);
+      if (photo != null) {
+        setState(() => _evidenceFiles.add(EvidenceFile(file: photo, isVideo: false)));
+      }
+    } catch (e) {
+      _showSnackBar('Error picking image: $e');
+    }
+  }
+
+  Future<void> _pickVideoFromGallery() async {
+    try {
+      final XFile? video = await _imagePicker.pickVideo(source: ImageSource.gallery);
+      if (video != null) {
+        final thumbnail = await VideoThumbnail.thumbnailData(
+          video: video.path,
+          imageFormat: ImageFormat.JPEG,
+          maxWidth: 128,
+          quality: 70,
+        );
+        setState(() => _evidenceFiles.add(EvidenceFile(file: video, isVideo: true, thumbnail: thumbnail)));
+      }
+    } catch (e) {
+      _showSnackBar('Error picking video: $e');
+    }
+  }
+
+  void _showEvidencePreview(EvidenceFile evidence, int index) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        if (evidence.isVideo) {
+          return _VideoPlaybackDialog(
+            file: File(evidence.file.path),
+            fileName: evidence.file.name,
+            onDelete: () {
+              setState(() => _evidenceFiles.removeAt(index));
+              Navigator.pop(context);
+            },
+          );
+        }
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.zero,
+          child: Stack(
+            children: [
+              GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  color: Colors.black87,
+                  width: double.infinity,
+                  height: double.infinity,
+                  child: Center(
+                    child: Image.file(
+                      File(evidence.file.path),
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 40,
+                right: 16,
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black54,
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    padding: const EdgeInsets.all(8),
+                    child: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: 40,
+                left: 16,
+                right: 16,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.black54,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              'Photo',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              evidence.file.name,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() => _evidenceFiles.removeAt(index));
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.red.withValues(alpha: 0.8),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.all(12),
+                        child: const Icon(
+                          Icons.delete_outline,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
+            ],
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 
@@ -649,7 +1066,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
               child: _buildSmallReviewCard(
                 icon: Icons.photo_outlined,
                 label: 'ATTACHMENTS',
-                value: '0 Evidence',
+                value: '${_evidenceFiles.length} Evidence',
               ),
             ),
             const SizedBox(width: 12),
@@ -664,6 +1081,8 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             ),
           ],
         ),
+        const SizedBox(height: 12),
+        if (_evidenceFiles.isNotEmpty) _buildEvidenceReviewList(),
   
         const SizedBox(height: 12),
 
@@ -845,6 +1264,86 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
     );
   }
 
+  Widget _buildEvidenceReviewList() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Evidence Preview',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: AppColors.darkText,
+          ),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 110,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: _evidenceFiles.length,
+            itemBuilder: (context, index) {
+              final evidence = _evidenceFiles[index];
+              return GestureDetector(
+                onTap: () => _showEvidencePreview(evidence, index),
+                child: Container(
+                  margin: const EdgeInsets.only(right: 8),
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppColors.cardBorder),
+                    color: AppColors.white,
+                  ),
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: evidence.isVideo
+                            ? (evidence.thumbnail != null
+                                ? Image.memory(
+                                    evidence.thumbnail!,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Center(
+                                    child: Icon(
+                                      Icons.videocam,
+                                      color: AppColors.primaryBlue,
+                                      size: 40,
+                                    ),
+                                  ))
+                            : Image.file(
+                                File(evidence.file.path),
+                                fit: BoxFit.cover,
+                              ),
+                      ),
+                      if (evidence.isVideo)
+                        Positioned(
+                          bottom: 4,
+                          left: 4,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.black54,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Icon(
+                              Icons.play_arrow,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
   // ============ ACTIONS ============
 
   void _submitReport() {
@@ -868,6 +1367,157 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
         content: Text(message),
         backgroundColor: isSuccess ? AppColors.statusNormal : Colors.grey,
         duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+}
+
+class _VideoPlaybackDialog extends StatefulWidget {
+  final File file;
+  final String fileName;
+  final VoidCallback onDelete;
+
+  const _VideoPlaybackDialog({
+    required this.file,
+    required this.fileName,
+    required this.onDelete,
+  });
+
+  @override
+  State<_VideoPlaybackDialog> createState() => _VideoPlaybackDialogState();
+}
+
+class _VideoPlaybackDialogState extends State<_VideoPlaybackDialog> {
+  late VideoPlayerController _controller;
+  late Future<void> _initializeVideoPlayerFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.file(widget.file);
+    _initializeVideoPlayerFuture = _controller.initialize().then((_) {
+      setState(() {});
+      _controller.play();
+    });
+    _controller.setLooping(false);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: EdgeInsets.zero,
+      child: Stack(
+        children: [
+          Container(
+            color: Colors.black87,
+            width: double.infinity,
+            height: double.infinity,
+            child: Center(
+              child: FutureBuilder<void>(
+                future: _initializeVideoPlayerFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        AspectRatio(
+                          aspectRatio: _controller.value.aspectRatio,
+                          child: VideoPlayer(_controller),
+                        ),
+                        VideoProgressIndicator(
+                          _controller,
+                          allowScrubbing: true,
+                          colors: VideoProgressColors(
+                            playedColor: AppColors.primaryBlue,
+                            bufferedColor: AppColors.mutedText.withOpacity(0.4),
+                            backgroundColor: AppColors.cardBorder,
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                _controller.value.isPlaying
+                                    ? Icons.pause_circle_filled
+                                    : Icons.play_circle_fill,
+                                color: Colors.white,
+                                size: 40,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _controller.value.isPlaying
+                                      ? _controller.pause()
+                                      : _controller.play();
+                                });
+                              },
+                            ),
+                            const SizedBox(width: 12),
+                            Flexible(
+                              child: Text(
+                                widget.fileName,
+                                style: const TextStyle(color: Colors.white70),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    );
+                  } else {
+                    return const CircularProgressIndicator(color: AppColors.primaryBlue);
+                  }
+                },
+              ),
+            ),
+          ),
+          Positioned(
+            top: 40,
+            right: 16,
+            child: GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                padding: const EdgeInsets.all(8),
+                child: const Icon(
+                  Icons.close,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 40,
+            right: 16,
+            child: GestureDetector(
+              onTap: widget.onDelete,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.8),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.all(12),
+                child: const Icon(
+                  Icons.delete_outline,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
