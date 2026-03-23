@@ -10,6 +10,25 @@ enum IncidentType {
   maintenance,
 }
 
+extension IncidentTypeExtension on IncidentType {
+  String get displayName {
+    switch (this) {
+      case IncidentType.protest:
+        return 'Protest / Gathering';
+      case IncidentType.construction:
+        return 'Construction';
+      case IncidentType.gathering:
+        return 'Gathering';
+      case IncidentType.blockage:
+        return 'Entrance Blockage';
+      case IncidentType.emergency:
+        return 'Emergency';
+      case IncidentType.maintenance:
+        return 'Maintenance';
+    }
+  }
+}
+
 enum IncidentStatus {
   reported,
   investigating,
