@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "624617651104",
+    "project_id": "campus-compas-soen6751",
+    "storage_bucket": "campus-compas-soen6751.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:624617651104:android:9d6c820a8c4076855742c5",
+        "android_client_info": {
+          "package_name": "com.example.campus_compass"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCR2TdSpAqD95naLCKRGKJCrccsYnUjuMA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
