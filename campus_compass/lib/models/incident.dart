@@ -1,4 +1,5 @@
 /// Incident model for campus safety reports
+library;
 
 enum IncidentType {
   protest,

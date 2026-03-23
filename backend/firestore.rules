@@ -9,44 +9,145 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == uid;
     }
 
-    function isStaff() {
+    function hasRoleDoc() {
       return isSignedIn() &&
-        (request.auth.token.role == 'staff' || request.auth.token.role == 'admin');
+        exists(/databases/$(database)/documents/roles/$(request.auth.uid));
+    }
+
+    function isStaff() {
+      return hasRoleDoc() && (
+        get(/databases/$(database)/documents/roles/$(request.auth.uid)).data.role == 'staff' ||
+        get(/databases/$(database)/documents/roles/$(request.auth.uid)).data.role == 'admin'
+      );
+    }
+
+    function isValidCampusId(value) {
+      return value in ['sgw', 'loyola'];
+    }
+
+    function isValidIncidentType(value) {
+      return value in ['protest', 'construction', 'gathering', 'blockage', 'emergency', 'maintenance'];
+    }
+
+    function isValidIncidentStatus(value) {
+      return value in ['submitted', 'reported', 'investigating', 'resolved', 'dismissed'];
+    }
+
+    function isValidVerificationLevel(value) {
+      return value in ['unverified', 'userReported', 'verified'];
+    }
+
+    function isValidVote(value) {
+      return value in ['confirm', 'dispute'];
+    }
+
+    function isValidAlertMode(value) {
+      return value in ['visual', 'haptic', 'silent'];
+    }
+
+    function isValidCoordinates(value) {
+      return value is map &&
+        value.latitude is number &&
+        value.longitude is number &&
+        value.latitude >= -90 &&
+        value.latitude <= 90 &&
+        value.longitude >= -180 &&
+        value.longitude <= 180;
+    }
+
+    match /roles/{uid} {
+      allow read: if isOwner(uid) || isStaff();
+      allow write: if false;
     }
 
     match /campusState/{campusId} {
       allow read: if isSignedIn();
-      allow write: if false;
+      allow create, update, delete: if isStaff();
     }
 
     match /users/{uid} {
       allow read: if isOwner(uid) || isStaff();
-      allow create, update: if isOwner(uid) || isStaff();
+      allow create, update: if isOwner(uid) &&
+        request.resource.data.keys().hasOnly([
+          'displayName',
+          'alertPreference',
+          'createdAt',
+          'updatedAt'
+        ]) &&
+        (!('displayName' in request.resource.data) || request.resource.data.displayName is string) &&
+        request.resource.data.alertPreference is map &&
+        request.resource.data.alertPreference.mode is string &&
+        isValidAlertMode(request.resource.data.alertPreference.mode);
       allow delete: if false;
+    }
+
+    match /incidentReports/{reportId} {
+      allow read: if isStaff() || isOwner(resource.data.createdBy);
+      allow create: if isSignedIn() &&
+        request.resource.data.keys().hasOnly([
+          'campusId',
+          'title',
+          'description',
+          'location',
+          'coordinates',
+          'buildingCode',
+          'type',
+          'status',
+          'verificationLevel',
+          'createdBy',
+          'linkedIncidentId',
+          'reportedTime',
+          'updatedAt'
+        ]) &&
+        isValidCampusId(request.resource.data.campusId) &&
+        isValidIncidentType(request.resource.data.type) &&
+        isValidIncidentStatus(request.resource.data.status) &&
+        isValidVerificationLevel(request.resource.data.verificationLevel) &&
+        request.resource.data.createdBy == request.auth.uid &&
+        request.resource.data.status == 'submitted' &&
+        request.resource.data.verificationLevel == 'userReported' &&
+        request.resource.data.title is string &&
+        request.resource.data.description is string &&
+        request.resource.data.location is string &&
+        isValidCoordinates(request.resource.data.coordinates);
+      allow update, delete: if isStaff();
     }
 
     match /incidents/{incidentId} {
       allow read: if isSignedIn();
-      allow create, update, delete: if false;
+      allow create, update, delete: if isStaff();
 
       match /updates/{updateId} {
         allow read: if isSignedIn();
-        allow create, update, delete: if false;
-      }
-
-      match /reports/{uid} {
-        allow read: if isOwner(uid) || isStaff();
-        allow create, update, delete: if false;
+        allow create, update, delete: if isStaff();
       }
 
       match /trustVotes/{uid} {
         allow read: if isOwner(uid) || isStaff();
-        allow create, update, delete: if false;
+        allow create, update: if isOwner(uid) &&
+          request.resource.data.keys().hasOnly([
+            'uid',
+            'vote',
+            'submittedAt',
+            'updatedAt'
+          ]) &&
+          request.resource.data.uid == request.auth.uid &&
+          isValidVote(request.resource.data.vote);
+        allow delete: if isOwner(uid) || isStaff();
       }
 
       match /updateRequests/{uid} {
         allow read: if isOwner(uid) || isStaff();
-        allow create, update, delete: if false;
+        allow create, update: if isOwner(uid) &&
+          request.resource.data.keys().hasOnly([
+            'uid',
+            'message',
+            'requestedAt',
+            'updatedAt'
+          ]) &&
+          request.resource.data.uid == request.auth.uid &&
+          (!('message' in request.resource.data) || request.resource.data.message is string);
+        allow delete: if isOwner(uid) || isStaff();
       }
     }
   }

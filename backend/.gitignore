@@ -1,9 +1,9 @@
 # Firebase CLI local state
 .firebaserc
 .firebase/
+.firebase-tools/
 firebase-debug.log
 firebase-debug.*.log
-.runtimeconfig.json
 
 # Local environment and secrets
 .env
@@ -12,7 +12,6 @@ firebase-debug.*.log
 service-account*.json
 *firebase-adminsdk*.json
 
-# Python local artifacts
-functions/.venv/
-functions/__pycache__/
-functions/**/*.pyc
+# Local caches
+__pycache__/
+*.pyc

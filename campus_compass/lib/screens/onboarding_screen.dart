@@ -175,7 +175,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           const SizedBox(height: 26),
 
                           if (index == 0)
-                            ...item.bullets.map((b) => _bulletTile(b)).toList(),
+                            ...item.bullets.map((b) => _bulletTile(b)),
 
                           if (index == 1) ...[
                             for (int i = 0; i < item.alertOptions.length; i++)
