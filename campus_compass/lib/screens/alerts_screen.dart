@@ -285,7 +285,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
     List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
   ) {
     return docs
-        .where((doc) => (doc.data()['campusId'] as String?) == widget.campusId)
+        .where(
+          (doc) => _matchesCampusId(doc.data()['campusId'] as String?),
+        )
         .map((doc) {
           final incident = Incident.fromFirestore(doc);
           final data = doc.data();
@@ -309,7 +311,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
   ) {
     return docs
         .where((doc) => (doc.data()['status'] as String?) == 'submitted')
-        .where((doc) => (doc.data()['campusId'] as String?) == widget.campusId)
+        .where(
+          (doc) => _matchesCampusId(doc.data()['campusId'] as String?),
+        )
         .map((doc) {
           final data = doc.data();
           final timestamp = _asDateTime(data['reportedTime']) ?? DateTime.now().toUtc();
@@ -327,6 +331,28 @@ class _AlertsScreenState extends State<AlertsScreen> {
           );
         })
         .toList();
+  }
+
+  bool _matchesCampusId(String? rawCampusId) {
+    final target = _normalizeCampusId(widget.campusId);
+    final source = _normalizeCampusId(rawCampusId);
+    return source == target;
+  }
+
+  String _normalizeCampusId(String? campusId) {
+    final value = (campusId ?? '').trim().toLowerCase();
+    if (value == 'loy' || value.contains('loyola')) {
+      return 'loyola';
+    }
+    if (value.isEmpty ||
+        value == 'sgw' ||
+        value == 'main' ||
+        value == 'main campus' ||
+        value == 'main-campus' ||
+        value.contains('downtown')) {
+      return 'sgw';
+    }
+    return value;
   }
 
   List<MapEntry<String, List<_AlertFeedItem>>> _groupItemsByDate(
