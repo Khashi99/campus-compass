@@ -607,9 +607,7 @@ class _IncidentResolutionProgressMini extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final investigatingOrResolved =
-        status == IncidentStatus.investigating || status == IncidentStatus.resolved;
-    final resolved = status == IncidentStatus.resolved;
+    final currentStep = _currentStepIndex();
 
     return Container(
       width: double.infinity,
@@ -634,11 +632,26 @@ class _IncidentResolutionProgressMini extends StatelessWidget {
           SizedBox(height: 10),
           Row(
             children: [
-              _buildStep('REPORTED', true),
-              _buildConnector(investigatingOrResolved),
-              _buildStep('INVESTIGATING', investigatingOrResolved),
-              _buildConnector(resolved),
-              _buildStep('RESOLVED', resolved),
+              _buildStep(
+                label: 'REPORTED',
+                icon: Icons.near_me_rounded,
+                stepIndex: 0,
+                currentStep: currentStep,
+              ),
+              _buildConnector(currentStep >= 1),
+              _buildStep(
+                label: 'INVESTIGATING',
+                icon: Icons.manage_search_rounded,
+                stepIndex: 1,
+                currentStep: currentStep,
+              ),
+              _buildConnector(currentStep >= 2),
+              _buildStep(
+                label: 'RESOLVED',
+                icon: Icons.check_circle_outline,
+                stepIndex: 2,
+                currentStep: currentStep,
+              ),
             ],
           ),
           SizedBox(height: 10),
@@ -655,24 +668,37 @@ class _IncidentResolutionProgressMini extends StatelessWidget {
     );
   }
 
-  Widget _buildStep(String label, bool active) {
+  Widget _buildStep({
+    required String label,
+    required IconData icon,
+    required int stepIndex,
+    required int currentStep,
+  }) {
+    final isCompleted = stepIndex < currentStep;
+    final isCurrent = stepIndex == currentStep;
+    final isActive = isCompleted || isCurrent;
+
     return Column(
       children: [
         Container(
           width: 22,
           height: 22,
           decoration: BoxDecoration(
-            color: active ? AppColors.primaryBlue : AppColors.white,
+            color: isActive ? AppColors.primaryBlue : AppColors.white,
             shape: BoxShape.circle,
             border: Border.all(
-              color: active ? AppColors.primaryBlue : AppColors.cardBorder,
+              color: isActive ? AppColors.primaryBlue : AppColors.cardBorder,
               width: 2,
             ),
           ),
           child: Icon(
-            active ? Icons.check : Icons.circle,
-            size: active ? 13 : 6,
-            color: active ? Colors.white : AppColors.cardBorder,
+            isCompleted ? Icons.check : (isCurrent ? icon : Icons.circle),
+            size: isCompleted
+                ? 13
+                : (isCurrent ? 13 : 6),
+            color: isCompleted
+                ? Colors.white
+                : (isCurrent ? Colors.white : AppColors.cardBorder),
           ),
         ),
         SizedBox(height: 4),
@@ -681,7 +707,7 @@ class _IncidentResolutionProgressMini extends StatelessWidget {
           style: TextStyle(
             fontSize: 9,
             fontWeight: FontWeight.w700,
-            color: active ? AppColors.primaryBlue : AppColors.mutedText,
+            color: isActive ? AppColors.primaryBlue : AppColors.mutedText,
           ),
         ),
       ],
@@ -706,6 +732,17 @@ class _IncidentResolutionProgressMini extends StatelessWidget {
         return 'Security personnel are currently assessing this incident.';
       case IncidentStatus.resolved:
         return 'This incident has been resolved.';
+    }
+  }
+
+  int _currentStepIndex() {
+    switch (status) {
+      case IncidentStatus.reported:
+        return 0;
+      case IncidentStatus.investigating:
+        return 1;
+      case IncidentStatus.resolved:
+        return 2;
     }
   }
 }
