@@ -9,6 +9,7 @@ import 'package:campus_compass/models/incident.dart';
 import 'package:campus_compass/screens/incident_detail_screen.dart';
 import 'package:campus_compass/screens/my_reports_screen.dart';
 import 'package:campus_compass/screens/report_incident_screen.dart';
+import 'package:campus_compass/screens/staff_review_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 /// Main map screen that dynamically updates based on campus status
@@ -41,7 +42,7 @@ class _MapScreenState extends State<MapScreen> {
     super.initState();
     _incidentStream = FirebaseFirestore.instance
         .collection('incidents')
-        .where('campusId', isEqualTo: 'sgw')
+      .where('campusId', isEqualTo: 'sgw')
         .where('isActive', isEqualTo: true)
         .orderBy('updatedAt', descending: true)
         .snapshots();
@@ -284,8 +285,41 @@ class _MapScreenState extends State<MapScreen> {
         );
         break;
       case 3: // Profile
-        _showSnackBar('Profile screen coming soon!');
+        _openStaffReview();
         break;
+    }
+  }
+
+  Future<void> _openStaffReview() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      _showSnackBar('Sign in required.');
+      return;
+    }
+
+    try {
+      final roleDoc = await FirebaseFirestore.instance
+          .collection('roles')
+          .doc(user.uid)
+          .get();
+      final role = (roleDoc.data()?['role'] as String?) ?? '';
+
+      if (role == 'staff' || role == 'admin') {
+        if (!mounted) {
+          return;
+        }
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const StaffReviewScreen(),
+          ),
+        );
+        return;
+      }
+
+      _showSnackBar('Staff review is available for staff/admin only.');
+    } catch (e) {
+      _showSnackBar('Unable to verify role: $e');
     }
   }
 
