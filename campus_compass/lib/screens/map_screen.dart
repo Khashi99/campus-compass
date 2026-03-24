@@ -14,6 +14,7 @@ import 'package:campus_compass/models/incident.dart';
 import 'package:campus_compass/screens/incident_detail_screen.dart';
 import 'package:campus_compass/screens/report_incident_screen.dart';
 import 'package:campus_compass/screens/safety_route_screen.dart';
+import 'package:campus_compass/support/report_review_actions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -441,13 +442,16 @@ class _MapScreenState extends State<MapScreen> {
         return;
       }
 
+      await ReportReviewActions.migrateSubmittedReportsToReported();
+
       _pendingReviewSubscription = FirebaseFirestore.instance
           .collection('incidentReports')
           .orderBy('reportedTime', descending: true)
           .snapshots()
           .listen((snapshot) {
         final pendingCount = snapshot.docs
-            .where((doc) => (doc.data()['status'] as String?) == 'submitted')
+          .where((doc) => (doc.data()['status'] as String?) == 'reported')
+          .where((doc) => doc.data()['linkedIncidentId'] == null)
             .length;
 
         if (!mounted) {

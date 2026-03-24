@@ -1401,7 +1401,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
         },
         'buildingCode': _buildingCodeForLocation(_selectedLocation!),
         'type': _typeToBackendValue(_selectedType!),
-        'status': 'submitted',
+        'status': 'reported',
         'verificationLevel': 'userReported',
         'createdBy': user.uid,
         'linkedIncidentId': null,
