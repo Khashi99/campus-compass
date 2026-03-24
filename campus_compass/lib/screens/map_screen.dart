@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:campus_compass/screens/alerts_screen.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:campus_compass/screens/profile_screen.dart';
@@ -14,6 +15,7 @@ import 'package:campus_compass/screens/incident_detail_screen.dart';
 import 'package:campus_compass/screens/report_incident_screen.dart';
 import 'package:campus_compass/screens/safety_route_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Main map screen that dynamically updates based on campus status
 /// This is the primary screen users see after onboarding
@@ -26,6 +28,7 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   static const String _defaultCampusId = 'sgw';
+  static const String _alertStylePreferenceKey = 'profile_alert_style';
 
   // Current navigation tab
   int _currentNavIndex = 0;
@@ -44,6 +47,9 @@ class _MapScreenState extends State<MapScreen> {
   late final Stream<QuerySnapshot<Map<String, dynamic>>> _incidentStream;
   StreamSubscription<QuerySnapshot<Map<String, dynamic>>>?
       _pendingReviewSubscription;
+  final Set<String> _knownIncidentIds = <String>{};
+  bool _hasPrimedIncidentAlerts = false;
+  String? _cachedAlertStyle;
 
   @override
   void initState() {
@@ -102,6 +108,7 @@ class _MapScreenState extends State<MapScreen> {
                         ..sort(
                           (a, b) => b.reportedTime.compareTo(a.reportedTime),
                         );
+                      _handleIncomingIncidentAlerts(_activeIncidents);
                       _deriveCampusStatusFromIncidents();
                     }
 
@@ -606,6 +613,122 @@ class _MapScreenState extends State<MapScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
+  }
+
+  void _handleIncomingIncidentAlerts(List<Incident> incidents) {
+    final currentIds = incidents.map((incident) => incident.id).toSet();
+
+    if (!_hasPrimedIncidentAlerts) {
+      _knownIncidentIds
+        ..clear()
+        ..addAll(currentIds);
+      _hasPrimedIncidentAlerts = true;
+      return;
+    }
+
+    final newIncidents = incidents
+        .where((incident) => !_knownIncidentIds.contains(incident.id))
+        .toList();
+
+    _knownIncidentIds
+      ..clear()
+      ..addAll(currentIds);
+
+    if (newIncidents.isEmpty) {
+      return;
+    }
+
+    unawaited(_deliverAlertFeedback(newIncidents.first));
+  }
+
+  Future<void> _deliverAlertFeedback(Incident incident) async {
+    if (!mounted) {
+      return;
+    }
+
+    final alertStyle = await _resolveAlertStyle();
+    final isSilent = alertStyle == 'silent';
+    final allowVisual = alertStyle == 'visual' || alertStyle == 'haptic_visual';
+    final allowHaptic = alertStyle == 'haptic' || alertStyle == 'haptic_visual';
+
+    if (isSilent) {
+      return;
+    }
+
+    if (allowHaptic) {
+      if (incident.severity >= 2) {
+        await HapticFeedback.heavyImpact();
+      } else {
+        await HapticFeedback.mediumImpact();
+      }
+    }
+
+    if (allowVisual && mounted) {
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.hideCurrentSnackBar();
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('New incident: ${incident.title} near ${incident.location}'),
+          backgroundColor: incident.severity >= 2
+              ? AppColors.statusHighRisk
+              : AppColors.primaryBlue,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          action: SnackBarAction(
+            label: 'View',
+            textColor: Colors.white,
+            onPressed: () => _navigateToIncidentDetail(incident),
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<String> _resolveAlertStyle() async {
+    if (_cachedAlertStyle != null) {
+      return _cachedAlertStyle!;
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    final stored = prefs.getString(_alertStylePreferenceKey);
+    if (stored == 'haptic_visual' ||
+        stored == 'visual' ||
+        stored == 'haptic' ||
+        stored == 'silent') {
+      final savedStyle = stored!;
+      _cachedAlertStyle = savedStyle;
+      return savedStyle;
+    }
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      _cachedAlertStyle = 'haptic_visual';
+      return _cachedAlertStyle!;
+    }
+
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+      final mode = (snapshot.data()?['alertPreference'] as Map<String, dynamic>?)?['mode']
+          as String?;
+      switch (mode) {
+        case 'visual':
+          _cachedAlertStyle = 'visual';
+        case 'silent':
+          _cachedAlertStyle = 'silent';
+        case 'haptic':
+        default:
+          _cachedAlertStyle = 'haptic_visual';
+      }
+    } catch (_) {
+      _cachedAlertStyle = 'haptic_visual';
+    }
+
+    return _cachedAlertStyle!;
   }
 
   bool _matchesCampusId(String? rawCampusId) {
