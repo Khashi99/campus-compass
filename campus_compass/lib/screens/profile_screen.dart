@@ -142,9 +142,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       'Prioritize routes with ramps and elevators.\nBest for mobility assistance.',
                                   value: _stairsFreeRouting,
                                   onChanged: (value) {
-                                    setState(() {
-                                      _stairsFreeRouting = value;
-                                    });
+                                    _updateStairsFreeRouting(value);
                                   },
                                 ),
                               ],
@@ -355,6 +353,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
       _isLoadingPreferences = false;
     });
+  }
+
+  Future<void> _updateStairsFreeRouting(bool value) async {
+    setState(() {
+      _stairsFreeRouting = value;
+    });
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_stairsFreeKey, value);
+    } catch (_) {
+      // Keep UI responsive even if local persistence fails.
+    }
   }
 
   Future<void> _saveChanges({
