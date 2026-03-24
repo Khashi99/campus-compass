@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:campus_compass/screens/alerts_screen.dart';
+import 'package:campus_compass/screens/profile_screen.dart';
+import 'package:campus_compass/screens/report_incident_screen.dart';
 import 'package:campus_compass/theme/app_colors.dart';
 import 'package:campus_compass/models/incident.dart';
-import 'package:campus_compass/screens/safety_route_screen.dart';
-import 'package:campus_compass/utils/campus_time.dart';
+import 'package:campus_compass/widgets/bottom_nav_bar.dart';
 import 'package:campus_compass/widgets/map_placeholder.dart';
 
 class IncidentDetailScreen extends StatelessWidget {
@@ -22,10 +24,10 @@ class IncidentDetailScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.pageBackground,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
+        backgroundColor: AppColors.pageBackground,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.darkText),
+          icon: Icon(Icons.arrow_back_ios_new, color: AppColors.darkText, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -39,12 +41,8 @@ class IncidentDetailScreen extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.share_outlined, color: AppColors.darkText),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Share feature coming soon!')),
-              );
-            },
+            icon: Icon(Icons.verified_user_outlined, color: AppColors.darkText),
+            onPressed: () {},
           ),
         ],
       ),
@@ -57,9 +55,6 @@ class IncidentDetailScreen extends StatelessWidget {
             
             // Incident title and time
             _buildTitleSection(),
-            
-            // Photo gallery (if available)
-            if (incident.imageUrl != null) _buildPhotoSection(),
             
             // Map preview
             _buildMapPreview(context),
@@ -80,12 +75,16 @@ class IncidentDetailScreen extends StatelessWidget {
           ],
         ),
       ),
+      bottomNavigationBar: BottomNavBar(
+        currentIndex: 0,
+        onTap: (index) => _handleBottomNavTap(context, index),
+      ),
     );
   }
 
   Widget _buildStatusBadges() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
       child: Row(
         children: [
           // Status badge
@@ -154,147 +153,52 @@ class IncidentDetailScreen extends StatelessWidget {
 
   Widget _buildTitleSection() {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             incident.title,
             style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+              fontSize: 40,
+              fontWeight: FontWeight.w800,
               color: AppColors.darkText,
-              height: 1.3,
+              height: 1.08,
             ),
           ),
-          SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.pageBackground,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.cardBorder),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.access_time,
-                      size: 14,
-                      color: AppColors.mutedText,
-                    ),
-                    SizedBox(width: 6),
-                    Text(
-                      'Incident Time: ${_formatDateTime(incident.reportedTime)}',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppColors.darkText,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 8),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.schedule,
-                      size: 14,
-                      color: AppColors.mutedText,
-                    ),
-                    SizedBox(width: 6),
-                    Text(
-                      'Reported ${incident.timeAgo}',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppColors.mutedText,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 8),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.people_outline,
-                      size: 14,
-                      color: AppColors.mutedText,
-                    ),
-                    SizedBox(width: 6),
-                    Text(
-                      '${incident.userReports} User Reports',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppColors.mutedText,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPhotoSection() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.cardBorder),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 200,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: AppColors.pageBackground,
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: Image.network(
-              incident.imageUrl!,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  color: AppColors.pageBackground,
-                  child: Center(
-                    child: Icon(
-                      Icons.image_not_supported_outlined,
-                      color: AppColors.mutedText,
-                      size: 48,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.photo_library,
-                  size: 16,
+          SizedBox(height: 10),
+          Row(
+            children: [
+              Icon(
+                Icons.schedule,
+                size: 16,
+                color: AppColors.mutedText,
+              ),
+              SizedBox(width: 6),
+              Text(
+                'Reported ${incident.timeAgo}',
+                style: TextStyle(
+                  fontSize: 15,
                   color: AppColors.mutedText,
+                  fontWeight: FontWeight.w500,
                 ),
-                SizedBox(width: 6),
-                Text(
-                  'Incident Photo',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.mutedText,
-                    fontWeight: FontWeight.w500,
-                  ),
+              ),
+              SizedBox(width: 18),
+              Icon(
+                Icons.people_outline,
+                size: 16,
+                color: AppColors.mutedText,
+              ),
+              SizedBox(width: 6),
+              Text(
+                '${incident.userReports} User Reports',
+                style: TextStyle(
+                  fontSize: 15,
+                  color: AppColors.mutedText,
+                  fontWeight: FontWeight.w500,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),
@@ -303,23 +207,64 @@ class IncidentDetailScreen extends StatelessWidget {
 
   Widget _buildMapPreview(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      height: 180,
+      margin: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+      height: 190,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(color: AppColors.cardBorder),
       ),
       clipBehavior: Clip.antiAlias,
       child: Stack(
         children: [
-          // Map image
-          const MapPlaceholder(
-            showTensionZone: true,
-            tensionZonePosition: Offset(60, 40),
+          if (incident.imageUrl != null)
+            Positioned.fill(
+              child: Image.network(
+                incident.imageUrl!,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return const MapPlaceholder(
+                    showTensionZone: true,
+                    tensionZonePosition: Offset(60, 40),
+                  );
+                },
+              ),
+            )
+          else
+            const Positioned.fill(
+              child: MapPlaceholder(
+                showTensionZone: true,
+                tensionZonePosition: Offset(60, 40),
+              ),
+            ),
+          Positioned(
+            left: 10,
+            bottom: 10,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.94),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.location_on_outlined, size: 14, color: AppColors.primaryBlue),
+                  SizedBox(width: 4),
+                  Text(
+                    incident.location,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.darkText,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
           // View live map button
           Positioned(
-            bottom: 12,
+            bottom: 14,
             left: 0,
             right: 0,
             child: Center(
@@ -335,7 +280,7 @@ class IncidentDetailScreen extends StatelessWidget {
 
   Widget _buildResolutionProgress() {
     return Container(
-      margin: const EdgeInsets.all(16),
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.white,
@@ -385,6 +330,16 @@ class IncidentDetailScreen extends StatelessWidget {
                 isLast: true,
               ),
             ],
+          ),
+          SizedBox(height: 16),
+          Text(
+            _resolutionSubtitle(),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColors.mutedText,
+              height: 1.45,
+            ),
           ),
         ],
       ),
@@ -442,38 +397,26 @@ class IncidentDetailScreen extends StatelessWidget {
   }
 
   Widget _buildDescription() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Description',
             style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
+              fontSize: 34,
+              fontWeight: FontWeight.w700,
               color: AppColors.darkText,
             ),
           ),
-          SizedBox(height: 8),
+          SizedBox(height: 10),
           Text(
             incident.description,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 16,
               color: AppColors.mutedText,
-              height: 1.6,
+              height: 1.5,
             ),
           ),
         ],
@@ -486,20 +429,8 @@ class IncidentDetailScreen extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -508,20 +439,38 @@ class IncidentDetailScreen extends StatelessWidget {
               Text(
                 'Community Insights',
                 style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 34,
+                  fontWeight: FontWeight.w700,
                   color: AppColors.darkText,
                 ),
               ),
-              Spacer(),
+              SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryBlue.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  color: AppColors.cardBorder.withOpacity(0.7),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   '${incident.communityInsights.length}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.darkText,
+                  ),
+                ),
+              ),
+              Spacer(),
+              TextButton(
+                onPressed: () {},
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.primaryBlue,
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Text(
+                  'Add Update',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -531,7 +480,7 @@ class IncidentDetailScreen extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 12),
+          SizedBox(height: 10),
           ...incident.communityInsights.map((insight) => _buildInsightCard(insight)),
         ],
       ),
@@ -540,11 +489,12 @@ class IncidentDetailScreen extends StatelessWidget {
 
   Widget _buildInsightCard(CommunityInsight insight) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.fromLTRB(0, 8, 0, 12),
+      margin: const EdgeInsets.only(bottom: 2),
       decoration: BoxDecoration(
-        color: AppColors.quoteBackground,
-        borderRadius: BorderRadius.circular(8),
+        border: Border(
+          bottom: BorderSide(color: AppColors.cardBorder.withOpacity(0.9)),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -552,18 +502,7 @@ class IncidentDetailScreen extends StatelessWidget {
           Row(
             children: [
               // Avatar
-              CircleAvatar(
-                radius: 16,
-                backgroundColor: AppColors.primaryBlue.withOpacity(0.2),
-                child: Text(
-                  insight.authorName[0].toUpperCase(),
-                  style: TextStyle(
-                    color: AppColors.primaryBlue,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
+              _buildInsightAvatar(insight),
               SizedBox(width: 8),
               // Name and role
               Expanded(
@@ -575,8 +514,8 @@ class IncidentDetailScreen extends StatelessWidget {
                         Text(
                           insight.authorName,
                           style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
                             color: AppColors.darkText,
                           ),
                         ),
@@ -594,7 +533,7 @@ class IncidentDetailScreen extends StatelessWidget {
                             child: Text(
                               insight.authorRole!,
                               style: TextStyle(
-                                fontSize: 10,
+                                fontSize: 11,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.primaryBlue,
                               ),
@@ -603,14 +542,14 @@ class IncidentDetailScreen extends StatelessWidget {
                         ],
                       ],
                     ),
-                    Text(
-                      insight.timeAgo,
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: AppColors.mutedText,
-                      ),
-                    ),
                   ],
+                ),
+              ),
+              Text(
+                insight.timeAgo,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.mutedText,
                 ),
               ),
             ],
@@ -619,82 +558,128 @@ class IncidentDetailScreen extends StatelessWidget {
           Text(
             insight.content,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 16,
               color: AppColors.darkText,
               height: 1.5,
             ),
+          ),
+          SizedBox(height: 8),
+          Row(
+            children: [
+              Text(
+                'Helpful',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.mutedText,
+                ),
+              ),
+              SizedBox(width: 16),
+              Text(
+                'Flag',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.mutedText,
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildRequestUpdateButton(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-      child: Column(
-        children: [
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SafetyRouteScreen(incident: incident),
-                  ),
-                );
-              },
-              icon: Icon(Icons.directions, size: 18),
-              label: Text(
-                'Navigate to Safety',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.statusNormal,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: 10),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () {
-                onRequestUpdate?.call();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Update request submitted!'),
-                    backgroundColor: AppColors.statusNormal,
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                );
-              },
-              icon: Icon(Icons.refresh, size: 18),
-              label: Text(
-                'Request Alert Update',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primaryBlue,
-                side: BorderSide(color: AppColors.primaryBlue),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-          ),
-        ],
+  Widget _buildInsightAvatar(CommunityInsight insight) {
+    if (insight.avatarUrl != null && insight.avatarUrl!.trim().isNotEmpty) {
+      return CircleAvatar(
+        radius: 19,
+        backgroundImage: NetworkImage(insight.avatarUrl!),
+      );
+    }
+
+    return CircleAvatar(
+      radius: 19,
+      backgroundColor: AppColors.primaryBlue.withOpacity(0.2),
+      child: Text(
+        insight.authorName[0].toUpperCase(),
+        style: TextStyle(
+          color: AppColors.primaryBlue,
+          fontWeight: FontWeight.bold,
+          fontSize: 15,
+        ),
       ),
     );
+  }
+
+  Widget _buildRequestUpdateButton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
+      child: SizedBox(
+        width: double.infinity,
+        child: OutlinedButton.icon(
+          onPressed: () {
+            onRequestUpdate?.call();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Update request submitted!'),
+                backgroundColor: AppColors.statusNormal,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            );
+          },
+          icon: Icon(Icons.warning_amber_rounded, size: 18),
+          label: Text(
+            'Request Alert Update',
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.darkText,
+            side: BorderSide(color: AppColors.cardBorder),
+            backgroundColor: AppColors.white,
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _handleBottomNavTap(BuildContext context, int index) {
+    switch (index) {
+      case 0:
+        Navigator.pop(context);
+        break;
+      case 1:
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const ReportIncidentScreen(),
+          ),
+        );
+        break;
+      case 2:
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const AlertsScreen(),
+          ),
+        );
+        break;
+      case 3:
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const ProfileScreen(),
+          ),
+        );
+        break;
+    }
   }
 
   // Helper methods
@@ -731,7 +716,14 @@ class IncidentDetailScreen extends StatelessWidget {
     }
   }
 
-  String _formatDateTime(DateTime dateTime) {
-    return CampusTime.formatDetailed(dateTime);
+  String _resolutionSubtitle() {
+    switch (incident.status) {
+      case IncidentStatus.reported:
+        return 'Campus safety has received this report and is validating details.';
+      case IncidentStatus.investigating:
+        return 'Security personnel are currently assessing the duration of this incident.';
+      case IncidentStatus.resolved:
+        return 'This incident has been resolved and normal access has resumed.';
+    }
   }
 }
