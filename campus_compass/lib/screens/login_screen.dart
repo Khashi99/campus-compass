@@ -453,7 +453,12 @@ class _MyWidgetState extends State<LoginScreen> {
       );
       Navigator.pushReplacementNamed(context, '/map');
     } on FirebaseAuthException catch (e) {
-      _showAuthError(_mapAuthError(e));
+      // If the email already exists, treat this as login so the flow doesn't dead-end.
+      if (e.code == 'email-already-in-use' || e.code == 'credential-already-in-use') {
+        await _signInExistingUser(email: email, password: password);
+      } else {
+        _showAuthError(_mapAuthError(e));
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -487,6 +492,29 @@ class _MyWidgetState extends State<LoginScreen> {
         return 'Email/password auth is not enabled in Firebase.';
       default:
         return error.message ?? 'Authentication failed.';
+    }
+  }
+
+  Future<void> _signInExistingUser({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      await _ensureUserProfileDocument();
+
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Existing account found. Logged in.')),
+      );
+      Navigator.pushReplacementNamed(context, '/map');
+    } on FirebaseAuthException {
+      _showAuthError('Account already exists. Use the correct password to log in.');
     }
   }
 
