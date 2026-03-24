@@ -221,7 +221,7 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
                   : _buildPulsingIcon(),
               SizedBox(width: 6),
               Text(
-                isVerified ? 'Verified' : 'Verifying...',
+                isVerified ? 'Verified' : 'Reported',
                 style: TextStyle(
                   fontSize: 12,
                   color: AppColors.verifiedBadge,
@@ -310,8 +310,8 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
   }
 
   bool _isVerified(Incident incident) {
-    return incident.verificationLevel == VerificationLevel.verified ||
-        incident.verificationProgress >= 100;
+    return incident.status == IncidentStatus.verified ||
+      incident.status == IncidentStatus.resolved;
   }
 
   void _syncVerificationAnimation() {
