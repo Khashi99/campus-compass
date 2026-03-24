@@ -187,6 +187,7 @@ class _StatusChip extends StatelessWidget {
     final normalized = status.toLowerCase();
     final color = switch (normalized) {
       'resolved' => AppColors.statusNormal,
+      'verified' => const Color(0xFF0F766E),
       'investigating' => AppColors.primaryBlue,
       _ => AppColors.statusCaution,
     };

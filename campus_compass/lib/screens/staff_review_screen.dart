@@ -136,7 +136,9 @@ class StaffReviewScreen extends StatelessWidget {
         final allDocs = snapshot.data?.docs ?? const [];
         final docs = allDocs.where((doc) {
           final status = (doc.data()['status'] as String?) ?? 'reported';
-          return status == 'reported' || status == 'investigating';
+          return status == 'reported' ||
+              status == 'investigating' ||
+              status == 'verified';
         }).toList();
 
         if (docs.isEmpty) {
@@ -305,7 +307,12 @@ class StaffReviewScreen extends StatelessWidget {
     final description =
         (data['description'] as String?) ?? 'No description provided.';
 
-    final bool isReported = status == 'reported';
+    final String actionLabel = switch (status) {
+      'reported' => 'Move to Investigating',
+      'investigating' => 'Mark as Verified',
+      'verified' => 'Mark as Resolved',
+      _ => 'Update Status',
+    };
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -361,7 +368,7 @@ class StaffReviewScreen extends StatelessWidget {
                 backgroundColor: AppColors.primaryBlue,
                 foregroundColor: Colors.white,
               ),
-              child: Text(isReported ? 'Move to Investigating' : 'Mark as Resolved'),
+              child: Text(actionLabel),
             ),
           ),
         ],
@@ -574,6 +581,27 @@ class StaffReviewScreen extends StatelessWidget {
 
       if (currentStatus == 'investigating') {
         await incidentDoc.reference.update({
+          'status': 'verified',
+          'isActive': true,
+          'resolvedAt': null,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+        await _updateLinkedReports(
+          incidentId: incidentDoc.id,
+          status: 'verified',
+        );
+
+        if (!context.mounted) {
+          return;
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Incident marked as verified.')),
+        );
+        return;
+      }
+
+      if (currentStatus == 'verified') {
+        await incidentDoc.reference.update({
           'status': 'resolved',
           'isActive': false,
           'resolvedAt': FieldValue.serverTimestamp(),
@@ -688,6 +716,9 @@ class StaffReviewScreen extends StatelessWidget {
   static String _prettyStatus(String status) {
     if (status == 'investigating') {
       return 'Investigating';
+    }
+    if (status == 'verified') {
+      return 'Verified';
     }
     if (status == 'resolved') {
       return 'Resolved';

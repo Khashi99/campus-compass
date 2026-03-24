@@ -526,6 +526,48 @@ class _AlertsScreenState extends State<AlertsScreen> {
                 ),
                 SizedBox(height: 10),
                 if (status == 'reported')
+                  Column(
+                    children: [
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            await _setIncidentStatus(
+                              incidentDoc: incidentDoc,
+                              nextStatus: 'investigating',
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primaryBlue,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          child: Text('Move to Investigating'),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            await _deleteIncident(
+                              incidentDoc: incidentDoc,
+                              reasonLabel: 'declined',
+                            );
+                          },
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.statusHighRisk,
+                            side: BorderSide(color: AppColors.statusHighRisk),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          child: Text('Decline and Delete Incident'),
+                        ),
+                      ),
+                    ],
+                  ),
+                if (status == 'investigating')
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -533,7 +575,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                         Navigator.pop(context);
                         await _setIncidentStatus(
                           incidentDoc: incidentDoc,
-                          nextStatus: 'investigating',
+                          nextStatus: 'verified',
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -541,10 +583,10 @@ class _AlertsScreenState extends State<AlertsScreen> {
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
-                      child: Text('Move to Investigating'),
+                      child: Text('Mark as Verified'),
                     ),
                   ),
-                if (status == 'investigating')
+                if (status == 'verified')
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -582,6 +624,26 @@ class _AlertsScreenState extends State<AlertsScreen> {
                       child: Text('Reopen (Move to Investigating)'),
                     ),
                   ),
+                SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      Navigator.pop(context);
+                      await _deleteIncident(
+                        incidentDoc: incidentDoc,
+                        reasonLabel: 'deleted',
+                      );
+                    },
+                    icon: Icon(Icons.delete_outline),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.statusHighRisk,
+                      side: BorderSide(color: AppColors.statusHighRisk),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    label: Text('Delete Incident'),
+                  ),
+                ),
               ],
             ),
           ),
@@ -893,6 +955,27 @@ class _AlertsScreenState extends State<AlertsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Incident marked as resolved.')),
         );
+        return;
+      }
+
+      if (nextStatus == 'verified') {
+        await incidentDoc.reference.update({
+          'status': 'verified',
+          'isActive': true,
+          'resolvedAt': null,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+        await _updateLinkedReports(
+          incidentId: incidentDoc.id,
+          status: 'verified',
+        );
+
+        if (!mounted) {
+          return;
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Incident marked as verified.')),
+        );
       }
     } catch (e) {
       if (!mounted) {
@@ -900,6 +983,66 @@ class _AlertsScreenState extends State<AlertsScreen> {
       }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Status update failed: $e')),
+      );
+    }
+  }
+
+  Future<void> _deleteIncident({
+    required QueryDocumentSnapshot<Map<String, dynamic>> incidentDoc,
+    required String reasonLabel,
+  }) async {
+    if (!mounted) {
+      return;
+    }
+
+    final data = incidentDoc.data();
+    final title = (data['title'] as String?) ?? 'this incident';
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text('Delete incident?'),
+          content: Text(
+            'This will permanently remove "$title" from alerts.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) {
+      return;
+    }
+
+    try {
+      await _updateLinkedReports(
+        incidentId: incidentDoc.id,
+        status: 'dismissed',
+      );
+      await incidentDoc.reference.delete();
+
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Incident $reasonLabel and removed.')),
+      );
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Delete failed: $e')),
       );
     }
   }
@@ -1000,6 +1143,10 @@ class _AlertsScreenState extends State<AlertsScreen> {
       }
     }
 
+    if (incident.status == IncidentStatus.verified) {
+      return 'Incident verified by staff';
+    }
+
     switch (incident.type) {
       case IncidentType.protest:
       case IncidentType.gathering:
@@ -1075,6 +1222,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
   static String _prettyStatus(String status) {
     if (status == 'investigating') {
       return 'Investigating';
+    }
+    if (status == 'verified') {
+      return 'Verified';
     }
     if (status == 'resolved') {
       return 'Resolved';

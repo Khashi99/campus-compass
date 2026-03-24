@@ -647,9 +647,16 @@ class _IncidentResolutionProgressMini extends StatelessWidget {
               ),
               _buildConnector(currentStep >= 2),
               _buildStep(
+                label: 'VERIFIED',
+                icon: Icons.verified_outlined,
+                stepIndex: 2,
+                currentStep: currentStep,
+              ),
+              _buildConnector(currentStep >= 3),
+              _buildStep(
                 label: 'RESOLVED',
                 icon: Icons.check_circle_outline,
-                stepIndex: 2,
+                stepIndex: 3,
                 currentStep: currentStep,
               ),
             ],
@@ -730,6 +737,8 @@ class _IncidentResolutionProgressMini extends StatelessWidget {
         return 'Campus safety is validating this report.';
       case IncidentStatus.investigating:
         return 'Security personnel are currently assessing this incident.';
+      case IncidentStatus.verified:
+        return 'Campus safety has verified this incident and is closing it out.';
       case IncidentStatus.resolved:
         return 'This incident has been resolved.';
     }
@@ -741,8 +750,10 @@ class _IncidentResolutionProgressMini extends StatelessWidget {
         return 0;
       case IncidentStatus.investigating:
         return 1;
-      case IncidentStatus.resolved:
+      case IncidentStatus.verified:
         return 2;
+      case IncidentStatus.resolved:
+        return 3;
     }
   }
 }

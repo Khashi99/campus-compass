@@ -314,11 +314,22 @@ class IncidentDetailScreen extends StatelessWidget {
               ),
               _buildProgressConnector(
                 incident.status == IncidentStatus.investigating ||
+                incident.status == IncidentStatus.verified ||
                 incident.status == IncidentStatus.resolved,
               ),
               _buildProgressStep(
                 'INVESTIGATING',
                 incident.status == IncidentStatus.investigating ||
+                incident.status == IncidentStatus.verified ||
+                incident.status == IncidentStatus.resolved,
+              ),
+              _buildProgressConnector(
+                incident.status == IncidentStatus.verified ||
+                incident.status == IncidentStatus.resolved,
+              ),
+              _buildProgressStep(
+                'VERIFIED',
+                incident.status == IncidentStatus.verified ||
                 incident.status == IncidentStatus.resolved,
               ),
               _buildProgressConnector(
@@ -689,6 +700,8 @@ class IncidentDetailScreen extends StatelessWidget {
         return AppColors.statusCaution;
       case IncidentStatus.investigating:
         return AppColors.primaryBlue;
+      case IncidentStatus.verified:
+        return const Color(0xFF0F766E);
       case IncidentStatus.resolved:
         return AppColors.statusNormal;
     }
@@ -700,6 +713,8 @@ class IncidentDetailScreen extends StatelessWidget {
         return Icons.flag_outlined;
       case IncidentStatus.investigating:
         return Icons.search;
+      case IncidentStatus.verified:
+        return Icons.verified_outlined;
       case IncidentStatus.resolved:
         return Icons.check_circle_outline;
     }
@@ -711,6 +726,8 @@ class IncidentDetailScreen extends StatelessWidget {
         return 'Reported';
       case IncidentStatus.investigating:
         return 'Under Review';
+      case IncidentStatus.verified:
+        return 'Verified';
       case IncidentStatus.resolved:
         return 'Resolved';
     }
@@ -722,6 +739,8 @@ class IncidentDetailScreen extends StatelessWidget {
         return 'Campus safety has received this report and is validating details.';
       case IncidentStatus.investigating:
         return 'Security personnel are currently assessing the duration of this incident.';
+      case IncidentStatus.verified:
+        return 'Campus safety has verified this incident and is preparing final closure.';
       case IncidentStatus.resolved:
         return 'This incident has been resolved and normal access has resumed.';
     }

@@ -34,6 +34,7 @@ extension IncidentTypeExtension on IncidentType {
 enum IncidentStatus {
   reported,
   investigating,
+  verified,
   resolved,
 }
 
@@ -162,6 +163,8 @@ IncidentStatus _parseIncidentStatus(String value) {
   switch (value) {
     case 'investigating':
       return IncidentStatus.investigating;
+    case 'verified':
+      return IncidentStatus.verified;
     case 'resolved':
       return IncidentStatus.resolved;
     case 'reported':
