@@ -12,6 +12,7 @@ import 'package:campus_compass/widgets/incident_card.dart';
 import 'package:campus_compass/models/incident.dart';
 import 'package:campus_compass/screens/incident_detail_screen.dart';
 import 'package:campus_compass/screens/report_incident_screen.dart';
+import 'package:campus_compass/screens/safety_route_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 /// Main map screen that dynamically updates based on campus status
@@ -24,6 +25,8 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
+  static const String _defaultCampusId = 'sgw';
+
   // Current navigation tab
   int _currentNavIndex = 0;
   
@@ -47,9 +50,7 @@ class _MapScreenState extends State<MapScreen> {
     super.initState();
     _incidentStream = FirebaseFirestore.instance
         .collection('incidents')
-      .where('campusId', isEqualTo: 'sgw')
         .where('isActive', isEqualTo: true)
-        .orderBy('updatedAt', descending: true)
         .snapshots();
     _loadPendingReviewCount();
   }
@@ -90,10 +91,17 @@ class _MapScreenState extends State<MapScreen> {
                     } else {
                       _incidentLoadError = null;
                       _isLoadingIncidents = false;
-                      _activeIncidents = snapshot.data?.docs
-                              .map((doc) => Incident.fromFirestore(doc))
-                              .toList() ??
-                          [];
+                      _activeIncidents = (snapshot.data?.docs ?? const [])
+                          .where(
+                            (doc) => _matchesCampusId(
+                              doc.data()['campusId'] as String?,
+                            ),
+                          )
+                          .map((doc) => Incident.fromFirestore(doc))
+                          .toList()
+                        ..sort(
+                          (a, b) => b.reportedTime.compareTo(a.reportedTime),
+                        );
                       _deriveCampusStatusFromIncidents();
                     }
 
@@ -174,13 +182,14 @@ class _MapScreenState extends State<MapScreen> {
         return IncidentPreviewCard(
           incident: _activeIncidents.first,
           onViewDetails: () => _navigateToIncidentDetail(_activeIncidents.first),
+          onNavigateToSafety: () => _navigateToSafety(_activeIncidents.first),
         );
       
       case CampusStatus.highRisk:
         return HighRiskAlertCard(
           incident: _activeIncidents.first,
           onViewDetails: () => _navigateToIncidentDetail(_activeIncidents.first),
-          onNavigateToSafety: _navigateToSafety,
+          onNavigateToSafety: () => _navigateToSafety(_activeIncidents.first),
           onReportTrust: () => _reportTrust(_activeIncidents.first),
         );
     }
@@ -223,7 +232,7 @@ class _MapScreenState extends State<MapScreen> {
             HighRiskAlertCard(
               incident: _activeIncidents.first,
               onViewDetails: () => _navigateToIncidentDetail(_activeIncidents.first),
-              onNavigateToSafety: _navigateToSafety,
+              onNavigateToSafety: () => _navigateToSafety(_activeIncidents.first),
               onReportTrust: () => _reportTrust(_activeIncidents.first),
             ),
             
@@ -317,10 +326,13 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  void _navigateToSafety() {
-    // _showSnackBar('Calculating safe route...', isSuccess: true);
-    Navigator.pushNamed(context, '/safety-route');
-    // In real app: Open navigation with safe route
+  void _navigateToSafety(Incident incident) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SafetyRouteScreen(incident: incident),
+      ),
+    );
   }
 
   Future<void> _reportTrust(Incident incident) async {
@@ -566,6 +578,28 @@ class _MapScreenState extends State<MapScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
+  }
+
+  bool _matchesCampusId(String? rawCampusId) {
+    final target = _normalizeCampusId(_defaultCampusId);
+    final source = _normalizeCampusId(rawCampusId);
+    return source == target;
+  }
+
+  String _normalizeCampusId(String? campusId) {
+    final value = (campusId ?? '').trim().toLowerCase();
+    if (value == 'loy' || value.contains('loyola')) {
+      return 'loyola';
+    }
+    if (value.isEmpty ||
+        value == 'sgw' ||
+        value == 'main' ||
+        value == 'main campus' ||
+        value == 'main-campus' ||
+        value.contains('downtown')) {
+      return 'sgw';
+    }
+    return value;
   }
 }
 

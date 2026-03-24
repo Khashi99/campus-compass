@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:campus_compass/theme/app_colors.dart';
 import 'package:campus_compass/models/incident.dart';
+import 'package:campus_compass/screens/safety_route_screen.dart';
 import 'package:campus_compass/utils/campus_time.dart';
 import 'package:campus_compass/widgets/map_placeholder.dart';
 
@@ -631,36 +632,67 @@ class IncidentDetailScreen extends StatelessWidget {
   Widget _buildRequestUpdateButton(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-      child: SizedBox(
-        width: double.infinity,
-        child: OutlinedButton.icon(
-          onPressed: () {
-            onRequestUpdate?.call();
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Update request submitted!'),
+      child: Column(
+        children: [
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SafetyRouteScreen(incident: incident),
+                  ),
+                );
+              },
+              icon: Icon(Icons.directions, size: 18),
+              label: Text(
+                'Navigate to Safety',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+              style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.statusNormal,
-                behavior: SnackBarBehavior.floating,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-            );
-          },
-          icon: Icon(Icons.refresh, size: 18),
-          label: Text(
-            'Request Alert Update',
-            style: TextStyle(fontWeight: FontWeight.w600),
-          ),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: AppColors.primaryBlue,
-            side: BorderSide(color: AppColors.primaryBlue),
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
             ),
           ),
-        ),
+          SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () {
+                onRequestUpdate?.call();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Update request submitted!'),
+                    backgroundColor: AppColors.statusNormal,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                );
+              },
+              icon: Icon(Icons.refresh, size: 18),
+              label: Text(
+                'Request Alert Update',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.primaryBlue,
+                side: BorderSide(color: AppColors.primaryBlue),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

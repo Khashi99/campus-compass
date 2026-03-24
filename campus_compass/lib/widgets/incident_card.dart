@@ -103,11 +103,13 @@ class CalmStatusCard extends StatelessWidget {
 class IncidentPreviewCard extends StatefulWidget {
   final Incident incident;
   final VoidCallback? onViewDetails;
+  final VoidCallback? onNavigateToSafety;
 
   const IncidentPreviewCard({
     super.key,
     required this.incident,
     this.onViewDetails,
+    this.onNavigateToSafety,
   });
 
   @override
@@ -271,23 +273,45 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
             ],
           ),
           SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              onPressed: widget.onViewDetails,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primaryBlue,
-                side: BorderSide(color: AppColors.primaryBlue),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: widget.onViewDetails,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primaryBlue,
+                    side: BorderSide(color: AppColors.primaryBlue),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                  ),
+                  child: Text(
+                    'View Details',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 10),
               ),
-              child: Text(
-                'View Details',
-                style: TextStyle(fontWeight: FontWeight.w600),
+              SizedBox(width: 10),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: widget.onNavigateToSafety,
+                  icon: Icon(Icons.directions, size: 16),
+                  label: Text(
+                    'Route',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.statusNormal,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
         ],
       ),
