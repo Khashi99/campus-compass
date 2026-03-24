@@ -7,6 +7,7 @@ import 'package:campus_compass/widgets/map_placeholder.dart';
 import 'package:campus_compass/widgets/incident_card.dart';
 import 'package:campus_compass/models/incident.dart';
 import 'package:campus_compass/screens/incident_detail_screen.dart';
+import 'package:campus_compass/screens/my_reports_screen.dart';
 import 'package:campus_compass/screens/report_incident_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -375,7 +376,12 @@ class _MapScreenState extends State<MapScreen> {
         );
         break;
       case 2: // Alerts
-        _showSnackBar('Alerts history coming soon!');
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const MyReportsScreen(),
+          ),
+        );
         break;
       case 3: // Profile
         _showSnackBar('Profile screen coming soon!');
