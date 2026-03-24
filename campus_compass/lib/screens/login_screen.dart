@@ -1,6 +1,8 @@
 import 'package:campus_compass/theme/app_colors.dart';
 import 'package:campus_compass/theme/app_theme.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -13,12 +15,17 @@ class LoginScreen extends StatefulWidget {
 
 class _MyWidgetState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool _obscureText = true;
   bool _isChecked = false;
+  bool _isAuthLoading = false;
 
   @override
-  void initState() {
-    super.initState();
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 
   @override
@@ -79,7 +86,18 @@ class _MyWidgetState extends State<LoginScreen> {
                         SizedBox(
                           width: MediaQuery.of(context).size.width / 1.25,
                           child: TextFormField(
+                            controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
+                            validator: (value) {
+                              final email = value?.trim() ?? '';
+                              if (email.isEmpty) {
+                                return 'Enter your email';
+                              }
+                              if (!email.contains('@')) {
+                                return 'Enter a valid email';
+                              }
+                              return null;
+                            },
                             decoration: const InputDecoration(
                               prefixIcon: Icon(
                                 Icons.email_outlined,
@@ -119,16 +137,7 @@ class _MyWidgetState extends State<LoginScreen> {
                                     MediaQuery.of(context).size.width / 13,
                               ),
                               child: TextButton(
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return const AlertDialog(
-                                        title: TextField(),
-                                      );
-                                    },
-                                  );
-                                },
+                                onPressed: _isAuthLoading ? null : _sendPasswordReset,
                                 child: Text(
                                   'Forgot password?',
                                   style: AppTheme.linkStyle,
@@ -142,7 +151,18 @@ class _MyWidgetState extends State<LoginScreen> {
                         SizedBox(
                           width: MediaQuery.of(context).size.width / 1.25,
                           child: TextFormField(
+                            controller: _passwordController,
                             obscureText: _obscureText,
+                            validator: (value) {
+                              final password = value ?? '';
+                              if (password.isEmpty) {
+                                return 'Enter your password';
+                              }
+                              if (password.length < 6) {
+                                return 'Password must be at least 6 characters';
+                              }
+                              return null;
+                            },
                             decoration: InputDecoration(
                               prefixIcon: const Icon(
                                 Icons.lock_outline,
@@ -206,26 +226,37 @@ class _MyWidgetState extends State<LoginScreen> {
                           height:
                               MediaQuery.of(context).size.height / 17,
                           child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/map');
-                            },
-                            child: const Row(
+                            onPressed: _isAuthLoading ? null : _login,
+                            child: Row(
                               mainAxisAlignment:
                                   MainAxisAlignment.center,
                               children: [
-                                Text(
-                                  'Login',
-                                  style: TextStyle(
-                                    color: AppColors.white,
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: 18,
+                                if (_isAuthLoading)
+                                  const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white,
+                                      ),
+                                    ),
+                                  )
+                                else ...[
+                                  const Text(
+                                    'Login',
+                                    style: TextStyle(
+                                      color: AppColors.white,
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 18,
+                                    ),
                                   ),
-                                ),
-                                SizedBox(width: 13),
-                                Icon(
-                                  Icons.arrow_forward,
-                                  color: AppColors.white,
-                                )
+                                  const SizedBox(width: 13),
+                                  const Icon(
+                                    Icons.arrow_forward,
+                                    color: AppColors.white,
+                                  ),
+                                ],
                               ],
                             ),
                           ),
@@ -237,7 +268,7 @@ class _MyWidgetState extends State<LoginScreen> {
                           children: [
                             const Text('New to Concordia?'),
                             TextButton(
-                              onPressed: () {},
+                              onPressed: _isAuthLoading ? null : _createAccount,
                               child: Text(
                                 'Create account',
                                 style: AppTheme.linkStyle,
@@ -272,53 +303,58 @@ class _MyWidgetState extends State<LoginScreen> {
                         const SizedBox(height: 25),
 
                         // Guest access
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal:
-                                MediaQuery.of(context).size.width / 14,
-                          ),
-                          child: DottedBorder(
-                            options: RectDottedBorderOptions(
-                              dashPattern: [5, 5],
-                              strokeWidth: 2,
-                              padding: const EdgeInsets.all(16),
-                              color: AppColors.secondaryBlue,
+                        GestureDetector(
+                          onTap: _isAuthLoading
+                              ? null
+                              : () => Navigator.pushReplacementNamed(context, '/map'),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal:
+                                  MediaQuery.of(context).size.width / 14,
                             ),
-                            child: Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceAround,
-                              children: [
-                                Container(
-                                  width: 50,
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue[50],
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    CupertinoIcons.checkmark_shield,
-                                    color: AppColors.primaryBlue,
-                                  ),
-                                ),
-                                Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                  children: const [
-                                    Text(
-                                      'Continue as Guest',
-                                      style: AppTheme.bulletStyle,
+                            child: DottedBorder(
+                              options: RectDottedBorderOptions(
+                                dashPattern: [5, 5],
+                                strokeWidth: 2,
+                                padding: const EdgeInsets.all(16),
+                                color: AppColors.secondaryBlue,
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  Container(
+                                    width: 50,
+                                    height: 50,
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue[50],
+                                      shape: BoxShape.circle,
                                     ),
-                                    Text(
-                                      'Immediate access to safety \nmap & alerts',
+                                    child: const Icon(
+                                      CupertinoIcons.checkmark_shield,
+                                      color: AppColors.primaryBlue,
                                     ),
-                                  ],
-                                ),
-                                const SizedBox(width: 10),
-                                const Icon(
-                                  Icons.arrow_forward,
-                                  color: AppColors.mutedText,
-                                ),
-                              ],
+                                  ),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: const [
+                                      Text(
+                                        'Continue as Guest',
+                                        style: AppTheme.bulletStyle,
+                                      ),
+                                      Text(
+                                        'Immediate access to safety \nmap & alerts',
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(width: 10),
+                                  const Icon(
+                                    Icons.arrow_forward,
+                                    color: AppColors.mutedText,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -345,6 +381,169 @@ class _MyWidgetState extends State<LoginScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _login() async {
+    if (!_validateForm()) {
+      return;
+    }
+
+    setState(() {
+      _isAuthLoading = true;
+    });
+
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+      await _ensureUserProfileDocument();
+
+      if (!mounted) {
+        return;
+      }
+      Navigator.pushReplacementNamed(context, '/map');
+    } on FirebaseAuthException catch (e) {
+      _showAuthError(_mapAuthError(e));
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isAuthLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _createAccount() async {
+    if (!_validateForm()) {
+      return;
+    }
+
+    setState(() {
+      _isAuthLoading = true;
+    });
+
+    final auth = FirebaseAuth.instance;
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    try {
+      final currentUser = auth.currentUser;
+      if (currentUser != null && currentUser.isAnonymous) {
+        final credential = EmailAuthProvider.credential(
+          email: email,
+          password: password,
+        );
+        await currentUser.linkWithCredential(credential);
+      } else {
+        await auth.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+      }
+      await _ensureUserProfileDocument();
+
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Account created successfully.')),
+      );
+      Navigator.pushReplacementNamed(context, '/map');
+    } on FirebaseAuthException catch (e) {
+      _showAuthError(_mapAuthError(e));
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isAuthLoading = false;
+        });
+      }
+    }
+  }
+
+  bool _validateForm() {
+    final form = _formKey.currentState;
+    if (form == null) {
+      return false;
+    }
+    return form.validate();
+  }
+
+  String _mapAuthError(FirebaseAuthException error) {
+    switch (error.code) {
+      case 'email-already-in-use':
+        return 'This email is already registered. Try logging in.';
+      case 'invalid-email':
+        return 'Invalid email format.';
+      case 'weak-password':
+        return 'Password is too weak (min 6 characters).';
+      case 'user-not-found':
+      case 'wrong-password':
+      case 'invalid-credential':
+        return 'Incorrect email or password.';
+      case 'operation-not-allowed':
+        return 'Email/password auth is not enabled in Firebase.';
+      default:
+        return error.message ?? 'Authentication failed.';
+    }
+  }
+
+  Future<void> _sendPasswordReset() async {
+    final email = _emailController.text.trim();
+    if (email.isEmpty || !email.contains('@')) {
+      _showAuthError('Enter a valid email first, then tap Forgot password.');
+      return;
+    }
+
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password reset email sent.')),
+      );
+    } on FirebaseAuthException catch (e) {
+      _showAuthError(_mapAuthError(e));
+    }
+  }
+
+  Future<void> _ensureUserProfileDocument() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return;
+    }
+
+    final usersRef = FirebaseFirestore.instance.collection('users').doc(user.uid);
+    final snapshot = await usersRef.get();
+    final now = FieldValue.serverTimestamp();
+
+    if (!snapshot.exists) {
+      await usersRef.set({
+        'displayName': user.isAnonymous ? 'Anonymous User' : (user.email ?? 'Student'),
+        'alertPreference': {
+          'mode': 'haptic',
+          'quietHours': null,
+        },
+        'createdAt': now,
+        'updatedAt': now,
+      });
+      return;
+    }
+
+    await usersRef.set({
+      'updatedAt': now,
+    }, SetOptions(merge: true));
+  }
+
+  void _showAuthError(String message) {
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
     );
   }
 }
