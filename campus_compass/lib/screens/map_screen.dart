@@ -343,18 +343,46 @@ class _MapScreenState extends State<MapScreen> {
     }
 
     try {
-      final now = FieldValue.serverTimestamp();
-      await FirebaseFirestore.instance
-          .collection('incidents')
-          .doc(incident.id)
-          .collection('trustVotes')
-          .doc(user.uid)
-          .set({
-        'uid': user.uid,
-        'vote': 'confirm',
-        'submittedAt': now,
-        'updatedAt': now,
-      }, SetOptions(merge: true));
+      final firestore = FirebaseFirestore.instance;
+      final incidentRef = firestore.collection('incidents').doc(incident.id);
+      final voteRef = incidentRef.collection('trustVotes').doc(user.uid);
+
+      await firestore.runTransaction((transaction) async {
+        final incidentSnap = await transaction.get(incidentRef);
+        if (!incidentSnap.exists) {
+          throw Exception('Incident not found.');
+        }
+
+        final voteSnap = await transaction.get(voteRef);
+        final data = incidentSnap.data() ?? <String, dynamic>{};
+        final currentReports = (data['userReports'] as int?) ?? 0;
+        final levelRaw = (data['verificationLevel'] as String?) ?? 'unverified';
+        final alreadyVoted = voteSnap.exists;
+        final nextReports = alreadyVoted ? currentReports : currentReports + 1;
+
+        final nextLevel = levelRaw == 'verified' ? 'verified' : 'userReported';
+        final nextProgress = nextLevel == 'verified'
+            ? 100
+            : (45 + (nextReports * 6)).clamp(0, 95);
+
+        transaction.set(voteRef, {
+          'uid': user.uid,
+          'vote': 'confirm',
+          'submittedAt': voteSnap.exists
+              ? (voteSnap.data()?['submittedAt'] ?? FieldValue.serverTimestamp())
+              : FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+
+        if (!alreadyVoted) {
+          transaction.update(incidentRef, {
+            'userReports': nextReports,
+            'verificationLevel': nextLevel,
+            'verificationProgress': nextProgress,
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+        }
+      });
 
       _showSnackBar('Thank you for your feedback!', isSuccess: true);
     } catch (e) {

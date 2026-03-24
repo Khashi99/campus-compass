@@ -76,6 +76,9 @@ class Incident {
 
   factory Incident.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data() ?? <String, dynamic>{};
+    final levelRaw = (data['verificationLevel'] as String?) ?? 'unverified';
+    final userReports = _toInt(data['userReports']) ?? 0;
+    final storedProgress = _toInt(data['verificationProgress']);
 
     return Incident(
       id: doc.id,
@@ -84,12 +87,12 @@ class Incident {
       location: (data['location'] as String?) ?? 'Unknown location',
       type: _parseIncidentType((data['type'] as String?) ?? 'maintenance'),
       status: _parseIncidentStatus((data['status'] as String?) ?? 'reported'),
-      verificationLevel: _parseVerificationLevel(
-        (data['verificationLevel'] as String?) ?? 'unverified',
-      ),
-      userReports: (data['userReports'] as int?) ?? 0,
-      verificationProgress: _verificationProgressFromLevel(
-        (data['verificationLevel'] as String?) ?? 'unverified',
+      verificationLevel: _parseVerificationLevel(levelRaw),
+      userReports: userReports,
+      verificationProgress: _verificationProgress(
+        levelRaw: levelRaw,
+        userReports: userReports,
+        storedProgress: storedProgress,
       ),
       reportedTime: _parseDateTime(data['reportedTime']),
       imageUrl: data['imageUrl'] as String?,
@@ -190,6 +193,34 @@ int _verificationProgressFromLevel(String level) {
     default:
       return 15;
   }
+}
+
+int _verificationProgress({
+  required String levelRaw,
+  required int userReports,
+  int? storedProgress,
+}) {
+  if (storedProgress != null) {
+    return storedProgress.clamp(0, 100);
+  }
+
+  final base = _verificationProgressFromLevel(levelRaw);
+  final fromReports = (base + (userReports * 6)).clamp(0, 100);
+
+  if (levelRaw == 'verified') {
+    return 100;
+  }
+  return fromReports;
+}
+
+int? _toInt(dynamic value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is num) {
+    return value.toInt();
+  }
+  return null;
 }
 
 class CommunityInsight {
