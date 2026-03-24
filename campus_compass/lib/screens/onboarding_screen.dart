@@ -1,4 +1,6 @@
 import 'package:campus_compass/theme/app_colors.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'onboarding_contents.dart';
 
@@ -20,17 +22,40 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.dispose();
   }
 
-  void _nextPage() {
+  Future<void> _nextPage() async {
     if (_currentPage < contents.length - 1) {
       _controller.nextPage(
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeInOut,
       );
     } else {
-      // TODO: navigate to login page if notLoggedIn, 
-      //else either register/guest
+      await _saveAlertPreference();
+      if (!mounted) {
+        return;
+      }
       Navigator.pushNamed(context, '/login');
     }
+  }
+
+  Future<void> _saveAlertPreference() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return;
+    }
+
+    final mode = switch (_selectedAlertIndex) {
+      0 => 'visual',
+      1 => 'haptic',
+      _ => 'silent',
+    };
+
+    await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+      'alertPreference': {
+        'mode': mode,
+        'quietHours': null,
+      },
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
   }
 
   void _skip() {

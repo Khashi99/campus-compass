@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:campus_compass/theme/app_colors.dart';
 import 'package:campus_compass/widgets/status_banner.dart';
 import 'package:campus_compass/widgets/bottom_nav_bar.dart';
@@ -6,6 +7,9 @@ import 'package:campus_compass/widgets/map_placeholder.dart';
 import 'package:campus_compass/widgets/incident_card.dart';
 import 'package:campus_compass/models/incident.dart';
 import 'package:campus_compass/screens/incident_detail_screen.dart';
+import 'package:campus_compass/screens/my_reports_screen.dart';
+import 'package:campus_compass/screens/report_incident_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 /// Main map screen that dynamically updates based on campus status
 /// This is the primary screen users see after onboarding
@@ -28,6 +32,20 @@ class _MapScreenState extends State<MapScreen> {
   
   // Is high risk overlay showing?
   bool _showHighRiskOverlay = false;
+  bool _isLoadingIncidents = true;
+  String? _incidentLoadError;
+  late final Stream<QuerySnapshot<Map<String, dynamic>>> _incidentStream;
+
+  @override
+  void initState() {
+    super.initState();
+    _incidentStream = FirebaseFirestore.instance
+        .collection('incidents')
+        .where('campusId', isEqualTo: 'sgw')
+        .where('isActive', isEqualTo: true)
+        .orderBy('updatedAt', descending: true)
+        .snapshots();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,33 +66,68 @@ class _MapScreenState extends State<MapScreen> {
               
               // Map area
               Expanded(
-                child: Stack(
-                  children: [
-                    // Map with dynamic tension zones
-                    MapPlaceholder(
-                      showTensionZone: _activeIncidents.isNotEmpty,
-                      tensionZoneLabel: _activeIncidents.isNotEmpty 
-                          ? _getTensionZoneLabel() 
-                          : null,
-                      tensionZonePosition: const Offset(100, 180),
-                    ),
-                    
-                    // Map legend (only show when there are incidents)
-                    if (_activeIncidents.isNotEmpty)
-                      const Positioned(
-                        left: 16,
-                        bottom: 200,
-                        child: MapLegend(),
-                      ),
-                    
-                    // Dynamic bottom card based on status
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      child: _buildBottomCard(),
-                    ),
-                  ],
+                child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                  stream: _incidentStream,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      _isLoadingIncidents = true;
+                    } else if (snapshot.hasError) {
+                      _incidentLoadError = snapshot.error.toString();
+                      _isLoadingIncidents = false;
+                    } else {
+                      _incidentLoadError = null;
+                      _isLoadingIncidents = false;
+                      _activeIncidents = snapshot.data?.docs
+                              .map((doc) => Incident.fromFirestore(doc))
+                              .toList() ??
+                          [];
+                      _deriveCampusStatusFromIncidents();
+                    }
+
+                    return Stack(
+                      children: [
+                        // Map with dynamic tension zones
+                        MapPlaceholder(
+                          showTensionZone: _activeIncidents.isNotEmpty,
+                          tensionZoneLabel: _activeIncidents.isNotEmpty
+                              ? _getTensionZoneLabel()
+                              : null,
+                          tensionZonePosition: const Offset(100, 180),
+                        ),
+
+                        if (_isLoadingIncidents)
+                          const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+
+                        if (_incidentLoadError != null)
+                          Positioned(
+                            top: 16,
+                            left: 16,
+                            right: 16,
+                            child: _buildErrorBanner(
+                              'Unable to load incidents from backend.',
+                            ),
+                          ),
+
+                        // Map legend (only show when there are incidents)
+                        if (_activeIncidents.isNotEmpty)
+                          const Positioned(
+                            left: 16,
+                            bottom: 200,
+                            child: MapLegend(),
+                          ),
+
+                        // Dynamic bottom card based on status
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          child: _buildBottomCard(),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
             ],
@@ -291,6 +344,20 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
+  void _deriveCampusStatusFromIncidents() {
+    if (_activeIncidents.isEmpty) {
+      _campusStatus = CampusStatus.normal;
+      _showHighRiskOverlay = false;
+      return;
+    }
+
+    final hasHighRisk = _activeIncidents.any((incident) => incident.severity >= 2);
+    _campusStatus = hasHighRisk ? CampusStatus.highRisk : CampusStatus.caution;
+    if (!hasHighRisk) {
+      _showHighRiskOverlay = false;
+    }
+  }
+
   void _handleNavTap(int index) {
     setState(() {
       _currentNavIndex = index;
@@ -301,10 +368,20 @@ class _MapScreenState extends State<MapScreen> {
       case 0: // Map - already here
         break;
       case 1: // Report
-        _showSnackBar('Report incident feature coming soon!');
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const ReportIncidentScreen(),
+          ),
+        );
         break;
       case 2: // Alerts
-        _showSnackBar('Alerts history coming soon!');
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const MyReportsScreen(),
+          ),
+        );
         break;
       case 3: // Profile
         _showSnackBar('Profile screen coming soon!');
@@ -330,9 +407,50 @@ class _MapScreenState extends State<MapScreen> {
     // In real app: Open navigation with safe route
   }
 
-  void _reportTrust(Incident incident) {
-    _showSnackBar('Thank you for your feedback!', isSuccess: true);
-    // In real app: Send trust report to backend
+  Future<void> _reportTrust(Incident incident) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      _showSnackBar('Sign in required to submit trust feedback.');
+      return;
+    }
+
+    try {
+      final now = FieldValue.serverTimestamp();
+      await FirebaseFirestore.instance
+          .collection('incidents')
+          .doc(incident.id)
+          .collection('trustVotes')
+          .doc(user.uid)
+          .set({
+        'uid': user.uid,
+        'vote': 'confirm',
+        'submittedAt': now,
+        'updatedAt': now,
+      }, SetOptions(merge: true));
+
+      _showSnackBar('Thank you for your feedback!', isSuccess: true);
+    } catch (e) {
+      _showSnackBar('Failed to submit trust vote: $e');
+    }
+  }
+
+  Widget _buildErrorBanner(String message) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.statusCaution.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColors.statusCaution.withValues(alpha: 0.35)),
+      ),
+      child: Text(
+        message,
+        style: const TextStyle(
+          color: AppColors.darkText,
+          fontWeight: FontWeight.w500,
+          fontSize: 12,
+        ),
+      ),
+    );
   }
 
   void _showStatusInfo(BuildContext context) {

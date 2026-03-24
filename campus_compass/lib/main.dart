@@ -5,6 +5,7 @@ import 'package:campus_compass/screens/onboarding_screen.dart';
 import 'package:campus_compass/screens/safety_route_screen.dart';
 import 'package:campus_compass/theme/app_colors.dart';
 import 'package:campus_compass/theme/app_theme.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +20,37 @@ Future<void> main() async {
     await FirebaseAuth.instance.signInAnonymously();
   }
 
+  await _ensureUserProfileDocument();
+
   runApp(const MyApp());
+}
+
+Future<void> _ensureUserProfileDocument() async {
+  final user = FirebaseAuth.instance.currentUser;
+  if (user == null) {
+    return;
+  }
+
+  final usersRef = FirebaseFirestore.instance.collection('users').doc(user.uid);
+  final snapshot = await usersRef.get();
+  final now = FieldValue.serverTimestamp();
+
+  if (!snapshot.exists) {
+    await usersRef.set({
+      'displayName': 'Anonymous User',
+      'alertPreference': {
+        'mode': 'haptic',
+        'quietHours': null,
+      },
+      'createdAt': now,
+      'updatedAt': now,
+    });
+    return;
+  }
+
+  await usersRef.set({
+    'updatedAt': now,
+  }, SetOptions(merge: true));
 }
 
 class MyApp extends StatelessWidget {

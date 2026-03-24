@@ -1,6 +1,8 @@
 /// Incident model for campus safety reports
 library;
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 enum IncidentType {
   protest,
   construction,
@@ -8,6 +10,25 @@ enum IncidentType {
   blockage,
   emergency,
   maintenance,
+}
+
+extension IncidentTypeExtension on IncidentType {
+  String get displayName {
+    switch (this) {
+      case IncidentType.protest:
+        return 'Protest / Gathering';
+      case IncidentType.construction:
+        return 'Construction';
+      case IncidentType.gathering:
+        return 'Gathering';
+      case IncidentType.blockage:
+        return 'Entrance Blockage';
+      case IncidentType.emergency:
+        return 'Emergency';
+      case IncidentType.maintenance:
+        return 'Maintenance';
+    }
+  }
 }
 
 enum IncidentStatus {
@@ -35,6 +56,7 @@ class Incident {
   final DateTime reportedTime;
   final String? imageUrl;
   final List<CommunityInsight> communityInsights;
+  final int severity;
 
   Incident({
     required this.id,
@@ -49,7 +71,32 @@ class Incident {
     required this.reportedTime,
     this.imageUrl,
     this.communityInsights = const [],
+    this.severity = 1,
   });
+
+  factory Incident.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
+    final data = doc.data() ?? <String, dynamic>{};
+
+    return Incident(
+      id: doc.id,
+      title: (data['title'] as String?) ?? 'Incident',
+      description: (data['description'] as String?) ?? 'No details provided.',
+      location: (data['location'] as String?) ?? 'Unknown location',
+      type: _parseIncidentType((data['type'] as String?) ?? 'maintenance'),
+      status: _parseIncidentStatus((data['status'] as String?) ?? 'reported'),
+      verificationLevel: _parseVerificationLevel(
+        (data['verificationLevel'] as String?) ?? 'unverified',
+      ),
+      userReports: (data['userReports'] as int?) ?? 0,
+      verificationProgress: _verificationProgressFromLevel(
+        (data['verificationLevel'] as String?) ?? 'unverified',
+      ),
+      reportedTime: _parseDateTime(data['reportedTime']),
+      imageUrl: data['imageUrl'] as String?,
+      severity: (data['severity'] as int?) ?? 1,
+      communityInsights: const [],
+    );
+  }
 
   String get timeAgo {
     final difference = DateTime.now().difference(reportedTime);
@@ -77,6 +124,71 @@ class Incident {
       case IncidentType.maintenance:
         return 'Maintenance';
     }
+  }
+}
+
+DateTime _parseDateTime(dynamic value) {
+  if (value is Timestamp) {
+    return value.toDate();
+  }
+  if (value is DateTime) {
+    return value;
+  }
+  return DateTime.now();
+}
+
+IncidentType _parseIncidentType(String value) {
+  switch (value) {
+    case 'protest':
+      return IncidentType.protest;
+    case 'construction':
+      return IncidentType.construction;
+    case 'gathering':
+      return IncidentType.gathering;
+    case 'blockage':
+      return IncidentType.blockage;
+    case 'emergency':
+      return IncidentType.emergency;
+    case 'maintenance':
+    default:
+      return IncidentType.maintenance;
+  }
+}
+
+IncidentStatus _parseIncidentStatus(String value) {
+  switch (value) {
+    case 'investigating':
+      return IncidentStatus.investigating;
+    case 'resolved':
+      return IncidentStatus.resolved;
+    case 'reported':
+    case 'submitted':
+    default:
+      return IncidentStatus.reported;
+  }
+}
+
+VerificationLevel _parseVerificationLevel(String value) {
+  switch (value) {
+    case 'verified':
+      return VerificationLevel.verified;
+    case 'userReported':
+      return VerificationLevel.userReported;
+    case 'unverified':
+    default:
+      return VerificationLevel.unverified;
+  }
+}
+
+int _verificationProgressFromLevel(String level) {
+  switch (level) {
+    case 'verified':
+      return 100;
+    case 'userReported':
+      return 45;
+    case 'unverified':
+    default:
+      return 15;
   }
 }
 
