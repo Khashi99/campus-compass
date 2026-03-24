@@ -150,8 +150,13 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
       ),
     ]).animate(_controller);
 
-    // Start the animation and repeat
-    _controller.repeat();
+    _syncVerificationAnimation();
+  }
+
+  @override
+  void didUpdateWidget(covariant IncidentPreviewCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _syncVerificationAnimation();
   }
 
   @override
@@ -162,6 +167,9 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
 
   @override
   Widget build(BuildContext context) {
+    final isVerified = _isVerified(widget.incident);
+    final displayProgress = widget.incident.verificationProgress.clamp(0, 100) / 100;
+
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
@@ -225,10 +233,16 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
           Row(
             children: [
               // Pulsing verification icon
-              _buildPulsingIcon(),
+              isVerified
+                  ? Icon(
+                      Icons.verified,
+                      size: 14,
+                      color: AppColors.verifiedBadge,
+                    )
+                  : _buildPulsingIcon(),
               SizedBox(width: 6),
               Text(
-                'Verifying...',
+                isVerified ? 'Verified' : 'Verifying...',
                 style: TextStyle(
                   fontSize: 12,
                   color: AppColors.verifiedBadge,
@@ -238,39 +252,64 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
               SizedBox(width: 12),
               // Animated progress bar
               Expanded(
-                child: AnimatedBuilder(
-                  animation: _progressAnimation,
-                  builder: (context, child) {
-                    return ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: _progressAnimation.value,
-                        backgroundColor: AppColors.cardBorder,
-                        valueColor: const AlwaysStoppedAnimation<Color>(
-                          AppColors.verifiedBadge,
+                child: isVerified
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: displayProgress,
+                          backgroundColor: AppColors.cardBorder,
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                            AppColors.verifiedBadge,
+                          ),
+                          minHeight: 6,
                         ),
-                        minHeight: 6,
+                      )
+                    : AnimatedBuilder(
+                        animation: _progressAnimation,
+                        builder: (context, child) {
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: LinearProgressIndicator(
+                              value: _progressAnimation.value,
+                              backgroundColor: AppColors.cardBorder,
+                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                AppColors.verifiedBadge,
+                              ),
+                              minHeight: 6,
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
               ),
               SizedBox(width: 8),
               // Animated percentage
-              AnimatedBuilder(
-                animation: _progressAnimation,
-                builder: (context, child) {
-                  return Text(
-                    '${(_progressAnimation.value * 100).toInt()}%',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: AppColors.mutedText,
-                      fontWeight: FontWeight.w500,
+              isVerified
+                  ? Text(
+                      '${(displayProgress * 100).toInt()}%',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: AppColors.mutedText,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    )
+                  : AnimatedBuilder(
+                      animation: _progressAnimation,
+                      builder: (context, child) {
+                        return Text(
+                          '${(_progressAnimation.value * 100).toInt()}%',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColors.mutedText,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
             ],
+          ),
+          SizedBox(height: 14),
+          _IncidentResolutionProgressMini(
+            status: widget.incident.status,
           ),
           SizedBox(height: 12),
           Row(
@@ -345,6 +384,22 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
         );
       },
     );
+  }
+
+  bool _isVerified(Incident incident) {
+    return incident.verificationLevel == VerificationLevel.verified ||
+        incident.verificationProgress >= 100;
+  }
+
+  void _syncVerificationAnimation() {
+    if (_isVerified(widget.incident)) {
+      _controller.stop();
+      _controller.value = 1;
+      return;
+    }
+    if (!_controller.isAnimating) {
+      _controller.repeat();
+    }
   }
 }
 
@@ -486,6 +541,10 @@ class HighRiskAlertCard extends StatelessWidget {
                     ),
                   ],
                 ),
+                SizedBox(height: 14),
+                _IncidentResolutionProgressMini(
+                  status: incident.status,
+                ),
                 SizedBox(height: 16),
                 // Action buttons
                 Row(
@@ -538,5 +597,115 @@ class HighRiskAlertCard extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _IncidentResolutionProgressMini extends StatelessWidget {
+  const _IncidentResolutionProgressMini({required this.status});
+
+  final IncidentStatus status;
+
+  @override
+  Widget build(BuildContext context) {
+    final investigatingOrResolved =
+        status == IncidentStatus.investigating || status == IncidentStatus.resolved;
+    final resolved = status == IncidentStatus.resolved;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.pageBackground,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'RESOLUTION PROGRESS',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.6,
+              color: AppColors.mutedText,
+            ),
+          ),
+          SizedBox(height: 10),
+          Row(
+            children: [
+              _buildStep('REPORTED', true),
+              _buildConnector(investigatingOrResolved),
+              _buildStep('INVESTIGATING', investigatingOrResolved),
+              _buildConnector(resolved),
+              _buildStep('RESOLVED', resolved),
+            ],
+          ),
+          SizedBox(height: 10),
+          Text(
+            _subtitleForStatus(),
+            style: TextStyle(
+              fontSize: 12,
+              color: AppColors.mutedText,
+              height: 1.35,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStep(String label, bool active) {
+    return Column(
+      children: [
+        Container(
+          width: 22,
+          height: 22,
+          decoration: BoxDecoration(
+            color: active ? AppColors.primaryBlue : AppColors.white,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: active ? AppColors.primaryBlue : AppColors.cardBorder,
+              width: 2,
+            ),
+          ),
+          child: Icon(
+            active ? Icons.check : Icons.circle,
+            size: active ? 13 : 6,
+            color: active ? Colors.white : AppColors.cardBorder,
+          ),
+        ),
+        SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 9,
+            fontWeight: FontWeight.w700,
+            color: active ? AppColors.primaryBlue : AppColors.mutedText,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildConnector(bool active) {
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        height: 2.5,
+        color: active ? AppColors.primaryBlue : AppColors.cardBorder,
+      ),
+    );
+  }
+
+  String _subtitleForStatus() {
+    switch (status) {
+      case IncidentStatus.reported:
+        return 'Campus safety is validating this report.';
+      case IncidentStatus.investigating:
+        return 'Security personnel are currently assessing this incident.';
+      case IncidentStatus.resolved:
+        return 'This incident has been resolved.';
+    }
   }
 }
