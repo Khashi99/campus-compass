@@ -94,12 +94,12 @@ class Incident {
       reportedTime: _parseDateTime(data['reportedTime']),
       imageUrl: data['imageUrl'] as String?,
       severity: (data['severity'] as int?) ?? 1,
-      communityInsights: const [],
+      communityInsights: [],
     );
   }
 
   String get timeAgo {
-    final difference = DateTime.now().difference(reportedTime);
+    final difference = DateTime.now().toUtc().difference(reportedTime.toUtc());
     if (difference.inMinutes < 60) {
       return '${difference.inMinutes}m ago';
     } else if (difference.inHours < 24) {
@@ -210,7 +210,7 @@ class CommunityInsight {
   });
 
   String get timeAgo {
-    final difference = DateTime.now().difference(postedTime);
+    final difference = DateTime.now().toUtc().difference(postedTime.toUtc());
     if (difference.inMinutes < 60) {
       return '${difference.inMinutes}m ago';
     } else if (difference.inHours < 24) {

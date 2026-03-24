@@ -71,7 +71,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.pageBackground,
       body: SafeArea(
         child: PageView.builder(
           controller: _controller,
@@ -84,7 +84,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             final item = contents[index];
 
             return Container(
-              color: Colors.white,
+              color: AppColors.pageBackground,
               child: Column(
                 children: [
                   Padding(
@@ -100,7 +100,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 curve: Curves.easeInOut,
                               );
                             },
-                            child: const Padding(
+                            child: Padding(
                               padding: EdgeInsets.all(6),
                               child: Icon(Icons.arrow_back_ios_new_rounded,
                                   size: 20),
@@ -112,7 +112,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           child: Center(
                             child: Text(
                               index == 1 ? 'Personalize Alerts' : '',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w500,
                                 color: AppColors.darkText,
@@ -123,7 +123,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         item.showSkip
                             ? TextButton(
                                 onPressed: _skip,
-                                child: const Text(
+                                child: Text(
                                   'Skip',
                                   style: TextStyle(
                                     color: AppColors.mutedText,
@@ -132,13 +132,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   ),
                                 ),
                               )
-                            : const SizedBox(width: 52),
+                            : SizedBox(width: 52),
                       ],
                     ),
                   ),
 
                   if (index == 1)
-                    const Divider(height: 1, thickness: 1, color: AppColors.cardBorder),
+                    Divider(height: 1, thickness: 1, color: AppColors.cardBorder),
 
                   Expanded(
                     child: SingleChildScrollView(
@@ -155,31 +155,31 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               width: double.infinity,
                               height: 275,
                               fit: BoxFit.contain),),
-                            const SizedBox(height: 26),
+                            SizedBox(height: 26),
                           ] else ...[
                             Center(
                               child: Container(
                                 width: 92,
                                 height: 92,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFF1F5F9),
+                                decoration: BoxDecoration(
+                                  color: AppColors.lightCircle,
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.notifications_none_rounded,
                                   size: 42,
                                   color: AppColors.primaryBlue,
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 28),
+                            SizedBox(height: 28),
                           ],
 
                           Center(
                             child: Text(
                               item.title,
                               textAlign: TextAlign.center,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w800,
                                 color: AppColors.darkText,
@@ -187,19 +187,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 14),
+                          SizedBox(height: 14),
                           Center(
                             child: Text(
                               item.description,
                               textAlign: TextAlign.center,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 14,
                                 color: AppColors.mutedText,
                                 height: 1.6,
                               ),
                             ),
                           ),
-                          const SizedBox(height: 26),
+                          SizedBox(height: 26),
 
                           if (index == 0)
                             ...item.bullets.map((b) => _bulletTile(b)),
@@ -215,19 +215,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 cardBlue: AppColors.primaryBlue,
                                 border: AppColors.cardBorder,
                               ),
-                            const SizedBox(height: 18),
+                            SizedBox(height: 18),
                             if (item.quote != null)
                               Container(
                                 width: double.infinity,
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFF8F8F8),
+                                  color: AppColors.quoteBackground,
                                   borderRadius: BorderRadius.circular(14),
                                   border: Border.all(color: AppColors.cardBorder),
                                 ),
                                 child: Text(
                                   item.quote!,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 13,
                                     height: 1.6,
                                     color: AppColors.mutedText,
@@ -281,16 +281,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(
-                              item.buttonText,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                              ),
+                    Text(
+                      item.buttonText,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
                             ),
                             if (index == 0) ...[
-                              const SizedBox(width: 10),
-                              const Icon(Icons.arrow_forward_ios_rounded,
+                              SizedBox(width: 10),
+                              Icon(Icons.arrow_forward_ios_rounded,
                                   size: 16),
                             ],
                           ],
@@ -315,7 +315,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           Container(
             width: 52,
             height: 52,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: Color(0xFFF3F4F6),
               shape: BoxShape.circle,
             ),
@@ -325,14 +325,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               size: 24,
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Text(
               bullet.text,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF171717),
+                color: AppColors.darkText,
               ),
             ),
           ),
@@ -357,7 +357,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           duration: const Duration(milliseconds: 180),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFFF8FBFF) : Colors.white,
+            color: isSelected
+                ? AppColors.secondaryBlue.withValues(alpha: 0.18)
+                : AppColors.white,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: isSelected ? cardBlue : border,
@@ -372,41 +374,41 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 decoration: BoxDecoration(
                   color: isSelected
                       ? cardBlue.withValues(alpha: 0.14)
-                      : const Color(0xFFF3F4F6),
+                      : AppColors.lightCircle,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   option.icon,
-                  color: isSelected ? cardBlue : const Color(0xFF6B7280),
+                  color: isSelected ? cardBlue : AppColors.mutedText,
                   size: 24,
                 ),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       option.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF171717),
+                        color: AppColors.darkText,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       option.subtitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: Color(0xFF6B7280),
+                        color: AppColors.mutedText,
                         height: 1.4,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Container(
                 width: 26,
                 height: 26,
@@ -416,10 +418,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     color: isSelected ? cardBlue : border,
                     width: 1.5,
                   ),
-                  color: isSelected ? cardBlue.withValues(alpha: 0.08) : Colors.white,
+                  color: isSelected
+                      ? cardBlue.withValues(alpha: 0.08)
+                      : AppColors.white,
                 ),
                 child: isSelected
-                    ? const Icon(Icons.check, size: 16, color: AppColors.primaryBlue)
+                    ? Icon(Icons.check, size: 16, color: AppColors.primaryBlue)
                     : null,
               ),
             ],
@@ -464,13 +468,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: _mapCard(width: 92, height: 62),
             ),
           ),
-          const Positioned(
+          Positioned(
             left: 36,
             top: 142,
             child: Icon(Icons.location_on_outlined,
                 size: 26, color: Color(0xFF111827)),
           ),
-          const Positioned(
+          Positioned(
             right: 64,
             top: 36,
             child: Icon(Icons.place_outlined,
@@ -519,24 +523,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       BoxShadow(
                         color: blue.withValues(alpha: 0.25),
                         blurRadius: 16,
-                        offset: const Offset(0, 10),
+                        offset: Offset(0, 10),
                       ),
                     ],
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.shield_outlined,
                     color: Colors.white,
                     size: 38,
                   ),
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 Container(
                   padding: const EdgeInsets.symmetric(
                       horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.white,
                     borderRadius: BorderRadius.circular(18),
-                    boxShadow: const [
+                    boxShadow: [
                       BoxShadow(
                         color: Color(0x14000000),
                         blurRadius: 10,
@@ -544,7 +548,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       ),
                     ],
                   ),
-                  child: const Text(
+                  child: Text(
                     'Secure Campus',
                     style: TextStyle(
                       color: AppColors.primaryBlue,
@@ -566,9 +570,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F8F8),
+        color: AppColors.quoteBackground,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFD1D5DB)),
+        border: Border.all(color: AppColors.cardBorder),
       ),
     );
   }

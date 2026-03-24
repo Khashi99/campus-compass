@@ -22,7 +22,7 @@ class CalmStatusCard extends StatelessWidget {
             BoxShadow(
               color: Colors.black.withOpacity(0.08),
               blurRadius: 10,
-              offset: const Offset(0, 2),
+              offset: Offset(0, 2),
             ),
           ],
         ),
@@ -35,18 +35,18 @@ class CalmStatusCard extends StatelessWidget {
                 color: AppColors.statusNormal.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.check_circle,
                 color: AppColors.statusNormal,
                 size: 28,
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Campus is Calm',
                     style: TextStyle(
                       fontSize: 16,
@@ -54,7 +54,7 @@ class CalmStatusCard extends StatelessWidget {
                       color: AppColors.darkText,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Row(
                     children: [
                       Container(
@@ -63,7 +63,7 @@ class CalmStatusCard extends StatelessWidget {
                           color: AppColors.verifiedBadge.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
@@ -88,7 +88,7 @@ class CalmStatusCard extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(
+            Icon(
               Icons.chevron_right,
               color: AppColors.mutedText,
             ),
@@ -170,7 +170,7 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
           BoxShadow(
             color: Colors.black.withOpacity(0.08),
             blurRadius: 10,
-            offset: const Offset(0, 2),
+            offset: Offset(0, 2),
           ),
         ],
       ),
@@ -186,29 +186,29 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
                   color: AppColors.statusCaution.withOpacity(0.15),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.warning_amber_rounded,
                   color: AppColors.statusCaution,
                   size: 22,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       widget.incident.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                         color: AppColors.darkText,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    SizedBox(height: 2),
                     Text(
                       '${widget.incident.userReports} reports • ${widget.incident.timeAgo}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         color: AppColors.mutedText,
                       ),
@@ -218,14 +218,14 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           // Animated verification progress
           Row(
             children: [
               // Pulsing verification icon
               _buildPulsingIcon(),
-              const SizedBox(width: 6),
-              const Text(
+              SizedBox(width: 6),
+              Text(
                 'Verifying...',
                 style: TextStyle(
                   fontSize: 12,
@@ -233,7 +233,7 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               // Animated progress bar
               Expanded(
                 child: AnimatedBuilder(
@@ -253,14 +253,14 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
                   },
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               // Animated percentage
               AnimatedBuilder(
                 animation: _progressAnimation,
                 builder: (context, child) {
                   return Text(
                     '${(_progressAnimation.value * 100).toInt()}%',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
                       color: AppColors.mutedText,
                       fontWeight: FontWeight.w500,
@@ -270,20 +270,20 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
               onPressed: widget.onViewDetails,
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.primaryBlue,
-                side: const BorderSide(color: AppColors.primaryBlue),
+                side: BorderSide(color: AppColors.primaryBlue),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 10),
               ),
-              child: const Text(
+              child: Text(
                 'View Details',
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
@@ -312,7 +312,7 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
             child: Container(
               width: 8,
               height: 8,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: AppColors.verifiedBadge,
               ),
@@ -350,7 +350,7 @@ class HighRiskAlertCard extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withOpacity(0.12),
             blurRadius: 16,
-            offset: const Offset(0, 4),
+            offset: Offset(0, 4),
           ),
         ],
       ),
@@ -360,7 +360,7 @@ class HighRiskAlertCard extends StatelessWidget {
           // Red header
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: AppColors.statusHighRisk,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(16),
@@ -369,25 +369,25 @@ class HighRiskAlertCard extends StatelessWidget {
             ),
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.warning_rounded,
                   color: Colors.white,
                   size: 24,
                 ),
-                const SizedBox(width: 10),
+                SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         incident.title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Text(
                         'VERIFIED BY ${incident.userReports} STUDENTS',
                         style: TextStyle(
@@ -411,13 +411,13 @@ class HighRiskAlertCard extends StatelessWidget {
               children: [
                 Text(
                   incident.description,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     color: AppColors.darkText,
                     height: 1.4,
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 // Reliability indicator
                 Row(
                   children: [
@@ -430,15 +430,15 @@ class HighRiskAlertCard extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.shield,
                             size: 14,
                             color: AppColors.statusNormal,
                           ),
-                          const SizedBox(width: 4),
+                          SizedBox(width: 4),
                           Text(
                             '${incident.verificationProgress}% RELIABILITY',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 11,
                               color: AppColors.statusNormal,
                               fontWeight: FontWeight.w600,
@@ -447,10 +447,10 @@ class HighRiskAlertCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const Spacer(),
+                    Spacer(),
                     GestureDetector(
                       onTap: onViewDetails,
-                      child: const Text(
+                      child: Text(
                         'View Details & Live Updates',
                         style: TextStyle(
                           color: AppColors.primaryBlue,
@@ -462,7 +462,7 @@ class HighRiskAlertCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 // Action buttons
                 Row(
                   children: [
@@ -471,13 +471,13 @@ class HighRiskAlertCard extends StatelessWidget {
                         onPressed: onReportTrust,
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppColors.mutedText,
-                          side: const BorderSide(color: AppColors.cardBorder),
+                          side: BorderSide(color: AppColors.cardBorder),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
-                        child: const Text(
+                        child: Text(
                           'REPORT TRUST',
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
@@ -486,13 +486,13 @@ class HighRiskAlertCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     Expanded(
                       flex: 2,
                       child: ElevatedButton.icon(
                         onPressed: onNavigateToSafety,
-                        icon: const Icon(Icons.directions, size: 18),
-                        label: const Text(
+                        icon: Icon(Icons.directions, size: 18),
+                        label: Text(
                           'Navigate to Safety',
                           style: TextStyle(fontWeight: FontWeight.w600),
                         ),

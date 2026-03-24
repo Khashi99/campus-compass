@@ -31,15 +31,15 @@ class _MyWidgetState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.pageBackground,
       body: SafeArea(
         child: Container(
-          color: Colors.white,
+          color: AppColors.pageBackground,
           child: SingleChildScrollView(
             child: Center(
               child: Column(
                 children: [
-                  const SizedBox(height: 25),
+                  SizedBox(height: 25),
 
                   // Logo & subtitle
                   ClipRRect(
@@ -52,13 +52,13 @@ class _MyWidgetState extends State<LoginScreen> {
                   Text(
                     'Campus Safety & Navigation',
                     style: TextStyle(
-                      color: Colors.grey[600],
+                      color: AppColors.mutedText,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
                   ),
 
-                  const SizedBox(height: 50),
+                  SizedBox(height: 50),
 
                   Form(
                     key: _formKey,
@@ -98,7 +98,7 @@ class _MyWidgetState extends State<LoginScreen> {
                               }
                               return null;
                             },
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               prefixIcon: Icon(
                                 Icons.email_outlined,
                                 color: AppColors.mutedText,
@@ -115,7 +115,7 @@ class _MyWidgetState extends State<LoginScreen> {
                           ),
                         ),
 
-                        const SizedBox(height: 5),
+                        SizedBox(height: 5),
 
                         // Password label + forgot password
                         Row(
@@ -164,7 +164,7 @@ class _MyWidgetState extends State<LoginScreen> {
                               return null;
                             },
                             decoration: InputDecoration(
-                              prefixIcon: const Icon(
+                              prefixIcon: Icon(
                                 Icons.lock_outline,
                                 color: AppColors.mutedText,
                               ),
@@ -181,7 +181,7 @@ class _MyWidgetState extends State<LoginScreen> {
                                 ),
                               ),
                               hintText: 'Password',
-                              border: const OutlineInputBorder(
+                              border: OutlineInputBorder(
                                 borderRadius: BorderRadius.all(
                                   Radius.circular(20),
                                 ),
@@ -192,7 +192,7 @@ class _MyWidgetState extends State<LoginScreen> {
                           ),
                         ),
 
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10),
 
                         // Remember me checkbox
                         Container(
@@ -210,12 +210,12 @@ class _MyWidgetState extends State<LoginScreen> {
                                   });
                                 },
                               ),
-                              const Text('Remember this device'),
+                              Text('Remember this device'),
                             ],
                           ),
                         ),
 
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10),
 
                         // Login button
                         Container(
@@ -243,18 +243,18 @@ class _MyWidgetState extends State<LoginScreen> {
                                     ),
                                   )
                                 else ...[
-                                  const Text(
+                                  Text(
                                     'Login',
                                     style: TextStyle(
-                                      color: AppColors.white,
+                                      color: Colors.white,
                                       fontWeight: FontWeight.w900,
                                       fontSize: 18,
                                     ),
                                   ),
-                                  const SizedBox(width: 13),
-                                  const Icon(
+                                  SizedBox(width: 13),
+                                  Icon(
                                     Icons.arrow_forward,
-                                    color: AppColors.white,
+                                    color: Colors.white,
                                   ),
                                 ],
                               ],
@@ -266,7 +266,7 @@ class _MyWidgetState extends State<LoginScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text('New to Concordia?'),
+                            Text('New to Concordia?'),
                             TextButton(
                               onPressed: _isAuthLoading ? null : _createAccount,
                               child: Text(
@@ -277,7 +277,7 @@ class _MyWidgetState extends State<LoginScreen> {
                           ],
                         ),
 
-                        const SizedBox(height: 20),
+                        SizedBox(height: 20),
 
                         // Divider section
                         Container(
@@ -285,7 +285,7 @@ class _MyWidgetState extends State<LoginScreen> {
                             horizontal:
                                 MediaQuery.of(context).size.width / 13,
                           ),
-                          child: const Row(
+                          child: Row(
                             children: [
                               Expanded(child: Divider()),
                               Padding(
@@ -300,7 +300,7 @@ class _MyWidgetState extends State<LoginScreen> {
                           ),
                         ),
 
-                        const SizedBox(height: 25),
+                        SizedBox(height: 25),
 
                         // Guest access
                         GestureDetector(
@@ -327,10 +327,10 @@ class _MyWidgetState extends State<LoginScreen> {
                                     width: 50,
                                     height: 50,
                                     decoration: BoxDecoration(
-                                      color: Colors.blue[50],
+                                      color: AppColors.primaryBlue.withValues(alpha: 0.12),
                                       shape: BoxShape.circle,
                                     ),
-                                    child: const Icon(
+                                    child: Icon(
                                       CupertinoIcons.checkmark_shield,
                                       color: AppColors.primaryBlue,
                                     ),
@@ -338,7 +338,7 @@ class _MyWidgetState extends State<LoginScreen> {
                                   Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
-                                    children: const [
+                                    children: [
                                       Text(
                                         'Continue as Guest',
                                         style: AppTheme.bulletStyle,
@@ -348,8 +348,8 @@ class _MyWidgetState extends State<LoginScreen> {
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(width: 10),
-                                  const Icon(
+                                  SizedBox(width: 10),
+                                  Icon(
                                     Icons.arrow_forward,
                                     color: AppColors.mutedText,
                                   ),
@@ -359,19 +359,19 @@ class _MyWidgetState extends State<LoginScreen> {
                           ),
                         ),
 
-                        const SizedBox(height: 20),
+                        SizedBox(height: 20),
 
                         // Footer text
                         Text(
                           'By continuing, you agree to the safety sharing terms \nand privacy guidelines of Concordia University.',
                           style: TextStyle(
-                            color: Colors.grey[600],
+                            color: AppColors.mutedText,
                             fontSize: 13,
                           ),
                           textAlign: TextAlign.center,
                         ),
 
-                        const SizedBox(height: 20),
+                        SizedBox(height: 20),
                       ],
                     ),
                   )

@@ -28,7 +28,7 @@ class SafetyRouteStepTile extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -37,7 +37,7 @@ class SafetyRouteStepTile extends StatelessWidget {
                   step.title,
                   style: AppTheme.optionTitleStyle,
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   step.subtitle,
                   style: AppTheme.optionSubtitleStyle,

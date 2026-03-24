@@ -16,7 +16,7 @@ class SafetyRouteScreen extends StatefulWidget {
 class _SafetyRouteScreenState extends State<SafetyRouteScreen> {
   int _currentNavIndex = 0;
 
-  final List<SafetyRouteStep> _steps = const [
+  final List<SafetyRouteStep> _steps = [
     SafetyRouteStep(
       icon: Icons.arrow_upward_rounded,
       title: 'Proceed toward Classroom H-110',
@@ -67,7 +67,7 @@ class _SafetyRouteScreenState extends State<SafetyRouteScreen> {
         backgroundColor: AppColors.pageBackground,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           'Safety Route',
           style: TextStyle(
             color: AppColors.darkText,
@@ -92,7 +92,7 @@ class _SafetyRouteScreenState extends State<SafetyRouteScreen> {
         actions: [
           IconButton(
             onPressed: () {},
-            icon: const Icon(
+            icon: Icon(
               Icons.settings_outlined,
               color: AppColors.darkText,
             ),
@@ -101,7 +101,7 @@ class _SafetyRouteScreenState extends State<SafetyRouteScreen> {
       ),
       body: Column(
         children: [
-          const Divider(height: 1),
+          Divider(height: 1),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
@@ -109,8 +109,8 @@ class _SafetyRouteScreenState extends State<SafetyRouteScreen> {
                 const RouteVerificationBanner(
                   text: 'You are following a security-verified safety route',
                 ),
-                const SizedBox(height: 14),
-                const Text(
+                SizedBox(height: 14),
+                Text(
                   'This is a guidance route. Please refer to nearby hallways, room numbers, and signage to connect with the path.',
                   style: TextStyle(
                     fontSize: 15,
@@ -118,7 +118,7 @@ class _SafetyRouteScreenState extends State<SafetyRouteScreen> {
                     color: AppColors.mutedText,
                   ),
                 ),
-                const SizedBox(height: 22),
+                SizedBox(height: 22),
                 ..._steps.map((step) => SafetyRouteStepTile(step: step)),
               ],
             ),

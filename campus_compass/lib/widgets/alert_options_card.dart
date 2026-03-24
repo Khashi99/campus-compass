@@ -26,7 +26,9 @@ class AlertOptionCard extends StatelessWidget {
           duration: const Duration(milliseconds: 180),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFFF8FBFF) : Colors.white,
+            color: isSelected
+                ? AppColors.secondaryBlue.withValues(alpha: 0.18)
+                : AppColors.white,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: isSelected
@@ -54,13 +56,13 @@ class AlertOptionCard extends StatelessWidget {
                   size: 24,
                 ),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(option.title, style: AppTheme.optionTitleStyle),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       option.subtitle,
                       style: AppTheme.optionSubtitleStyle,
@@ -68,7 +70,7 @@ class AlertOptionCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Container(
                 width: 26,
                 height: 26,
@@ -82,10 +84,10 @@ class AlertOptionCard extends StatelessWidget {
                   ),
                   color: isSelected
                       ? AppColors.primaryBlue.withValues(alpha: 0.08)
-                      : Colors.white,
+                      : AppColors.white,
                 ),
                 child: isSelected
-                    ? const Icon(
+                    ? Icon(
                         Icons.check,
                         size: 16,
                         color: AppColors.primaryBlue,

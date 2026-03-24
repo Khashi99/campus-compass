@@ -1,98 +1,158 @@
-import 'package:flutter/material.dart';
 import 'package:campus_compass/theme/app_colors.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  AppTheme._(); // private constructor to prevent instantiation
+  AppTheme._();
 
-  // Button Theme Data
-  static ElevatedButtonThemeData elevatedButtonTheme = ElevatedButtonThemeData(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: AppColors.primaryBlue,
-      textStyle: TextStyle(color: AppColors.white, fontSize: 14),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ), 
-      elevation: 1.4,
-    )
-  );
+  static ElevatedButtonThemeData get elevatedButtonTheme =>
+      ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primaryBlue,
+          foregroundColor: Colors.white,
+          textStyle: TextStyle(fontSize: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          elevation: 1.4,
+        ),
+      );
 
-  // Button Theme Data
-  static TextButtonThemeData textButtonTheme = TextButtonThemeData(
-    style: TextButton.styleFrom(
-      textStyle: linkStyle,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ), 
-      elevation: 1.4,
+  static TextButtonThemeData get textButtonTheme => TextButtonThemeData(
+        style: TextButton.styleFrom(
+          textStyle: linkStyle,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          elevation: 1.4,
+        ),
+      );
 
-    )
-  );
+  static TextTheme get textTheme => TextTheme(
+        bodyLarge: GoogleFonts.lexend(
+          fontSize: 16,
+          fontWeight: FontWeight.normal,
+          color: AppColors.primaryBlue,
+        ),
+        bodyMedium: GoogleFonts.lexend(
+          fontSize: 14,
+          color: AppColors.darkText,
+        ),
+      );
 
-  // Text Theme Data
-  static TextTheme textTheme = TextTheme(
-    bodyLarge: GoogleFonts.lexend(
-      fontSize: 16,
-      fontWeight: FontWeight.normal,
-      color: AppColors.primaryBlue,
-    ),
-  );
+  static ThemeData get themeData {
+    final brightness = AppColors.pageBackground.computeLuminance() < 0.2
+        ? Brightness.dark
+        : Brightness.light;
 
-  // App Theme Data
-  static ThemeData appTheme = ThemeData(
-    textTheme: textTheme,
-    textButtonTheme: textButtonTheme, 
-    elevatedButtonTheme: elevatedButtonTheme,
-  );
+    return ThemeData(
+      useMaterial3: true,
+      brightness: brightness,
+      scaffoldBackgroundColor: AppColors.pageBackground,
+      canvasColor: AppColors.pageBackground,
+      cardColor: AppColors.white,
+      dividerColor: AppColors.cardBorder,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: AppColors.primaryBlue,
+        brightness: brightness,
+      ).copyWith(
+        primary: AppColors.primaryBlue,
+        onPrimary: Colors.white,
+        secondary: AppColors.primaryBlue,
+        surface: AppColors.white,
+        onSurface: AppColors.darkText,
+        outline: AppColors.cardBorder,
+      ),
+      textTheme: textTheme,
+      textButtonTheme: textButtonTheme,
+      elevatedButtonTheme: elevatedButtonTheme,
+      appBarTheme: AppBarTheme(
+        backgroundColor: AppColors.white,
+        foregroundColor: AppColors.darkText,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        titleTextStyle: GoogleFonts.lexend(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: AppColors.darkText,
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: AppColors.lightCircle,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: BorderSide(color: AppColors.cardBorder),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: BorderSide(color: AppColors.cardBorder),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: BorderSide(
+            color: AppColors.primaryBlue,
+            width: 1.4,
+          ),
+        ),
+        hintStyle: TextStyle(color: AppColors.mutedText),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: AppColors.darkText,
+        contentTextStyle: TextStyle(color: Colors.white),
+      ),
+    );
+  }
 
-  // MaterialBanner theme data
-  static MaterialBannerThemeData materialBannerTheme = MaterialBannerThemeData(
-    backgroundColor: AppColors.primaryBlue,
-    contentTextStyle: textTheme.bodyLarge,
-  );
+  static MaterialBannerThemeData get materialBannerTheme =>
+      MaterialBannerThemeData(
+        backgroundColor: AppColors.primaryBlue,
+        contentTextStyle: textTheme.bodyLarge,
+      );
 
-  static const TextStyle titleStyle = TextStyle(
-    fontSize: 22,
-    fontWeight: FontWeight.w800,
-    color: AppColors.darkText,
-    height: 1.2,
-  );
+  static TextStyle get titleStyle => TextStyle(
+        fontSize: 22,
+        fontWeight: FontWeight.w800,
+        color: AppColors.darkText,
+        height: 1.2,
+      );
 
-  static const TextStyle descriptionStyle = TextStyle(
-    fontSize: 14,
-    color: AppColors.mutedText,
-    height: 1.6,
-  );
+  static TextStyle get descriptionStyle => TextStyle(
+        fontSize: 14,
+        color: AppColors.mutedText,
+        height: 1.6,
+      );
 
-  static const TextStyle bulletStyle = TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
-    color: AppColors.darkText,
-  );
+  static TextStyle get bulletStyle => TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        color: AppColors.darkText,
+      );
 
-  static const TextStyle optionTitleStyle = TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.w700,
-    color: AppColors.darkText,
-  );
+  static TextStyle get optionTitleStyle => TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+        color: AppColors.darkText,
+      );
 
-  static const TextStyle optionSubtitleStyle = TextStyle(
-    fontSize: 14,
-    color: AppColors.mutedText,
-    height: 1.4,
-  );
+  static TextStyle get optionSubtitleStyle => TextStyle(
+        fontSize: 14,
+        color: AppColors.mutedText,
+        height: 1.4,
+      );
 
-  static const TextStyle quoteStyle = TextStyle(
-    fontSize: 13,
-    height: 1.6,
-    color: AppColors.mutedText,
-    fontStyle: FontStyle.italic,
-  );
+  static TextStyle get quoteStyle => TextStyle(
+        fontSize: 13,
+        height: 1.6,
+        color: AppColors.mutedText,
+        fontStyle: FontStyle.italic,
+      );
 
-    static const TextStyle linkStyle = TextStyle(
-    fontSize: 14.5,
-    height: 1.6,
-    color: AppColors.primaryBlue,
-    fontWeight: FontWeight.bold,
-  );
+  static TextStyle get linkStyle => TextStyle(
+        fontSize: 14.5,
+        height: 1.6,
+        color: AppColors.primaryBlue,
+        fontWeight: FontWeight.bold,
+      );
 }

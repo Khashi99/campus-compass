@@ -80,7 +80,7 @@ class StatusBanner extends StatelessWidget {
               color: status.textColor,
               size: 20,
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             Expanded(
               child: Text(
                 'Live Campus Status: ${status.displayText}',
@@ -142,7 +142,7 @@ class MapLegend extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
             blurRadius: 8,
-            offset: const Offset(0, 2),
+            offset: Offset(0, 2),
           ),
         ],
       ),
@@ -150,7 +150,7 @@ class MapLegend extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
+          Text(
             'Map Legend',
             style: TextStyle(
               fontWeight: FontWeight.w600,
@@ -158,9 +158,9 @@ class MapLegend extends StatelessWidget {
               color: AppColors.darkText,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _buildLegendItem(AppColors.safeRoute, 'Safe Route'),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           _buildLegendItem(AppColors.tensionZone, 'Tension Zone'),
         ],
       ),
@@ -179,10 +179,10 @@ class MapLegend extends StatelessWidget {
             shape: BoxShape.circle,
           ),
         ),
-        const SizedBox(width: 6),
+        SizedBox(width: 6),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
             color: AppColors.mutedText,
           ),

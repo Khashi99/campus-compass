@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:campus_compass/theme/app_colors.dart';
+import 'package:campus_compass/utils/campus_time.dart';
 
 class MyReportsScreen extends StatelessWidget {
   const MyReportsScreen({super.key});
@@ -16,7 +17,7 @@ class MyReportsScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.white,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'My Reports',
           style: TextStyle(
             color: AppColors.darkText,
@@ -25,11 +26,11 @@ class MyReportsScreen extends StatelessWidget {
         ),
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back, color: AppColors.darkText),
+          icon: Icon(Icons.arrow_back, color: AppColors.darkText),
         ),
       ),
       body: user == null
-          ? const Center(
+          ? Center(
               child: Text(
                 'Sign in required to view your reports.',
                 style: TextStyle(color: AppColors.mutedText),
@@ -43,7 +44,7 @@ class MyReportsScreen extends StatelessWidget {
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return Center(child: CircularProgressIndicator());
                 }
 
                 if (snapshot.hasError) {
@@ -52,7 +53,7 @@ class MyReportsScreen extends StatelessWidget {
                       padding: const EdgeInsets.all(20),
                       child: Text(
                         'Failed to load reports: ${snapshot.error}',
-                        style: const TextStyle(color: AppColors.mutedText),
+                        style: TextStyle(color: AppColors.mutedText),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -61,7 +62,7 @@ class MyReportsScreen extends StatelessWidget {
 
                 final docs = snapshot.data?.docs ?? const [];
                 if (docs.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Text(
                       'No reports submitted yet.',
                       style: TextStyle(color: AppColors.mutedText),
@@ -72,7 +73,7 @@ class MyReportsScreen extends StatelessWidget {
                 return ListView.separated(
                   padding: const EdgeInsets.all(16),
                   itemCount: docs.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 12),
+                  separatorBuilder: (context, index) => SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final doc = docs[index];
                     final data = doc.data();
@@ -99,7 +100,7 @@ class MyReportsScreen extends StatelessWidget {
                               Expanded(
                                 child: Text(
                                   _formatType(type),
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.darkText,
@@ -109,30 +110,30 @@ class MyReportsScreen extends StatelessWidget {
                               _StatusChip(status: status),
                             ],
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8),
                           Text(
                             location,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
                               color: AppColors.mutedText,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8),
                           Text(
                             description,
                             maxLines: 3,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               color: AppColors.darkText,
                               height: 1.4,
                             ),
                           ),
-                          const SizedBox(height: 10),
+                          SizedBox(height: 10),
                           Text(
                             'Reported: ${_formatDateTime(reportedTime)}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               color: AppColors.mutedText,
                             ),
@@ -172,9 +173,7 @@ class MyReportsScreen extends StatelessWidget {
   }
 
   static String _formatDateTime(DateTime dateTime) {
-    final hh = dateTime.hour.toString().padLeft(2, '0');
-    final mm = dateTime.minute.toString().padLeft(2, '0');
-    return '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} $hh:$mm';
+    return CampusTime.formatCompact(dateTime);
   }
 }
 

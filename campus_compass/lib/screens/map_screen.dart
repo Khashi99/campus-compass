@@ -1,5 +1,9 @@
+import 'dart:async';
+
+import 'package:campus_compass/screens/alerts_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:campus_compass/screens/profile_screen.dart';
 import 'package:campus_compass/theme/app_colors.dart';
 import 'package:campus_compass/widgets/status_banner.dart';
 import 'package:campus_compass/widgets/bottom_nav_bar.dart';
@@ -7,9 +11,7 @@ import 'package:campus_compass/widgets/map_placeholder.dart';
 import 'package:campus_compass/widgets/incident_card.dart';
 import 'package:campus_compass/models/incident.dart';
 import 'package:campus_compass/screens/incident_detail_screen.dart';
-import 'package:campus_compass/screens/my_reports_screen.dart';
 import 'package:campus_compass/screens/report_incident_screen.dart';
-import 'package:campus_compass/screens/staff_review_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 /// Main map screen that dynamically updates based on campus status
@@ -35,7 +37,10 @@ class _MapScreenState extends State<MapScreen> {
   bool _showHighRiskOverlay = false;
   bool _isLoadingIncidents = true;
   String? _incidentLoadError;
+  int _pendingReviewCount = 0;
   late final Stream<QuerySnapshot<Map<String, dynamic>>> _incidentStream;
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>?
+      _pendingReviewSubscription;
 
   @override
   void initState() {
@@ -46,6 +51,13 @@ class _MapScreenState extends State<MapScreen> {
         .where('isActive', isEqualTo: true)
         .orderBy('updatedAt', descending: true)
         .snapshots();
+    _loadPendingReviewCount();
+  }
+
+  @override
+  void dispose() {
+    _pendingReviewSubscription?.cancel();
+    super.dispose();
   }
 
   @override
@@ -93,7 +105,7 @@ class _MapScreenState extends State<MapScreen> {
                           tensionZoneLabel: _activeIncidents.isNotEmpty
                               ? _getTensionZoneLabel()
                               : null,
-                          tensionZonePosition: const Offset(100, 180),
+                          tensionZonePosition: Offset(100, 180),
                         ),
 
                         if (_isLoadingIncidents)
@@ -142,7 +154,7 @@ class _MapScreenState extends State<MapScreen> {
       bottomNavigationBar: BottomNavBar(
         currentIndex: _currentNavIndex,
         onTap: _handleNavTap,
-        alertBadgeCount: _activeIncidents.length,
+        alertBadgeCount: _activeIncidents.length + _pendingReviewCount,
       ),
     );
   }
@@ -205,7 +217,7 @@ class _MapScreenState extends State<MapScreen> {
             // Red status banner
             const StatusBanner(status: CampusStatus.highRisk),
             
-            const Spacer(),
+            Spacer(),
             
             // High risk alert card
             HighRiskAlertCard(
@@ -215,7 +227,7 @@ class _MapScreenState extends State<MapScreen> {
               onReportTrust: () => _reportTrust(_activeIncidents.first),
             ),
             
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             
             // Dismiss button
             Padding(
@@ -226,7 +238,7 @@ class _MapScreenState extends State<MapScreen> {
                     _showHighRiskOverlay = false;
                   });
                 },
-                child: const Text(
+                child: Text(
                   'Dismiss Alert',
                   style: TextStyle(
                     color: Colors.white,
@@ -236,7 +248,7 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
             
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
           ],
         ),
       ),
@@ -260,67 +272,36 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   void _handleNavTap(int index) {
-    setState(() {
-      _currentNavIndex = index;
-    });
-    
-    // Handle navigation to other screens
     switch (index) {
       case 0: // Map - already here
+        setState(() {
+          _currentNavIndex = 0;
+        });
         break;
       case 1: // Report
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const ReportIncidentScreen(),
-          ),
-        );
+        _openScreen(const ReportIncidentScreen());
         break;
       case 2: // Alerts
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const MyReportsScreen(),
-          ),
-        );
+        _openScreen(const AlertsScreen());
         break;
       case 3: // Profile
-        _openStaffReview();
+        _openScreen(const ProfileScreen());
         break;
     }
   }
 
-  Future<void> _openStaffReview() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      _showSnackBar('Sign in required.');
+  Future<void> _openScreen(Widget screen) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => screen),
+    );
+
+    if (!mounted) {
       return;
     }
-
-    try {
-      final roleDoc = await FirebaseFirestore.instance
-          .collection('roles')
-          .doc(user.uid)
-          .get();
-      final role = (roleDoc.data()?['role'] as String?) ?? '';
-
-      if (role == 'staff' || role == 'admin') {
-        if (!mounted) {
-          return;
-        }
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const StaffReviewScreen(),
-          ),
-        );
-        return;
-      }
-
-      _showSnackBar('Staff review is available for staff/admin only.');
-    } catch (e) {
-      _showSnackBar('Unable to verify role: $e');
-    }
+    setState(() {
+      _currentNavIndex = 0;
+    });
   }
 
   void _navigateToIncidentDetail(Incident incident) {
@@ -330,6 +311,7 @@ class _MapScreenState extends State<MapScreen> {
         builder: (context) => IncidentDetailScreen(
           incident: incident,
           onViewLiveMap: () => Navigator.pop(context),
+          onRequestUpdate: () => _requestAlertUpdate(incident),
         ),
       ),
     );
@@ -368,6 +350,76 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+  Future<void> _requestAlertUpdate(Incident incident) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      _showSnackBar('Sign in required to request an update.');
+      return;
+    }
+
+    try {
+      final now = FieldValue.serverTimestamp();
+      await FirebaseFirestore.instance
+          .collection('incidents')
+          .doc(incident.id)
+          .collection('updateRequests')
+          .doc(user.uid)
+          .set({
+        'uid': user.uid,
+        'message': 'Requesting a status update for this alert.',
+        'requestedAt': now,
+        'updatedAt': now,
+      }, SetOptions(merge: true));
+
+      _showSnackBar('Update request submitted.', isSuccess: true);
+    } catch (e) {
+      _showSnackBar('Failed to request update: $e');
+    }
+  }
+
+  Future<void> _loadPendingReviewCount() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return;
+    }
+
+    try {
+      final roleDoc = await FirebaseFirestore.instance
+          .collection('roles')
+          .doc(user.uid)
+          .get();
+      final role = (roleDoc.data()?['role'] as String?) ?? '';
+
+      if (role != 'staff' && role != 'admin') {
+        return;
+      }
+
+      _pendingReviewSubscription = FirebaseFirestore.instance
+          .collection('incidentReports')
+          .orderBy('reportedTime', descending: true)
+          .snapshots()
+          .listen((snapshot) {
+        final pendingCount = snapshot.docs
+            .where((doc) => (doc.data()['status'] as String?) == 'submitted')
+            .length;
+
+        if (!mounted) {
+          return;
+        }
+        setState(() {
+          _pendingReviewCount = pendingCount;
+        });
+      });
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _pendingReviewCount = 0;
+      });
+    }
+  }
+
   Widget _buildErrorBanner(String message) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -378,7 +430,7 @@ class _MapScreenState extends State<MapScreen> {
       ),
       child: Text(
         message,
-        style: const TextStyle(
+        style: TextStyle(
           color: AppColors.darkText,
           fontWeight: FontWeight.w500,
           fontSize: 12,
@@ -393,7 +445,7 @@ class _MapScreenState extends State<MapScreen> {
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(20),
@@ -420,10 +472,10 @@ class _MapScreenState extends State<MapScreen> {
                     size: 24,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Text(
                   '${_campusStatus.displayText} Status',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppColors.darkText,
@@ -431,19 +483,19 @@ class _MapScreenState extends State<MapScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
               _activeIncidents.isNotEmpty 
                   ? _activeIncidents.first.description
                   : 'Status information unavailable.',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 color: AppColors.mutedText,
                 height: 1.5,
               ),
             ),
-            const SizedBox(height: 16),
-            const Text(
+            SizedBox(height: 16),
+            Text(
               'Recommendations:',
               style: TextStyle(
                 fontSize: 14,
@@ -451,11 +503,11 @@ class _MapScreenState extends State<MapScreen> {
                 color: AppColors.darkText,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             _buildRecommendation('Consider alternative routes if possible'),
             _buildRecommendation('Stay aware of your surroundings'),
             _buildRecommendation('Check for updates before heading out'),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -468,7 +520,7 @@ class _MapScreenState extends State<MapScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: const Text(
+                child: Text(
                   'Got it',
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
@@ -485,16 +537,16 @@ class _MapScreenState extends State<MapScreen> {
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(
         children: [
-          const Icon(
+          Icon(
             Icons.check_circle,
             size: 16,
             color: AppColors.statusNormal,
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 color: AppColors.mutedText,
               ),
@@ -528,7 +580,7 @@ class _IncidentDetailPlaceholder extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Incident Detail'),
+        title: Text('Incident Detail'),
         backgroundColor: AppColors.primaryBlue,
         foregroundColor: Colors.white,
       ),
@@ -538,22 +590,22 @@ class _IncidentDetailPlaceholder extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
+              Icon(
                 Icons.construction,
                 size: 64,
                 color: AppColors.mutedText,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Text(
                 incident.title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 8),
-              const Text(
+              SizedBox(height: 8),
+              Text(
                 'Full incident detail screen coming next!',
                 style: TextStyle(color: AppColors.mutedText),
               ),

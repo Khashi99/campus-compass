@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:campus_compass/theme/app_colors.dart';
 import 'package:campus_compass/models/incident.dart';
+import 'package:campus_compass/utils/campus_time.dart';
 import 'package:campus_compass/widgets/map_placeholder.dart';
 
 class IncidentDetailScreen extends StatelessWidget {
@@ -23,10 +24,10 @@ class IncidentDetailScreen extends StatelessWidget {
         backgroundColor: AppColors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.darkText),
+          icon: Icon(Icons.arrow_back, color: AppColors.darkText),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Incident Data',
           style: TextStyle(
             color: AppColors.darkText,
@@ -37,7 +38,7 @@ class IncidentDetailScreen extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.share_outlined, color: AppColors.darkText),
+            icon: Icon(Icons.share_outlined, color: AppColors.darkText),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Share feature coming soon!')),
@@ -74,7 +75,7 @@ class IncidentDetailScreen extends StatelessWidget {
             // Request update button
             _buildRequestUpdateButton(context),
             
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
           ],
         ),
       ),
@@ -104,7 +105,7 @@ class IncidentDetailScreen extends StatelessWidget {
                   size: 14,
                   color: _getStatusColor(),
                 ),
-                const SizedBox(width: 4),
+                SizedBox(width: 4),
                 Text(
                   _getStatusText(),
                   style: TextStyle(
@@ -116,7 +117,7 @@ class IncidentDetailScreen extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           // Verified badge
           if (incident.verificationLevel == VerificationLevel.verified)
             Container(
@@ -125,7 +126,7 @@ class IncidentDetailScreen extends StatelessWidget {
                 color: AppColors.verifiedBadge.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
@@ -158,14 +159,14 @@ class IncidentDetailScreen extends StatelessWidget {
         children: [
           Text(
             incident.title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
               color: AppColors.darkText,
               height: 1.3,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -178,15 +179,15 @@ class IncidentDetailScreen extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.access_time,
                       size: 14,
                       color: AppColors.mutedText,
                     ),
-                    const SizedBox(width: 6),
+                    SizedBox(width: 6),
                     Text(
                       'Incident Time: ${_formatDateTime(incident.reportedTime)}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         color: AppColors.darkText,
                         fontWeight: FontWeight.w500,
@@ -194,36 +195,36 @@ class IncidentDetailScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.schedule,
                       size: 14,
                       color: AppColors.mutedText,
                     ),
-                    const SizedBox(width: 6),
+                    SizedBox(width: 6),
                     Text(
                       'Reported ${incident.timeAgo}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         color: AppColors.mutedText,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.people_outline,
                       size: 14,
                       color: AppColors.mutedText,
                     ),
-                    const SizedBox(width: 6),
+                    SizedBox(width: 6),
                     Text(
                       '${incident.userReports} User Reports',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         color: AppColors.mutedText,
                       ),
@@ -262,7 +263,7 @@ class IncidentDetailScreen extends StatelessWidget {
               errorBuilder: (context, error, stackTrace) {
                 return Container(
                   color: AppColors.pageBackground,
-                  child: const Center(
+                  child: Center(
                     child: Icon(
                       Icons.image_not_supported_outlined,
                       color: AppColors.mutedText,
@@ -277,13 +278,13 @@ class IncidentDetailScreen extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.photo_library,
                   size: 16,
                   color: AppColors.mutedText,
                 ),
-                const SizedBox(width: 6),
-                const Text(
+                SizedBox(width: 6),
+                Text(
                   'Incident Photo',
                   style: TextStyle(
                     fontSize: 12,
@@ -342,14 +343,14 @@ class IncidentDetailScreen extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 8,
-            offset: const Offset(0, 2),
+            offset: Offset(0, 2),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Resolution Progress',
             style: TextStyle(
               fontSize: 14,
@@ -357,7 +358,7 @@ class IncidentDetailScreen extends StatelessWidget {
               color: AppColors.darkText,
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Row(
             children: [
               _buildProgressStep(
@@ -412,7 +413,7 @@ class IncidentDetailScreen extends StatelessWidget {
                   )
                 : null,
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
             label,
             style: TextStyle(
@@ -450,14 +451,14 @@ class IncidentDetailScreen extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 8,
-            offset: const Offset(0, 2),
+            offset: Offset(0, 2),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Description',
             style: TextStyle(
               fontSize: 14,
@@ -465,10 +466,10 @@ class IncidentDetailScreen extends StatelessWidget {
               color: AppColors.darkText,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
             incident.description,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               color: AppColors.mutedText,
               height: 1.6,
@@ -494,7 +495,7 @@ class IncidentDetailScreen extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 8,
-            offset: const Offset(0, 2),
+            offset: Offset(0, 2),
           ),
         ],
       ),
@@ -503,7 +504,7 @@ class IncidentDetailScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Text(
+              Text(
                 'Community Insights',
                 style: TextStyle(
                   fontSize: 14,
@@ -511,7 +512,7 @@ class IncidentDetailScreen extends StatelessWidget {
                   color: AppColors.darkText,
                 ),
               ),
-              const Spacer(),
+              Spacer(),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
@@ -520,7 +521,7 @@ class IncidentDetailScreen extends StatelessWidget {
                 ),
                 child: Text(
                   '${incident.communityInsights.length}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: AppColors.primaryBlue,
@@ -529,7 +530,7 @@ class IncidentDetailScreen extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           ...incident.communityInsights.map((insight) => _buildInsightCard(insight)),
         ],
       ),
@@ -555,14 +556,14 @@ class IncidentDetailScreen extends StatelessWidget {
                 backgroundColor: AppColors.primaryBlue.withOpacity(0.2),
                 child: Text(
                   insight.authorName[0].toUpperCase(),
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.primaryBlue,
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               // Name and role
               Expanded(
                 child: Column(
@@ -572,14 +573,14 @@ class IncidentDetailScreen extends StatelessWidget {
                       children: [
                         Text(
                           insight.authorName,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                             color: AppColors.darkText,
                           ),
                         ),
                         if (insight.authorRole != null) ...[
-                          const SizedBox(width: 6),
+                          SizedBox(width: 6),
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 6,
@@ -591,7 +592,7 @@ class IncidentDetailScreen extends StatelessWidget {
                             ),
                             child: Text(
                               insight.authorRole!,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.primaryBlue,
@@ -603,7 +604,7 @@ class IncidentDetailScreen extends StatelessWidget {
                     ),
                     Text(
                       insight.timeAgo,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         color: AppColors.mutedText,
                       ),
@@ -613,10 +614,10 @@ class IncidentDetailScreen extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
             insight.content,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               color: AppColors.darkText,
               height: 1.5,
@@ -637,7 +638,7 @@ class IncidentDetailScreen extends StatelessWidget {
             onRequestUpdate?.call();
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: const Text('Update request submitted!'),
+                content: Text('Update request submitted!'),
                 backgroundColor: AppColors.statusNormal,
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(
@@ -646,14 +647,14 @@ class IncidentDetailScreen extends StatelessWidget {
               ),
             );
           },
-          icon: const Icon(Icons.refresh, size: 18),
-          label: const Text(
+          icon: Icon(Icons.refresh, size: 18),
+          label: Text(
             'Request Alert Update',
             style: TextStyle(fontWeight: FontWeight.w600),
           ),
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.primaryBlue,
-            side: const BorderSide(color: AppColors.primaryBlue),
+            side: BorderSide(color: AppColors.primaryBlue),
             padding: const EdgeInsets.symmetric(vertical: 14),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
@@ -699,22 +700,6 @@ class IncidentDetailScreen extends StatelessWidget {
   }
 
   String _formatDateTime(DateTime dateTime) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final yesterday = today.subtract(const Duration(days: 1));
-    final dateToCheck = DateTime(dateTime.year, dateTime.month, dateTime.day);
-
-    String dateStr;
-    if (dateToCheck == today) {
-      dateStr = 'Today';
-    } else if (dateToCheck == yesterday) {
-      dateStr = 'Yesterday';
-    } else {
-      dateStr = '${dateTime.month}/${dateTime.day}/${dateTime.year}';
-    }
-
-    final timeStr =
-        '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
-    return '$dateStr at $timeStr';
+    return CampusTime.formatDetailed(dateTime);
   }
 }

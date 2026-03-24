@@ -3,8 +3,8 @@ import 'package:campus_compass/screens/login_screen.dart';
 import 'package:campus_compass/screens/map_screen.dart';
 import 'package:campus_compass/screens/onboarding_screen.dart';
 import 'package:campus_compass/screens/safety_route_screen.dart';
-import 'package:campus_compass/theme/app_colors.dart';
 import 'package:campus_compass/theme/app_theme.dart';
+import 'package:campus_compass/theme/app_theme_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AppThemeController.instance.load();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -59,26 +60,25 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      routes: {
-        '/login': (context) => const LoginScreen(),
-        '/map': (context) => const MapScreen(),
-        '/safety-route': (context) => const SafetyRouteScreen(),
-      },
-      title: 'Campus Compass',
-      debugShowCheckedModeBanner: false,
-      // AppTheme holds elevatedButtonTheme, textButtonTheme, textTheme, etc.
-      theme: AppTheme.appTheme.copyWith(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primaryBlue,
-        ),
-      ),
-      home: const OnboardingScreen(),
-      
-      // For testing: Use MapScreen directly
-      // For production: Use OnboardingScreen and navigate to MapScreen after
-      //home: const MapScreen(),
+    return AnimatedBuilder(
+      animation: AppThemeController.instance,
+      builder: (context, _) {
+        return MaterialApp(
+          routes: {
+            '/login': (context) => const LoginScreen(),
+            '/map': (context) => const MapScreen(),
+            '/safety-route': (context) => const SafetyRouteScreen(),
+          },
+          title: 'Campus Compass',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.themeData,
+          home: const OnboardingScreen(),
 
+          // For testing: Use MapScreen directly
+          // For production: Use OnboardingScreen and navigate to MapScreen after
+          //home: const MapScreen(),
+        );
+      },
     );
   }
 }

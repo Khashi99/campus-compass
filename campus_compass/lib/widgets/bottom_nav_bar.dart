@@ -22,7 +22,7 @@ class BottomNavBar extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
             blurRadius: 10,
-            offset: const Offset(0, -2),
+            offset: Offset(0, -2),
           ),
         ],
       ),
@@ -68,17 +68,17 @@ class BottomNavBar extends StatelessWidget {
                     top: -4,
                     child: Container(
                       padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: AppColors.statusHighRisk,
                         shape: BoxShape.circle,
                       ),
-                      constraints: const BoxConstraints(
+                      constraints: BoxConstraints(
                         minWidth: 18,
                         minHeight: 18,
                       ),
                       child: Text(
                         badgeCount > 9 ? '9+' : badgeCount.toString(),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
@@ -89,7 +89,7 @@ class BottomNavBar extends StatelessWidget {
                   ),
               ],
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(

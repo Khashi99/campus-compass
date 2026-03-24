@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:campus_compass/models/incident.dart';
 import 'package:campus_compass/theme/app_colors.dart';
+import 'package:campus_compass/utils/campus_time.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
@@ -71,10 +72,10 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
       backgroundColor: AppColors.white,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.darkText),
+        icon: Icon(Icons.arrow_back_ios_new, color: AppColors.darkText),
         onPressed: () => Navigator.pop(context),
       ),
-      title: const Text(
+      title: Text(
         'Report an Incident',
         style: TextStyle(
           fontSize: 18,
@@ -94,10 +95,10 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
       children: [
         // Progress indicator
         _buildProgressIndicator(1),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
 
         // Title
-        const Text(
+        Text(
           "What's happening?",
           style: TextStyle(
             fontSize: 24,
@@ -105,8 +106,8 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             color: AppColors.darkText,
           ),
         ),
-        const SizedBox(height: 8),
-        const Text(
+        SizedBox(height: 8),
+        Text(
           'Your report helps other students navigate the campus safely. Choose a category to start.',
           style: TextStyle(
             fontSize: 14,
@@ -114,31 +115,31 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             height: 1.5,
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
 
         // Incident Type Field
         _buildIncidentTypeField(),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
 
         // Description Field
         _buildDescriptionField(),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
 
         // Location Field
         _buildLocationField(),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
 
         // Time Input Field
         _buildTimeField(),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
 
         // Evidence Section
         _buildEvidenceSection(),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
 
         // Emergency Info Box
         _buildEmergencyInfoBox(),
-        const SizedBox(height: 32),
+        SizedBox(height: 32),
 
         // Next Button
         _buildNextButton(),
@@ -161,7 +162,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Expanded(
                 child: Container(
                   height: 4,
@@ -174,10 +175,10 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             ],
           ),
         ),
-        const SizedBox(width: 16),
+        SizedBox(width: 16),
         Text(
           'Step $step of 2',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
             color: AppColors.primaryBlue,
@@ -193,13 +194,13 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
       children: [
         Row(
           children: [
-            const Icon(
+            Icon(
               Icons.warning_amber_rounded,
               color: AppColors.primaryBlue,
               size: 20,
             ),
-            const SizedBox(width: 8),
-            const Text(
+            SizedBox(width: 8),
+            Text(
               'Incident Type',
               style: TextStyle(
                 fontSize: 14,
@@ -209,7 +210,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           decoration: BoxDecoration(
@@ -220,11 +221,11 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
           child: DropdownButton<IncidentType>(
             isExpanded: true,
             value: _selectedType,
-            hint: const Text(
+            hint: Text(
               'Select type...',
               style: TextStyle(color: AppColors.mutedText),
             ),
-            underline: const SizedBox(),
+            underline: SizedBox(),
             items: IncidentType.values.map((type) {
               return DropdownMenuItem(
                 value: type,
@@ -246,13 +247,13 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
     children: [
       Row(
         children: [
-          const Icon(
+          Icon(
             Icons.info_outlined,
             color: AppColors.primaryBlue,
             size: 20,
           ),
-          const SizedBox(width: 8),
-          const Text(
+          SizedBox(width: 8),
+          Text(
             'Description',
             style: TextStyle(
               fontSize: 14,
@@ -262,7 +263,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
           ),
         ],
       ),
-      const SizedBox(height: 12),
+      SizedBox(height: 12),
 
       Container(
         decoration: BoxDecoration(
@@ -272,13 +273,13 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
         ),
         child: TextField(
           controller: _descriptionController,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             color: AppColors.darkText,
           ),
           maxLines: 4,
           maxLength: 3000,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             hintText:
                 "Briefly describe the situation (e.g., 'Main entrance blocked by protestors, please use the side gate.')",
             hintStyle: TextStyle(color: AppColors.mutedText),
@@ -290,14 +291,14 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
         ),
       ),
 
-      const SizedBox(height: 4),
+      SizedBox(height: 4),
 
       // Character counter BELOW the box
       Align(
         alignment: Alignment.centerRight,
         child: Text(
           '${_descriptionController.text.length} / 3000 characters',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
             color: AppColors.mutedText,
           ),
@@ -313,13 +314,13 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
       children: [
         Row(
           children: [
-            const Icon(
+            Icon(
               Icons.location_on_outlined,
               color: AppColors.primaryBlue,
               size: 20,
             ),
-            const SizedBox(width: 8),
-            const Text(
+            SizedBox(width: 8),
+            Text(
               'Location',
               style: TextStyle(
                 fontSize: 14,
@@ -329,7 +330,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           decoration: BoxDecoration(
@@ -340,11 +341,11 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
           child: DropdownButton<String>(
             isExpanded: true,
             value: _selectedLocation,
-            hint: const Text(
+            hint: Text(
               'Select location...',
               style: TextStyle(color: AppColors.mutedText),
             ),
-            underline: const SizedBox(),
+            underline: SizedBox(),
             items: [
               'Main Campus',
               'SGW Campus',
@@ -375,13 +376,13 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
       children: [
         Row(
           children: [
-            const Icon(
+            Icon(
               Icons.access_time_outlined,
               color: AppColors.primaryBlue,
               size: 20,
             ),
-            const SizedBox(width: 8),
-            const Text(
+            SizedBox(width: 8),
+            Text(
               'Incident Time',
               style: TextStyle(
                 fontSize: 14,
@@ -391,7 +392,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         GestureDetector(
           onTap: () async {
             final TimeOfDay? picked = await showTimePicker(
@@ -423,7 +424,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                         : AppColors.mutedText,
                   ),
                 ),
-                const Icon(
+                Icon(
                   Icons.access_time_outlined,
                   color: AppColors.primaryBlue,
                   size: 20,
@@ -442,13 +443,13 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
       children: [
         Row(
           children: [
-            const Icon(
+            Icon(
               Icons.image_outlined,
               color: AppColors.primaryBlue,
               size: 20,
             ),
-            const SizedBox(width: 8),
-            const Text(
+            SizedBox(width: 8),
+            Text(
               'Evidence (Optional)',
               style: TextStyle(
                 fontSize: 14,
@@ -458,7 +459,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         if (_evidenceFiles.isEmpty)
           SizedBox(
             width: double.infinity,
@@ -474,8 +475,8 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                         size: 32,
                         color: AppColors.primaryBlue,
                       ),
-                      const SizedBox(height: 8),
-                      const Text(
+                      SizedBox(height: 8),
+                      Text(
                         'Tap to add photo or video',
                         style: TextStyle(
                           fontSize: 13,
@@ -501,7 +502,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                     final evidence = entry.value;
                     return _buildEvidenceCard(evidence, index);
                   }),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   GestureDetector(
                     onTap: _showMediaPickerOptions,
                     child: Container(
@@ -515,7 +516,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                         ),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.add,
                         color: AppColors.primaryBlue,
                         size: 32,
@@ -572,7 +573,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                   color: Colors.black54,
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.play_arrow,
                   color: Colors.white,
                   size: 16,
@@ -592,7 +593,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 padding: const EdgeInsets.all(4),
-                child: const Icon(
+                child: Icon(
                   Icons.close,
                   color: Colors.white,
                   size: 16,
@@ -608,7 +609,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
   void _showMediaPickerOptions() {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (BuildContext context) {
@@ -617,7 +618,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
+              Text(
                 'Add Evidence',
                 style: TextStyle(
                   fontSize: 18,
@@ -625,7 +626,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                   color: AppColors.darkText,
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               _buildMediaOption(
                 icon: Icons.camera_alt_outlined,
                 label: 'Take Photo',
@@ -634,7 +635,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                   _pickImageFromCamera();
                 },
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               _buildMediaOption(
                 icon: Icons.videocam_outlined,
                 label: 'Take Video',
@@ -643,7 +644,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                   _pickVideoFromCamera();
                 },
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               _buildMediaOption(
                 icon: Icons.image_outlined,
                 label: 'Pick Photo from Gallery',
@@ -652,7 +653,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                   _pickImageFromGallery();
                 },
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               _buildMediaOption(
                 icon: Icons.folder_outlined,
                 label: 'Pick Video from Gallery',
@@ -661,12 +662,12 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                   _pickVideoFromGallery();
                 },
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
                 child: TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text(
+                  child: Text(
                     'Cancel',
                     style: TextStyle(
                       fontSize: 14,
@@ -704,10 +705,10 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
               color: AppColors.primaryBlue,
               size: 24,
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: AppColors.darkText,
@@ -820,7 +821,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                       borderRadius: BorderRadius.circular(24),
                     ),
                     padding: const EdgeInsets.all(8),
-                    child: const Icon(
+                    child: Icon(
                       Icons.close,
                       color: Colors.white,
                       size: 24,
@@ -846,7 +847,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Text(
+                            Text(
                               'Photo',
                               style: TextStyle(
                                 color: Colors.white70,
@@ -854,10 +855,10 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            SizedBox(height: 4),
                             Text(
                               evidence.file.name,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
@@ -869,7 +870,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     GestureDetector(
                       onTap: () {
                         setState(() => _evidenceFiles.removeAt(index));
@@ -881,7 +882,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         padding: const EdgeInsets.all(12),
-                        child: const Icon(
+                        child: Icon(
                           Icons.delete_outline,
                           color: Colors.white,
                           size: 20,
@@ -909,11 +910,11 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Icon(Icons.info_outline, color: AppColors.primaryBlue, size: 24),
-          const SizedBox(width: 16),
+          Icon(Icons.info_outline, color: AppColors.primaryBlue, size: 24),
+          SizedBox(width: 16),
           Expanded(
             child: RichText(
-              text: const TextSpan(
+              text: TextSpan(
                 children: [
                   TextSpan(
                     text: 'Emergency? ',
@@ -988,7 +989,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                 color: isFormValid ? Colors.white : AppColors.mutedText,
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             Icon(
               Icons.arrow_forward_rounded,
               color: isFormValid ? Colors.white : AppColors.mutedText,
@@ -1007,7 +1008,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
       children: [
         // Progress indicator
         _buildProgressIndicator(2),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
 
         // Info box - Review Details
         Container(
@@ -1019,7 +1020,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               Text(
                 'Review Details',
                 style: TextStyle(
@@ -1040,28 +1041,28 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
 
         _buildReviewCard(
           icon: Icons.warning_amber_rounded,
           label: 'INCIDENT TYPE',
           value: _selectedType?.displayName ?? 'Not selected',
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
 
         _buildReviewCard(
           icon: Icons.location_on_outlined,
           label: 'LOCATION',
           value: _selectedLocation ?? 'Not selected',
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
 
         _buildReviewCard(
           icon: Icons.description_outlined,
           label: 'DESCRIPTION',
           value: _descriptionController.text,
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
 
         Row(
           children: [
@@ -1072,7 +1073,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                 value: '${_evidenceFiles.length} Evidence',
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: _buildSmallReviewCard(
                 icon: Icons.access_time_outlined,
@@ -1084,10 +1085,10 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         if (_evidenceFiles.isNotEmpty) _buildEvidenceReviewList(),
   
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
 
         // Privacy info
         Container(
@@ -1101,13 +1102,13 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             children: [
               Container(
                 padding: const EdgeInsets.all(4),
-                child: const Icon(
+                child: Icon(
                   Icons.security_outlined,
                   color: Colors.blueGrey,
                   size: 24,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: Text(
                   'Your report will be anonymous to other students. Only campus security can view your account profile if required for safety verification.',
@@ -1121,7 +1122,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             ],
           ),
         ),
-        const SizedBox(height: 32),
+        SizedBox(height: 32),
 
         // Submit Button
         SizedBox(
@@ -1148,7 +1149,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                     ),
                   )
                 else ...[
-                  const Text(
+                  Text(
                     'Submit Report',
                     style: TextStyle(
                       fontSize: 16,
@@ -1156,14 +1157,14 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                       color: Colors.white,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  const Icon(Icons.arrow_forward_rounded, color: Colors.white),
+                  SizedBox(width: 8),
+                  Icon(Icons.arrow_forward_rounded, color: Colors.white),
                 ],
               ],
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
 
         // Cancel Button
         SizedBox(
@@ -1172,7 +1173,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             onPressed: () {
               setState(() => _currentStep = 1);
             },
-            child: const Text(
+            child: Text(
               'Back to Edit',
               style: TextStyle(
                 fontSize: 16,
@@ -1204,10 +1205,10 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
           Row(
             children: [
               Icon(icon, color: AppColors.primaryBlue, size: 18),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: AppColors.mutedText,
@@ -1216,10 +1217,10 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w500,
               color: AppColors.darkText,
@@ -1249,11 +1250,11 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
           Row(
             children: [
               Icon(icon, color: AppColors.primaryBlue, size: 16),
-              const SizedBox(width: 6),
+              SizedBox(width: 6),
               Expanded(
                 child: Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: AppColors.mutedText,
@@ -1263,10 +1264,10 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
               color: AppColors.darkText,
@@ -1282,7 +1283,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Evidence Preview',
           style: TextStyle(
             fontSize: 14,
@@ -1290,7 +1291,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             color: AppColors.darkText,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         SizedBox(
           height: 110,
           child: ListView.builder(
@@ -1340,7 +1341,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                               color: Colors.black54,
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.play_arrow,
                               color: Colors.white,
                               size: 16,
@@ -1377,10 +1378,15 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
     });
 
     try {
-      final now = DateTime.now();
+      final nowUtc = DateTime.now().toUtc();
+      final currentEasternDate = CampusTime.toEastern(nowUtc);
       final reportedAt = _incidentTime != null
-          ? DateTime(now.year, now.month, now.day, _incidentTime!.hour, _incidentTime!.minute)
-          : now;
+          ? CampusTime.easternDateAndTimeToUtc(
+              date: currentEasternDate,
+              hour: _incidentTime!.hour,
+              minute: _incidentTime!.minute,
+            )
+          : nowUtc;
       final locationCoordinates = _coordinatesForLocation(_selectedLocation!);
       final firestore = FirebaseFirestore.instance;
 
@@ -1597,11 +1603,11 @@ class _VideoPlaybackDialogState extends State<_VideoPlaybackDialog> {
                                 });
                               },
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12),
                             Flexible(
                               child: Text(
                                 widget.fileName,
-                                style: const TextStyle(color: Colors.white70),
+                                style: TextStyle(color: Colors.white70),
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                               ),
@@ -1611,7 +1617,7 @@ class _VideoPlaybackDialogState extends State<_VideoPlaybackDialog> {
                       ],
                     );
                   } else {
-                    return const CircularProgressIndicator(color: AppColors.primaryBlue);
+                    return CircularProgressIndicator(color: AppColors.primaryBlue);
                   }
                 },
               ),
@@ -1628,7 +1634,7 @@ class _VideoPlaybackDialogState extends State<_VideoPlaybackDialog> {
                   borderRadius: BorderRadius.circular(24),
                 ),
                 padding: const EdgeInsets.all(8),
-                child: const Icon(
+                child: Icon(
                   Icons.close,
                   color: Colors.white,
                   size: 24,
@@ -1647,7 +1653,7 @@ class _VideoPlaybackDialogState extends State<_VideoPlaybackDialog> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 padding: const EdgeInsets.all(12),
-                child: const Icon(
+                child: Icon(
                   Icons.delete_outline,
                   color: Colors.white,
                   size: 20,

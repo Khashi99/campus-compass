@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import 'package:campus_compass/support/report_review_actions.dart';
 import 'package:campus_compass/theme/app_colors.dart';
 
 class StaffReviewScreen extends StatelessWidget {
@@ -16,7 +17,7 @@ class StaffReviewScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.white,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Staff Review',
           style: TextStyle(
             color: AppColors.darkText,
@@ -25,11 +26,11 @@ class StaffReviewScreen extends StatelessWidget {
         ),
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back, color: AppColors.darkText),
+          icon: Icon(Icons.arrow_back, color: AppColors.darkText),
         ),
       ),
       body: user == null
-          ? const Center(
+          ? Center(
               child: Text(
                 'Sign in required.',
                 style: TextStyle(color: AppColors.mutedText),
@@ -42,7 +43,7 @@ class StaffReviewScreen extends StatelessWidget {
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return Center(child: CircularProgressIndicator());
                 }
 
                 if (snapshot.hasError) {
@@ -51,7 +52,7 @@ class StaffReviewScreen extends StatelessWidget {
                       padding: const EdgeInsets.all(20),
                       child: Text(
                         'Failed to load reports: ${snapshot.error}',
-                        style: const TextStyle(color: AppColors.mutedText),
+                        style: TextStyle(color: AppColors.mutedText),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -64,7 +65,7 @@ class StaffReviewScreen extends StatelessWidget {
                     .toList();
 
                 if (docs.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Text(
                       'No pending reports to review.',
                       style: TextStyle(color: AppColors.mutedText),
@@ -75,7 +76,7 @@ class StaffReviewScreen extends StatelessWidget {
                 return ListView.separated(
                   padding: const EdgeInsets.all(16),
                   itemCount: docs.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 12),
+                  separatorBuilder: (context, index) => SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final doc = docs[index];
                     final data = doc.data();
@@ -101,7 +102,7 @@ class StaffReviewScreen extends StatelessWidget {
                               Expanded(
                                 child: Text(
                                   title,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.darkText,
@@ -117,7 +118,7 @@ class StaffReviewScreen extends StatelessWidget {
                                   color: AppColors.statusCaution.withValues(alpha: 0.12),
                                   borderRadius: BorderRadius.circular(999),
                                 ),
-                                child: const Text(
+                                child: Text(
                                   'Submitted',
                                   style: TextStyle(
                                     color: AppColors.statusCaution,
@@ -128,27 +129,27 @@ class StaffReviewScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8),
                           Text(
                             '$location • ${_prettyType(type)}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.mutedText,
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8),
                           Text(
                             description,
                             maxLines: 3,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.darkText,
                               fontSize: 14,
                               height: 1.4,
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          SizedBox(height: 12),
                           Row(
                             children: [
                               Expanded(
@@ -156,12 +157,12 @@ class StaffReviewScreen extends StatelessWidget {
                                   onPressed: () => _dismissReport(context, doc),
                                   style: OutlinedButton.styleFrom(
                                     foregroundColor: AppColors.mutedText,
-                                    side: const BorderSide(color: AppColors.cardBorder),
+                                    side: BorderSide(color: AppColors.cardBorder),
                                   ),
-                                  child: const Text('Dismiss'),
+                                  child: Text('Dismiss'),
                                 ),
                               ),
-                              const SizedBox(width: 10),
+                              SizedBox(width: 10),
                               Expanded(
                                 child: ElevatedButton(
                                   onPressed: () => _approveReport(context, doc),
@@ -169,7 +170,7 @@ class StaffReviewScreen extends StatelessWidget {
                                     backgroundColor: AppColors.primaryBlue,
                                     foregroundColor: Colors.white,
                                   ),
-                                  child: const Text('Approve'),
+                                  child: Text('Approve'),
                                 ),
                               ),
                             ],
@@ -188,52 +189,8 @@ class StaffReviewScreen extends StatelessWidget {
     BuildContext context,
     QueryDocumentSnapshot<Map<String, dynamic>> reportDoc,
   ) async {
-    final data = reportDoc.data();
-    final firestore = FirebaseFirestore.instance;
-    final incidentsRef = firestore.collection('incidents').doc();
-    final now = FieldValue.serverTimestamp();
-
-    final campusId = (data['campusId'] as String?) ?? 'sgw';
-    final title = (data['title'] as String?) ?? 'Reported incident';
-    final description = (data['description'] as String?) ?? 'No description provided.';
-    final location = (data['location'] as String?) ?? 'Unknown location';
-    final coordinates = (data['coordinates'] as Map<String, dynamic>?) ??
-        <String, dynamic>{'latitude': 45.4973, 'longitude': -73.5790};
-    final buildingCode = (data['buildingCode'] as String?) ?? 'GEN';
-    final type = (data['type'] as String?) ?? 'maintenance';
-    final createdBy = (data['createdBy'] as String?) ?? '';
-    final reportedTime = data['reportedTime'] ?? now;
-
     try {
-      final batch = firestore.batch();
-
-      batch.set(incidentsRef, {
-        'campusId': campusId,
-        'title': title,
-        'description': description,
-        'location': location,
-        'coordinates': coordinates,
-        'buildingCode': buildingCode,
-        'type': type,
-        'status': 'reported',
-        'verificationLevel': 'verified',
-        'severity': 1,
-        'zoneRadiusMeters': 120,
-        'isActive': true,
-        'userReports': 1,
-        'createdBy': createdBy,
-        'reportedTime': reportedTime,
-        'updatedAt': now,
-        'resolvedAt': null,
-      });
-
-      batch.update(reportDoc.reference, {
-        'status': 'investigating',
-        'linkedIncidentId': incidentsRef.id,
-        'updatedAt': now,
-      });
-
-      await batch.commit();
+      await ReportReviewActions.approveReport(reportDoc);
 
       if (!context.mounted) {
         return;
@@ -256,10 +213,7 @@ class StaffReviewScreen extends StatelessWidget {
     QueryDocumentSnapshot<Map<String, dynamic>> reportDoc,
   ) async {
     try {
-      await reportDoc.reference.update({
-        'status': 'dismissed',
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
+      await ReportReviewActions.dismissReport(reportDoc);
 
       if (!context.mounted) {
         return;

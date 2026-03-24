@@ -46,7 +46,7 @@ class MapPlaceholder extends StatelessWidget {
                     ),
                   ),
                   if (tensionZoneLabel != null) ...[
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
@@ -55,7 +55,7 @@ class MapPlaceholder extends StatelessWidget {
                       ),
                       child: Text(
                         tensionZoneLabel!,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
@@ -76,7 +76,7 @@ class MapPlaceholder extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.primaryBlue,
                 shape: BoxShape.circle,
-                border: Border.all(color: AppColors.white, width: 3),
+                border: Border.all(color: Colors.white, width: 3),
                 boxShadow: [
                   BoxShadow(
                     color: AppColors.primaryBlue.withOpacity(0.3),
@@ -94,7 +94,7 @@ class MapPlaceholder extends StatelessWidget {
             child: Column(
               children: [
                 _buildZoomButton(Icons.add),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 _buildZoomButton(Icons.remove),
               ],
             ),
@@ -116,7 +116,7 @@ class MapPlaceholder extends StatelessWidget {
                   ),
                 ],
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.navigation,
                 color: AppColors.statusHighRisk,
                 size: 20,
@@ -169,11 +169,11 @@ class MiniMapButton extends StatelessWidget {
             BoxShadow(
               color: AppColors.primaryBlue.withOpacity(0.3),
               blurRadius: 8,
-              offset: const Offset(0, 2),
+              offset: Offset(0, 2),
             ),
           ],
         ),
-        child: const Row(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(

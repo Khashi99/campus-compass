@@ -39,13 +39,13 @@ class OnboardingHeroCard extends StatelessWidget {
               child: const _MapCard(width: 92, height: 62),
             ),
           ),
-          const Positioned(
+          Positioned(
             left: 36,
             top: 142,
             child: Icon(Icons.location_on_outlined,
                 size: 26, color: Color(0xFF111827)),
           ),
-          const Positioned(
+          Positioned(
             right: 64,
             top: 36,
             child:
@@ -92,24 +92,24 @@ class OnboardingHeroCard extends StatelessWidget {
                       BoxShadow(
                         color: AppColors.primaryBlue.withValues(alpha: 0.25),
                         blurRadius: 16,
-                        offset: const Offset(0, 10),
+                        offset: Offset(0, 10),
                       ),
                     ],
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.shield_outlined,
                     color: Colors.white,
                     size: 38,
                   ),
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.white,
                     borderRadius: BorderRadius.circular(18),
-                    boxShadow: const [
+                    boxShadow: [
                       BoxShadow(
                         color: Color(0x14000000),
                         blurRadius: 10,
@@ -117,7 +117,7 @@ class OnboardingHeroCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: const Text(
+                  child: Text(
                     'Secure Campus',
                     style: TextStyle(
                       color: AppColors.primaryBlue,
@@ -150,9 +150,9 @@ class _MapCard extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F8F8),
+        color: AppColors.quoteBackground,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFD1D5DB)),
+        border: Border.all(color: AppColors.cardBorder),
       ),
     );
   }

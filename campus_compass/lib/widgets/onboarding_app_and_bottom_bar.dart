@@ -26,7 +26,7 @@ class OnboardingAppBar extends StatelessWidget {
             InkWell(
               borderRadius: BorderRadius.circular(20),
               onTap: onBack,
-              child: const Padding(
+              child: Padding(
                 padding: EdgeInsets.all(6),
                 child: Icon(Icons.arrow_back_ios_new_rounded, size: 20),
               ),
@@ -37,7 +37,7 @@ class OnboardingAppBar extends StatelessWidget {
             child: Center(
               child: Text(
                 showBackTitle ? 'Personalize Alerts' : '',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w500,
                   color: AppColors.darkText,
@@ -48,7 +48,7 @@ class OnboardingAppBar extends StatelessWidget {
           showSkip
               ? TextButton(
                   onPressed: onSkip,
-                  child: const Text(
+                  child: Text(
                     'Skip',
                     style: TextStyle(
                       color: AppColors.mutedText,
@@ -57,7 +57,7 @@ class OnboardingAppBar extends StatelessWidget {
                     ),
                   ),
                 )
-              : const SizedBox(width: 52),
+              : SizedBox(width: 52),
         ],
       ),
     );
@@ -109,14 +109,14 @@ class OnboardingBottomBar extends StatelessWidget {
                 children: [
                   Text(
                     buttonText,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   if (showArrow) ...[
-                    const SizedBox(width: 10),
-                    const Icon(Icons.arrow_forward_ios_rounded, size: 16),
+                    SizedBox(width: 10),
+                    Icon(Icons.arrow_forward_ios_rounded, size: 16),
                   ],
                 ],
               ),

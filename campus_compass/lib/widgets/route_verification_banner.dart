@@ -19,7 +19,7 @@ class RouteVerificationBanner extends StatelessWidget {
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: const [
+        children: [
           Icon(
             Icons.verified_user_outlined,
             size: 14,

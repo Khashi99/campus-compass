@@ -20,7 +20,7 @@ class OnboardingBulletTile extends StatelessWidget {
           Container(
             width: 52,
             height: 52,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: AppColors.lightCircle,
               shape: BoxShape.circle,
             ),
@@ -30,7 +30,7 @@ class OnboardingBulletTile extends StatelessWidget {
               size: 24,
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Text(
               bullet.text,
