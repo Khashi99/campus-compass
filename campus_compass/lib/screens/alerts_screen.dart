@@ -301,6 +301,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
             detailLine: _detailLineForTimestamp(updatedAt),
             kind: _kindForIncident(incident),
             incident: incident,
+            incidentDoc: doc,
           );
         })
         .toList();
@@ -421,6 +422,11 @@ class _AlertsScreenState extends State<AlertsScreen> {
       return;
     }
 
+    if (_canReview && item.incidentDoc != null) {
+      await _showIncidentManagementSheet(item.incidentDoc!, incident);
+      return;
+    }
+
     if (!mounted) {
       return;
     }
@@ -433,6 +439,154 @@ class _AlertsScreenState extends State<AlertsScreen> {
           onRequestUpdate: () => _requestAlertUpdate(incident),
         ),
       ),
+    );
+  }
+
+  Future<void> _showIncidentManagementSheet(
+    QueryDocumentSnapshot<Map<String, dynamic>> incidentDoc,
+    Incident incident,
+  ) async {
+    if (!mounted) {
+      return;
+    }
+
+    final data = incidentDoc.data();
+    final status = (data['status'] as String?) ?? 'reported';
+    final title = (data['title'] as String?) ?? incident.title;
+    final location = (data['location'] as String?) ?? incident.location;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 42,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppColors.cardBorder,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 18),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.darkText,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  '$location • ${_prettyStatus(status)}',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.mutedText,
+                  ),
+                ),
+                SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      if (!mounted) {
+                        return;
+                      }
+                      Navigator.push(
+                        this.context,
+                        MaterialPageRoute(
+                          builder: (context) => IncidentDetailScreen(
+                            incident: incident,
+                            onViewLiveMap: () => Navigator.pop(context),
+                            onRequestUpdate: () => _requestAlertUpdate(incident),
+                          ),
+                        ),
+                      );
+                    },
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.primaryBlue,
+                      side: BorderSide(color: AppColors.primaryBlue),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    child: Text('View details'),
+                  ),
+                ),
+                SizedBox(height: 10),
+                if (status == 'reported')
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        Navigator.pop(context);
+                        await _setIncidentStatus(
+                          incidentDoc: incidentDoc,
+                          nextStatus: 'investigating',
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryBlue,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: Text('Move to Investigating'),
+                    ),
+                  ),
+                if (status == 'investigating')
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        Navigator.pop(context);
+                        await _setIncidentStatus(
+                          incidentDoc: incidentDoc,
+                          nextStatus: 'resolved',
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.statusNormal,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: Text('Mark as Resolved'),
+                    ),
+                  ),
+                if (status == 'resolved')
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        Navigator.pop(context);
+                        await _setIncidentStatus(
+                          incidentDoc: incidentDoc,
+                          nextStatus: 'investigating',
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryBlue,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: Text('Reopen (Move to Investigating)'),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -695,6 +849,85 @@ class _AlertsScreenState extends State<AlertsScreen> {
     }, SetOptions(merge: true));
   }
 
+  Future<void> _setIncidentStatus({
+    required QueryDocumentSnapshot<Map<String, dynamic>> incidentDoc,
+    required String nextStatus,
+  }) async {
+    try {
+      if (nextStatus == 'investigating') {
+        await incidentDoc.reference.update({
+          'status': 'investigating',
+          'isActive': true,
+          'resolvedAt': null,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+        await _updateLinkedReports(
+          incidentId: incidentDoc.id,
+          status: 'investigating',
+        );
+
+        if (!mounted) {
+          return;
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Incident moved to investigating.')),
+        );
+        return;
+      }
+
+      if (nextStatus == 'resolved') {
+        await incidentDoc.reference.update({
+          'status': 'resolved',
+          'isActive': false,
+          'resolvedAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+        await _updateLinkedReports(
+          incidentId: incidentDoc.id,
+          status: 'resolved',
+        );
+
+        if (!mounted) {
+          return;
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Incident marked as resolved.')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Status update failed: $e')),
+      );
+    }
+  }
+
+  Future<void> _updateLinkedReports({
+    required String incidentId,
+    required String status,
+  }) async {
+    final firestore = FirebaseFirestore.instance;
+    final linkedReports = await firestore
+        .collection('incidentReports')
+        .where('linkedIncidentId', isEqualTo: incidentId)
+        .get();
+
+    if (linkedReports.docs.isEmpty) {
+      return;
+    }
+
+    final batch = firestore.batch();
+    for (final report in linkedReports.docs) {
+      batch.update(report.reference, {
+        'status': status,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    }
+    await batch.commit();
+  }
+
   void _handleBottomNavTap(int index) {
     switch (index) {
       case 0:
@@ -837,6 +1070,16 @@ class _AlertsScreenState extends State<AlertsScreen> {
       'Dec',
     ];
     return months[month - 1];
+  }
+
+  static String _prettyStatus(String status) {
+    if (status == 'investigating') {
+      return 'Investigating';
+    }
+    if (status == 'resolved') {
+      return 'Resolved';
+    }
+    return 'Reported';
   }
 
   void _syncUnreadBadge(int unreadCount) {
@@ -1040,6 +1283,7 @@ class _AlertFeedItem {
     required this.detailLine,
     required this.kind,
     this.incident,
+    this.incidentDoc,
     this.reportDoc,
     this.description,
   });
@@ -1051,6 +1295,7 @@ class _AlertFeedItem {
   final String detailLine;
   final _AlertFeedKind kind;
   final Incident? incident;
+  final QueryDocumentSnapshot<Map<String, dynamic>>? incidentDoc;
   final QueryDocumentSnapshot<Map<String, dynamic>>? reportDoc;
   final String? description;
 }
