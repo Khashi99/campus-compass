@@ -136,9 +136,6 @@ class _MapScreenState extends State<MapScreen> {
           // High risk overlay (appears when user enters danger zone)
           if (_showHighRiskOverlay && _activeIncidents.isNotEmpty)
             _buildHighRiskOverlay(),
-          
-          // Demo controls (REMOVE IN PRODUCTION)
-          _buildDemoControls(),
         ],
       ),
       bottomNavigationBar: BottomNavBar(
@@ -245,104 +242,7 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  /// Demo controls - REMOVE IN PRODUCTION
-  Widget _buildDemoControls() {
-    return Positioned(
-      top: 100,
-      right: 10,
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.8),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'DEMO MODE',
-              style: TextStyle(
-                color: Colors.yellow,
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            _buildDemoButton('Normal', CampusStatus.normal, Colors.green),
-            _buildDemoButton('Caution', CampusStatus.caution, Colors.amber),
-            _buildDemoButton('High Risk', CampusStatus.highRisk, Colors.red),
-            const Divider(color: Colors.white24),
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  _showHighRiskOverlay = !_showHighRiskOverlay;
-                });
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: _showHighRiskOverlay ? Colors.red : Colors.grey,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Text(
-                  'Toggle Overlay',
-                  style: TextStyle(color: Colors.white, fontSize: 10),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDemoButton(String label, CampusStatus status, Color color) {
-    final isSelected = _campusStatus == status;
-    return GestureDetector(
-      onTap: () => _simulateStatusChange(status),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: isSelected ? color : Colors.grey.withOpacity(0.5),
-          borderRadius: BorderRadius.circular(4),
-          border: isSelected ? Border.all(color: Colors.white, width: 2) : null,
-        ),
-        child: Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-    );
-  }
-
   // ============ ACTIONS ============
-
-  /// Simulates status change (in real app, this comes from backend)
-  void _simulateStatusChange(CampusStatus newStatus) {
-    setState(() {
-      _campusStatus = newStatus;
-      
-      // Update incidents based on status
-      switch (newStatus) {
-        case CampusStatus.normal:
-          _activeIncidents = [];
-          _showHighRiskOverlay = false;
-          break;
-        case CampusStatus.caution:
-          _activeIncidents = [SampleData.gatheringIncident];
-          _showHighRiskOverlay = false;
-          break;
-        case CampusStatus.highRisk:
-          _activeIncidents = [SampleData.protestIncident];
-          break;
-      }
-    });
-  }
 
   void _deriveCampusStatusFromIncidents() {
     if (_activeIncidents.isEmpty) {
