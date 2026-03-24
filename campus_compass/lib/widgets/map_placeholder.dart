@@ -6,6 +6,7 @@ class MapPlaceholder extends StatefulWidget {
   final String? tensionZoneLabel;
   final Offset? tensionZonePosition;
   final bool showZoomControls;
+  final bool reduceMotion;
 
   const MapPlaceholder({
     super.key,
@@ -13,6 +14,7 @@ class MapPlaceholder extends StatefulWidget {
     this.tensionZoneLabel,
     this.tensionZonePosition,
     this.showZoomControls = true,
+    this.reduceMotion = false,
   });
 
   @override
@@ -26,6 +28,18 @@ class _MapPlaceholderState extends State<MapPlaceholder> {
 
   double _zoomLevel = 1.0;
   Offset _panOffset = Offset.zero;
+
+  @override
+  void didUpdateWidget(covariant MapPlaceholder oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (!oldWidget.reduceMotion && widget.reduceMotion) {
+      setState(() {
+        _zoomLevel = _minZoom;
+        _panOffset = Offset.zero;
+      });
+    }
+  }
 
   Offset _clampPanOffset({
     required Offset candidate,
@@ -73,7 +87,7 @@ class _MapPlaceholderState extends State<MapPlaceholder> {
               Positioned.fill(
                 child: GestureDetector(
                   onPanUpdate: (details) {
-                    if (_zoomLevel <= _minZoom) {
+                    if (widget.reduceMotion || _zoomLevel <= _minZoom) {
                       return;
                     }
 
@@ -169,7 +183,7 @@ class _MapPlaceholderState extends State<MapPlaceholder> {
                 ),
               ),
               // Zoom controls
-              if (widget.showZoomControls)
+              if (widget.showZoomControls && !widget.reduceMotion)
                 Positioned(
                   right: 16,
                   bottom: 100,

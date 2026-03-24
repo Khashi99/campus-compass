@@ -29,6 +29,8 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   static const String _defaultCampusId = 'sgw';
   static const String _alertStylePreferenceKey = 'profile_alert_style';
+  static const String _reduceMotionPreferenceKey = 'profile_reduce_motion';
+  static const String _hideLowRiskPreferenceKey = 'profile_hide_low_risk_zones';
 
   // Current navigation tab
   int _currentNavIndex = 0;
@@ -43,6 +45,8 @@ class _MapScreenState extends State<MapScreen> {
   bool _showHighRiskOverlay = false;
   bool _isLoadingIncidents = true;
   String? _incidentLoadError;
+  bool _reduceMotion = true;
+  bool _hideLowRiskZones = true;
   int _pendingReviewCount = 0;
   late final Stream<QuerySnapshot<Map<String, dynamic>>> _incidentStream;
   StreamSubscription<QuerySnapshot<Map<String, dynamic>>>?
@@ -58,6 +62,7 @@ class _MapScreenState extends State<MapScreen> {
         .collection('incidents')
         .where('isActive', isEqualTo: true)
         .snapshots();
+    _loadVisualPreferences();
     _loadPendingReviewCount();
   }
 
@@ -104,6 +109,10 @@ class _MapScreenState extends State<MapScreen> {
                             ),
                           )
                           .map((doc) => Incident.fromFirestore(doc))
+                          .where(
+                            (incident) =>
+                                !_hideLowRiskZones || !_isLowRiskIncident(incident),
+                          )
                           .toList()
                         ..sort(
                           (a, b) => b.reportedTime.compareTo(a.reportedTime),
@@ -121,6 +130,7 @@ class _MapScreenState extends State<MapScreen> {
                               ? _getTensionZoneLabel()
                               : null,
                           tensionZonePosition: Offset(100, 180),
+                          reduceMotion: _reduceMotion,
                         ),
 
                         if (_isLoadingIncidents)
@@ -312,6 +322,8 @@ class _MapScreenState extends State<MapScreen> {
       MaterialPageRoute(builder: (context) => screen),
     );
 
+    await _loadVisualPreferences();
+
     if (!mounted) {
       return;
     }
@@ -331,6 +343,27 @@ class _MapScreenState extends State<MapScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _loadVisualPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _reduceMotion = prefs.getBool(_reduceMotionPreferenceKey) ?? true;
+      _hideLowRiskZones = prefs.getBool(_hideLowRiskPreferenceKey) ?? true;
+    });
+  }
+
+  bool _isLowRiskIncident(Incident incident) {
+    if (incident.severity <= 1) {
+      return true;
+    }
+
+    return incident.type == IncidentType.maintenance ||
+        incident.type == IncidentType.construction;
   }
 
   void _navigateToSafety(Incident incident) {
