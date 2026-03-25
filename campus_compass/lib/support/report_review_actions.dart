@@ -3,13 +3,43 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class ReportReviewActions {
   ReportReviewActions._();
 
+  static Future<int> migrateSubmittedReportsToReported() async {
+    final firestore = FirebaseFirestore.instance;
+    int migratedCount = 0;
+
+    while (true) {
+      final snapshot = await firestore
+          .collection('incidentReports')
+          .where('status', isEqualTo: 'submitted')
+          .limit(200)
+          .get();
+
+      if (snapshot.docs.isEmpty) {
+        break;
+      }
+
+      final batch = firestore.batch();
+      for (final doc in snapshot.docs) {
+        batch.update(doc.reference, {
+          'status': 'reported',
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      await batch.commit();
+      migratedCount += snapshot.docs.length;
+    }
+
+    return migratedCount;
+  }
+
   static Future<void> approveReport(
     QueryDocumentSnapshot<Map<String, dynamic>> reportDoc,
   ) async {
     await _publishReport(
       reportDoc,
       incidentStatus: 'reported',
-      reportStatus: 'investigating',
+      reportStatus: 'reported',
       isActive: true,
     );
   }

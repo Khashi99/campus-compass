@@ -96,7 +96,8 @@ class StaffReviewScreen extends StatelessWidget {
 
         final allDocs = snapshot.data?.docs ?? const [];
         final docs = allDocs
-            .where((doc) => (doc.data()['status'] as String?) == 'submitted')
+          .where((doc) => (doc.data()['status'] as String?) == 'reported')
+          .where((doc) => doc.data()['linkedIncidentId'] == null)
             .toList();
 
         if (docs.isEmpty) {

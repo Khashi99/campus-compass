@@ -311,7 +311,8 @@ class _AlertsScreenState extends State<AlertsScreen> {
     List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
   ) {
     return docs
-        .where((doc) => (doc.data()['status'] as String?) == 'submitted')
+        .where((doc) => (doc.data()['status'] as String?) == 'reported')
+        .where((doc) => doc.data()['linkedIncidentId'] == null)
         .where(
           (doc) => _matchesCampusId(doc.data()['campusId'] as String?),
         )
@@ -830,12 +831,17 @@ class _AlertsScreenState extends State<AlertsScreen> {
           .collection('roles')
           .doc(user.uid)
           .get();
+      final role = (roleDoc.data()?['role'] as String?) ?? '';
+
+      if (role == 'staff' || role == 'admin') {
+        await ReportReviewActions.migrateSubmittedReportsToReported();
+      }
 
       if (!mounted) {
         return;
       }
       setState(() {
-        _role = (roleDoc.data()?['role'] as String?) ?? '';
+        _role = role;
         _isLoadingRole = false;
       });
     } catch (_) {

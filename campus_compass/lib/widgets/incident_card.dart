@@ -119,7 +119,6 @@ class IncidentPreviewCard extends StatefulWidget {
 class _IncidentPreviewCardState extends State<IncidentPreviewCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _progressAnimation;
 
   @override
   void initState() {
@@ -130,25 +129,6 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
       duration: const Duration(seconds: 3),
       vsync: this,
     );
-
-    // Animate from current progress to current progress + 15%, then back
-    // This creates a "pulsing" effect like it's actively verifying
-    _progressAnimation = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween<double>(
-          begin: widget.incident.verificationProgress / 100,
-          end: (widget.incident.verificationProgress + 15).clamp(0, 100) / 100,
-        ).chain(CurveTween(curve: Curves.easeInOut)),
-        weight: 50,
-      ),
-      TweenSequenceItem(
-        tween: Tween<double>(
-          begin: (widget.incident.verificationProgress + 15).clamp(0, 100) / 100,
-          end: widget.incident.verificationProgress / 100,
-        ).chain(CurveTween(curve: Curves.easeInOut)),
-        weight: 50,
-      ),
-    ]).animate(_controller);
 
     _syncVerificationAnimation();
   }
@@ -168,7 +148,8 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
   @override
   Widget build(BuildContext context) {
     final isVerified = _isVerified(widget.incident);
-    final displayProgress = widget.incident.verificationProgress.clamp(0, 100) / 100;
+    final incidentAccent =
+        isVerified ? AppColors.statusHighRisk : AppColors.statusCaution;
 
     return Container(
       margin: const EdgeInsets.all(16),
@@ -193,12 +174,12 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppColors.statusCaution.withOpacity(0.15),
+                  color: incidentAccent.withOpacity(0.15),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.warning_amber_rounded,
-                  color: AppColors.statusCaution,
+                  color: incidentAccent,
                   size: 22,
                 ),
               ),
@@ -242,69 +223,13 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
                   : _buildPulsingIcon(),
               SizedBox(width: 6),
               Text(
-                isVerified ? 'Verified' : 'Verifying...',
+                isVerified ? 'Verified' : 'Reported',
                 style: TextStyle(
                   fontSize: 12,
                   color: AppColors.verifiedBadge,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              SizedBox(width: 12),
-              // Animated progress bar
-              Expanded(
-                child: isVerified
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: LinearProgressIndicator(
-                          value: displayProgress,
-                          backgroundColor: AppColors.cardBorder,
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                            AppColors.verifiedBadge,
-                          ),
-                          minHeight: 6,
-                        ),
-                      )
-                    : AnimatedBuilder(
-                        animation: _progressAnimation,
-                        builder: (context, child) {
-                          return ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
-                            child: LinearProgressIndicator(
-                              value: _progressAnimation.value,
-                              backgroundColor: AppColors.cardBorder,
-                              valueColor: const AlwaysStoppedAnimation<Color>(
-                                AppColors.verifiedBadge,
-                              ),
-                              minHeight: 6,
-                            ),
-                          );
-                        },
-                      ),
-              ),
-              SizedBox(width: 8),
-              // Animated percentage
-              isVerified
-                  ? Text(
-                      '${(displayProgress * 100).toInt()}%',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: AppColors.mutedText,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    )
-                  : AnimatedBuilder(
-                      animation: _progressAnimation,
-                      builder: (context, child) {
-                        return Text(
-                          '${(_progressAnimation.value * 100).toInt()}%',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: AppColors.mutedText,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        );
-                      },
-                    ),
             ],
           ),
           SizedBox(height: 14),
@@ -387,8 +312,8 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
   }
 
   bool _isVerified(Incident incident) {
-    return incident.verificationLevel == VerificationLevel.verified ||
-        incident.verificationProgress >= 100;
+    return incident.status == IncidentStatus.verified ||
+      incident.status == IncidentStatus.resolved;
   }
 
   void _syncVerificationAnimation() {
@@ -608,6 +533,7 @@ class _IncidentResolutionProgressMini extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentStep = _currentStepIndex();
+    final progressPercent = _progressPercent();
 
     return Container(
       width: double.infinity,
@@ -620,14 +546,27 @@ class _IncidentResolutionProgressMini extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'RESOLUTION PROGRESS',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 0.6,
-              color: AppColors.mutedText,
-            ),
+          Row(
+            children: [
+              Text(
+                'RESOLUTION PROGRESS',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.6,
+                  color: AppColors.mutedText,
+                ),
+              ),
+              Spacer(),
+              Text(
+                '$progressPercent%',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.primaryBlue,
+                ),
+              ),
+            ],
           ),
           SizedBox(height: 10),
           Row(
@@ -754,6 +693,19 @@ class _IncidentResolutionProgressMini extends StatelessWidget {
         return 2;
       case IncidentStatus.resolved:
         return 3;
+    }
+  }
+
+  int _progressPercent() {
+    switch (status) {
+      case IncidentStatus.reported:
+        return 25;
+      case IncidentStatus.investigating:
+        return 50;
+      case IncidentStatus.verified:
+        return 75;
+      case IncidentStatus.resolved:
+        return 100;
     }
   }
 }
