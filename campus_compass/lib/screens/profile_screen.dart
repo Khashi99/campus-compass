@@ -604,11 +604,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   static String _alertStyleFromBackend(String? backendMode) {
     switch (backendMode) {
+      case 'haptic_visual':
+        return 'haptic_visual';
       case 'visual':
         return 'visual';
       case 'silent':
         return 'silent';
       case 'haptic':
+        return 'haptic';
       default:
         return 'haptic_visual';
     }
@@ -616,15 +619,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   static String _backendAlertMode(String alertStyle) {
     switch (alertStyle) {
+      case 'haptic_visual':
+        return 'haptic_visual';
       case 'visual':
         return 'visual';
       case 'silent':
         return 'silent';
       case 'haptic':
         return 'haptic';
-      case 'haptic_visual':
       default:
-        return 'haptic';
+        return 'haptic_visual';
     }
   }
 

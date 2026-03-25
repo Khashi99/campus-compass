@@ -42,7 +42,7 @@ service cloud.firestore {
     }
 
     function isValidAlertMode(value) {
-      return value in ['visual', 'haptic', 'silent'];
+      return value in ['haptic_visual', 'visual', 'haptic', 'silent'];
     }
 
     function isValidCoordinates(value) {

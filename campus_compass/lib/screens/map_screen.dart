@@ -913,13 +913,21 @@ class _MapScreenState extends State<MapScreen> {
       final mode = (snapshot.data()?['alertPreference'] as Map<String, dynamic>?)?['mode']
           as String?;
       switch (mode) {
+        case 'haptic_visual':
+          _cachedAlertStyle = 'haptic_visual';
+          break;
         case 'visual':
           _cachedAlertStyle = 'visual';
+          break;
         case 'silent':
           _cachedAlertStyle = 'silent';
+          break;
         case 'haptic':
+          _cachedAlertStyle = 'haptic';
+          break;
         default:
           _cachedAlertStyle = 'haptic_visual';
+          break;
       }
     } catch (_) {
       _cachedAlertStyle = 'haptic_visual';
