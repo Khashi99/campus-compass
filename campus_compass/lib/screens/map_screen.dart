@@ -111,9 +111,7 @@ class _MapScreenState extends State<MapScreen> {
               // Dynamic status banner
               StatusBanner(
                 status: _campusStatus,
-                onMoreInfo: _campusStatus != CampusStatus.normal 
-                    ? () => _showStatusInfo(context) 
-                    : null,
+                onMoreInfo: () => _showStatusInfo(context),
               ),
               
               // Map area
@@ -312,7 +310,10 @@ class _MapScreenState extends State<MapScreen> {
       return;
     }
 
-    final hasHighRisk = _activeIncidents.any((incident) => incident.severity >= 2);
+    final hasHighRisk = _activeIncidents.any(
+      (incident) =>
+          incident.severity >= 2 || incident.status == IncidentStatus.verified,
+    );
     _campusStatus = hasHighRisk ? CampusStatus.highRisk : CampusStatus.caution;
     if (!hasHighRisk) {
       _showHighRiskOverlay = false;
@@ -555,9 +556,11 @@ class _MapScreenState extends State<MapScreen> {
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          _campusStatus == CampusStatus.caution
-                              ? Icons.warning_amber_rounded
-                              : Icons.error,
+                          _campusStatus == CampusStatus.normal
+                              ? Icons.check_circle
+                              : (_campusStatus == CampusStatus.caution
+                                  ? Icons.warning_amber_rounded
+                                  : Icons.error),
                           color: _campusStatus.color,
                           size: 24,
                         ),
@@ -577,7 +580,7 @@ class _MapScreenState extends State<MapScreen> {
                   Text(
                     _activeIncidents.isNotEmpty
                         ? _activeIncidents.first.description
-                        : 'Status information unavailable.',
+                        : 'Campus is operating normally. Continue to stay aware and use the resources below if you need support.',
                     style: TextStyle(
                       fontSize: 14,
                       color: AppColors.mutedText,

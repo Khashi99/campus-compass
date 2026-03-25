@@ -148,6 +148,8 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
   @override
   Widget build(BuildContext context) {
     final isVerified = _isVerified(widget.incident);
+    final incidentAccent =
+        isVerified ? AppColors.statusHighRisk : AppColors.statusCaution;
 
     return Container(
       margin: const EdgeInsets.all(16),
@@ -172,12 +174,12 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppColors.statusCaution.withOpacity(0.15),
+                  color: incidentAccent.withOpacity(0.15),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.warning_amber_rounded,
-                  color: AppColors.statusCaution,
+                  color: incidentAccent,
                   size: 22,
                 ),
               ),
