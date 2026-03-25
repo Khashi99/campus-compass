@@ -281,44 +281,27 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
       ),
       SizedBox(height: 12),
 
-      Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: AppColors.cardBorder),
-          borderRadius: BorderRadius.circular(8),
-          color: AppColors.white,
+      TextField(
+        controller: _descriptionController,
+        style: TextStyle(
+          fontSize: 14,
+          color: AppColors.darkText,
         ),
-        child: TextField(
-          controller: _descriptionController,
-          style: TextStyle(
-            fontSize: 14,
-            color: AppColors.darkText,
+        maxLines: 6,
+        decoration: InputDecoration(
+          hintText:
+              "Briefly describe the situation (e.g., Main entrance blocked by protestors, please use the side gate.)",
+          hintStyle: TextStyle(color: AppColors.mutedText),
+          border: OutlineInputBorder(
+            borderSide: BorderSide(color: AppColors.cardBorder),
+            borderRadius: BorderRadius.circular(8),
           ),
-          maxLines: 4,
-          maxLength: 3000,
-          decoration: InputDecoration(
-            hintText:
-                "Briefly describe the situation (e.g., 'Main entrance blocked by protestors, please use the side gate.')",
-            hintStyle: TextStyle(color: AppColors.mutedText),
-            border: InputBorder.none,
-            contentPadding: EdgeInsets.all(12),
-            counterText: '', // hides default counter inside the field
-          ),
-          onChanged: (_) => setState(() {}),
+          filled: true,
+          fillColor: AppColors.white,
+          contentPadding: EdgeInsets.all(12),
+          counterText: '', // hides default counter inside the field
         ),
-      ),
-
-      SizedBox(height: 4),
-
-      // Character counter BELOW the box
-      Align(
-        alignment: Alignment.centerRight,
-        child: Text(
-          '${_descriptionController.text.length} / 3000 characters',
-          style: TextStyle(
-            fontSize: 12,
-            color: AppColors.mutedText,
-          ),
-        ),
+        onChanged: (_) => setState(() {}),
       ),
     ],
   );
@@ -371,14 +354,12 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             ),
             underline: SizedBox(),
             items: [
-              'Main Campus',
-              'SGW Campus',
-              'Loyola Campus',
-              'Hall Building Entrance',
-              'Library',
-              'Engineering Building',
-              'Science Building',
-              'Student Center',
+              'Hive Café',
+              'HoJo Concordia',
+              "Reggie's Pub",
+              'Student association offices',
+              'Escalators',
+              'Presentation booths',
             ].map((location) {
               return DropdownMenuItem(
                 value: location,
