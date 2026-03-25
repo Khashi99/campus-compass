@@ -200,12 +200,20 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
               size: 20,
             ),
             SizedBox(width: 8),
-            Text(
-              'Incident Type',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppColors.darkText,
+            RichText(
+              text: TextSpan(
+                text: 'Incident Type',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.darkText,
+                ),
+                children: [
+                  TextSpan(
+                    text: ' *',
+                    style: TextStyle(color: AppColors.statusHighRisk),
+                  ),
+                ],
               ),
             ),
           ],
@@ -253,12 +261,20 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             size: 20,
           ),
           SizedBox(width: 8),
-          Text(
-            'Description',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppColors.darkText,
+          RichText(
+            text: TextSpan(
+              text: 'Description',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.darkText,
+              ),
+              children: [
+                TextSpan(
+                  text: ' *',
+                  style: TextStyle(color: AppColors.statusHighRisk),
+                ),
+              ],
             ),
           ),
         ],
@@ -320,12 +336,20 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
               size: 20,
             ),
             SizedBox(width: 8),
-            Text(
-              'Location',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppColors.darkText,
+            RichText(
+              text: TextSpan(
+                text: 'Location',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.darkText,
+                ),
+                children: [
+                  TextSpan(
+                    text: ' *',
+                    style: TextStyle(color: AppColors.statusHighRisk),
+                  ),
+                ],
               ),
             ),
           ],
@@ -383,7 +407,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             ),
             SizedBox(width: 8),
             Text(
-              'Incident Time',
+              'Incident Time (Optional)',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -958,7 +982,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
 
   Widget _buildNextButton() {
     final isFormValid = _selectedType != null &&
-        _descriptionController.text.isNotEmpty &&
+        _descriptionController.text.trim().isNotEmpty &&
         _selectedLocation != null;
 
     return SizedBox(
