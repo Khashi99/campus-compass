@@ -103,6 +103,52 @@ class _MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.pageBackground,
+      appBar: AppBar(
+        backgroundColor: AppColors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: true,
+        leading: Padding(
+          padding: const EdgeInsets.all(10),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: () {
+              _showSnackBar('Campus status sync is automatic.');
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColors.primaryBlue.withOpacity(0.5),
+                  width: 2,
+                ),
+              ),
+              child: Icon(
+                Icons.sync_rounded,
+                color: AppColors.primaryBlue,
+                size: 20,
+              ),
+            ),
+          ),
+        ),
+        title: Text(
+          'Campus Safety Map',
+          style: TextStyle(
+            color: AppColors.darkText,
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+          ),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () => _openScreen(const ProfileScreen()),
+            icon: Icon(
+              Icons.settings_outlined,
+              color: AppColors.darkText,
+            ),
+          ),
+        ],
+      ),
       body: Stack(
         children: [
           // Main content
