@@ -217,8 +217,8 @@ class _MapScreenState extends State<MapScreen> {
                         // Map legend (only show when there are incidents)
                         if (_activeIncidents.isNotEmpty)
                           const Positioned(
-                            left: 16,
-                            bottom: 200,
+                            right: 4,
+                            top: 8,
                             child: MapLegend(),
                           ),
 

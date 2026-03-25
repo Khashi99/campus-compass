@@ -143,8 +143,8 @@ class _MapPlaceholderState extends State<MapPlaceholder> {
                             ),
                           // Current location marker (blue dot)
                           Positioned(
-                            right: 100,
-                            bottom: 150,
+                            left: 50,
+                            top: 50,
                             child: Container(
                               width: 20,
                               height: 20,
@@ -171,8 +171,8 @@ class _MapPlaceholderState extends State<MapPlaceholder> {
               // Zoom controls
               if (widget.showZoomControls)
                 Positioned(
-                  right: 16,
-                  bottom: 100,
+                  right: 8,
+                  top: 100,
                   child: Column(
                     children: [
                       _buildZoomButton(
@@ -188,29 +188,29 @@ class _MapPlaceholderState extends State<MapPlaceholder> {
                   ),
                 ),
               // Compass
-              Positioned(
-                right: 16,
-                top: 100,
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 8,
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-                    Icons.navigation,
-                    color: AppColors.statusHighRisk,
-                    size: 20,
-                  ),
-                ),
-              ),
+              // Positioned(
+              //   right: 16,
+              //   top: 100,
+              //   child: Container(
+              //     width: 40,
+              //     height: 40,
+              //     decoration: BoxDecoration(
+              //       color: AppColors.white,
+              //       shape: BoxShape.circle,
+              //       boxShadow: [
+              //         BoxShadow(
+              //           color: Colors.black.withOpacity(0.1),
+              //           blurRadius: 8,
+              //         ),
+              //       ],
+              //     ),
+              //     child: Icon(
+              //       Icons.navigation,
+              //       color: AppColors.statusHighRisk,
+              //       size: 20,
+              //     ),
+              //   ),
+              // ),
             ],
           );
         },

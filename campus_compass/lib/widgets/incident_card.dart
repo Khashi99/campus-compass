@@ -119,6 +119,7 @@ class IncidentPreviewCard extends StatefulWidget {
 class _IncidentPreviewCardState extends State<IncidentPreviewCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+  bool _isCollapsed = false;
 
   @override
   void initState() {
@@ -151,12 +152,15 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
     final incidentAccent =
         isVerified ? AppColors.statusHighRisk : AppColors.statusCaution;
 
-    return Container(
-      margin: const EdgeInsets.all(16),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeInOut,
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 0),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.zero,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.08),
@@ -207,79 +211,104 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
                   ],
                 ),
               ),
-            ],
-          ),
-          SizedBox(height: 12),
-          // Animated verification progress
-          Row(
-            children: [
-              // Pulsing verification icon
-              isVerified
-                  ? Icon(
-                      Icons.verified,
-                      size: 14,
-                      color: AppColors.verifiedBadge,
-                    )
-                  : _buildPulsingIcon(),
-              SizedBox(width: 6),
-              Text(
-                isVerified ? 'Verified' : 'Reported',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppColors.verifiedBadge,
-                  fontWeight: FontWeight.w500,
+              IconButton(
+                icon: Icon(
+                  _isCollapsed ? Icons.expand_more : Icons.expand_less,
+                  color: AppColors.mutedText,
                 ),
+                onPressed: () {
+                  setState(() {
+                    _isCollapsed = !_isCollapsed;
+                  });
+                },
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints(),
               ),
             ],
           ),
-          SizedBox(height: 14),
-          _IncidentResolutionProgressMini(
-            status: widget.incident.status,
-          ),
-          SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: widget.onViewDetails,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primaryBlue,
-                    side: BorderSide(color: AppColors.primaryBlue),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 10),
+          AnimatedSize(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeInOut,
+            child: _isCollapsed
+                ? SizedBox.shrink()
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 12),
+                      // Animated verification progress
+                      Row(
+                        children: [
+                          // Pulsing verification icon
+                          isVerified
+                              ? Icon(
+                                  Icons.verified,
+                                  size: 14,
+                                  color: AppColors.verifiedBadge,
+                                )
+                              : _buildPulsingIcon(),
+                          SizedBox(width: 6),
+                          Text(
+                            isVerified ? 'Verified' : 'Reported',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.verifiedBadge,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 14),
+                      _IncidentResolutionProgressMini(
+                        status: widget.incident.status,
+                      ),
+                      SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: widget.onViewDetails,
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: AppColors.primaryBlue,
+                                side: BorderSide(color: AppColors.primaryBlue),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: const EdgeInsets.symmetric(vertical: 10),
+                              ),
+                              child: Text(
+                                'View Details',
+                                style: TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: widget.onNavigateToSafety,
+                              icon: Icon(Icons.directions, size: 16),
+                              label: Text(
+                                'Route',
+                                style: TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.statusNormal,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: const EdgeInsets.symmetric(vertical: 10),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  child: Text(
-                    'View Details',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ),
-              SizedBox(width: 10),
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: widget.onNavigateToSafety,
-                  icon: Icon(Icons.directions, size: 16),
-                  label: Text(
-                    'Route',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.statusNormal,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                  ),
-                ),
-              ),
-            ],
           ),
         ],
       ),
     );
+
   }
 
   /// Pulsing green dot indicator
@@ -329,7 +358,7 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
 }
 
 /// High risk alert card (Screen 3)
-class HighRiskAlertCard extends StatelessWidget {
+class HighRiskAlertCard extends StatefulWidget {
   final Incident incident;
   final VoidCallback? onViewDetails;
   final VoidCallback? onNavigateToSafety;
@@ -344,12 +373,21 @@ class HighRiskAlertCard extends StatelessWidget {
   });
 
   @override
+  State<HighRiskAlertCard> createState() => _HighRiskAlertCardState();
+}
+
+class _HighRiskAlertCardState extends State<HighRiskAlertCard> {
+  bool _isCollapsed = false;
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(16),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeInOut,
+      margin: _isCollapsed ? EdgeInsets.zero : const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: _isCollapsed ? BorderRadius.zero : BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.12),
@@ -384,7 +422,7 @@ class HighRiskAlertCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        incident.title,
+                        widget.incident.title,
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -393,7 +431,7 @@ class HighRiskAlertCard extends StatelessWidget {
                       ),
                       SizedBox(height: 2),
                       Text(
-                        'VERIFIED BY ${incident.userReports} STUDENTS',
+                        'VERIFIED BY ${widget.incident.userReports} STUDENTS',
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.9),
                           fontSize: 11,
@@ -404,119 +442,137 @@ class HighRiskAlertCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                IconButton(
+                  icon: Icon(
+                    _isCollapsed ? Icons.expand_more : Icons.expand_less,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isCollapsed = !_isCollapsed;
+                    });
+                  },
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints(),
+                ),
               ],
             ),
           ),
-          // Content
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  incident.description,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.darkText,
-                    height: 1.4,
+          AnimatedSize(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeInOut,
+            child: _isCollapsed
+                ? SizedBox.shrink()
+                : Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                  Text(
+                    widget.incident.description,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.darkText,
+                      height: 1.4,
+                    ),
                   ),
-                ),
-                SizedBox(height: 16),
-                // Reliability indicator
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: AppColors.statusNormal.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.shield,
-                            size: 14,
-                            color: AppColors.statusNormal,
-                          ),
-                          SizedBox(width: 4),
-                          Text(
-                            '${incident.verificationProgress}% RELIABILITY',
-                            style: TextStyle(
-                              fontSize: 11,
+                  SizedBox(height: 16),
+                  // Reliability indicator
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: AppColors.statusNormal.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.shield,
+                              size: 14,
                               color: AppColors.statusNormal,
+                            ),
+                            SizedBox(width: 4),
+                            Text(
+                              '${widget.incident.verificationProgress}% RELIABILITY',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: AppColors.statusNormal,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Spacer(),
+                      GestureDetector(
+                        onTap: widget.onViewDetails,
+                        child: Text(
+                          'View Details & Live Updates',
+                          style: TextStyle(
+                            color: AppColors.primaryBlue,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 14),
+                  _IncidentResolutionProgressMini(
+                    status: widget.incident.status,
+                  ),
+                  SizedBox(height: 16),
+                  // Action buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: widget.onReportTrust,
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.mutedText,
+                            side: BorderSide(color: AppColors.cardBorder),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          child: Text(
+                            'REPORT TRUST',
+                            style: TextStyle(
                               fontWeight: FontWeight.w600,
+                              fontSize: 12,
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                    Spacer(),
-                    GestureDetector(
-                      onTap: onViewDetails,
-                      child: Text(
-                        'View Details & Live Updates',
-                        style: TextStyle(
-                          color: AppColors.primaryBlue,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          decoration: TextDecoration.underline,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 14),
-                _IncidentResolutionProgressMini(
-                  status: incident.status,
-                ),
-                SizedBox(height: 16),
-                // Action buttons
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: onReportTrust,
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.mutedText,
-                          side: BorderSide(color: AppColors.cardBorder),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                      SizedBox(width: 12),
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton.icon(
+                          onPressed: widget.onNavigateToSafety,
+                          icon: Icon(Icons.directions, size: 18),
+                          label: Text(
+                            'Navigate to Safety',
+                            style: TextStyle(fontWeight: FontWeight.w600),
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        child: Text(
-                          'REPORT TRUST',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.statusNormal,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
                         ),
                       ),
-                    ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      flex: 2,
-                      child: ElevatedButton.icon(
-                        onPressed: onNavigateToSafety,
-                        icon: Icon(Icons.directions, size: 18),
-                        label: Text(
-                          'Navigate to Safety',
-                          style: TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.statusNormal,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ],

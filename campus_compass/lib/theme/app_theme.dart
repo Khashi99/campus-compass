@@ -99,7 +99,7 @@ class AppTheme {
         hintStyle: TextStyle(color: AppColors.mutedText),
       ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: AppColors.darkText,
+        backgroundColor: brightness == Brightness.dark ? Colors.grey[800] : Colors.black,
         contentTextStyle: TextStyle(color: Colors.white),
       ),
     );
