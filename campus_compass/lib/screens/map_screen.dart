@@ -17,6 +17,7 @@ import 'package:campus_compass/screens/safety_route_screen.dart';
 import 'package:campus_compass/support/report_review_actions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Main map screen that dynamically updates based on campus status
 /// This is the primary screen users see after onboarding
@@ -30,6 +31,36 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   static const String _defaultCampusId = 'sgw';
   static const String _alertStylePreferenceKey = 'profile_alert_style';
+  static const List<_MoreInfoResource> _moreInfoResources = [
+    _MoreInfoResource(
+      title: 'Services',
+      description:
+          'Safewalk, access requests, safety checks, and security support.',
+      phone: '514-848-3717',
+      link: 'https://www.concordia.ca/campus-life/security/services.html',
+      offline: true,
+    ),
+    _MoreInfoResource(
+      title: 'Emergency',
+      description: 'Emergency procedures and immediate assistance.',
+      phone: '514-848-3717',
+      link: 'https://www.concordia.ca/campus-life/security/emergency.html',
+      offline: true,
+      priority: 'high',
+    ),
+    _MoreInfoResource(
+      title: 'Prevention',
+      description: 'Crime, hazard, and fire prevention tips and procedures.',
+      link: 'https://www.concordia.ca/campus-life/security/prevention.html',
+      offline: true,
+    ),
+    _MoreInfoResource(
+      title: 'Training',
+      description: 'Safety, prevention, and emergency training programs.',
+      link: 'https://www.concordia.ca/campus-life/security/training.html',
+      offline: false,
+    ),
+  ];
 
   // Current navigation tab
   int _currentNavIndex = 0;
@@ -493,94 +524,234 @@ class _MapScreenState extends State<MapScreen> {
   void _showStatusInfo(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
+      builder: (context) => SafeArea(
+        top: false,
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
           ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: _campusStatus.color.withOpacity(0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    _campusStatus == CampusStatus.caution 
-                        ? Icons.warning_amber_rounded 
-                        : Icons.error,
-                    color: _campusStatus.color,
-                    size: 24,
-                  ),
-                ),
-                SizedBox(width: 12),
-                Text(
-                  '${_campusStatus.displayText} Status',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.darkText,
-                  ),
-                ),
-              ],
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.82,
             ),
-            SizedBox(height: 16),
-            Text(
-              _activeIncidents.isNotEmpty 
-                  ? _activeIncidents.first.description
-                  : 'Status information unavailable.',
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.mutedText,
-                height: 1.5,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: _campusStatus.color.withOpacity(0.15),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          _campusStatus == CampusStatus.caution
+                              ? Icons.warning_amber_rounded
+                              : Icons.error,
+                          color: _campusStatus.color,
+                          size: 24,
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      Text(
+                        '${_campusStatus.displayText} Status',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.darkText,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    _activeIncidents.isNotEmpty
+                        ? _activeIncidents.first.description
+                        : 'Status information unavailable.',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.mutedText,
+                      height: 1.5,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Recommendations:',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.darkText,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  _buildRecommendation('Consider alternative routes if possible'),
+                  _buildRecommendation('Stay aware of your surroundings'),
+                  _buildRecommendation('Check for updates before heading out'),
+                  SizedBox(height: 16),
+                  Text(
+                    'Security Resources',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.darkText,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  ..._moreInfoResources
+                      .map((resource) => _buildMoreInfoResourceCard(resource)),
+                  SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryBlue,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        'Got it',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            SizedBox(height: 16),
-            Text(
-              'Recommendations:',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppColors.darkText,
-              ),
-            ),
-            SizedBox(height: 8),
-            _buildRecommendation('Consider alternative routes if possible'),
-            _buildRecommendation('Stay aware of your surroundings'),
-            _buildRecommendation('Check for updates before heading out'),
-            SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryBlue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: Text(
-                  'Got it',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
+  }
+
+  Widget _buildMoreInfoResourceCard(_MoreInfoResource resource) {
+    final isHighPriority = resource.priority == 'high';
+    final cardBorderColor = isHighPriority
+        ? AppColors.statusHighRisk.withOpacity(0.4)
+        : AppColors.cardBorder;
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.pageBackground,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: cardBorderColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  resource.title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.darkText,
+                  ),
+                ),
+              ),
+              if (resource.offline)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.statusNormal.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(999),
+                    border: Border.all(
+                      color: AppColors.statusNormal.withOpacity(0.35),
+                    ),
+                  ),
+                  child: Text(
+                    'Offline',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.statusNormal,
+                    ),
+                  ),
+                ),
+              if (isHighPriority) ...[
+                SizedBox(width: 6),
+                Icon(
+                  Icons.priority_high_rounded,
+                  size: 18,
+                  color: AppColors.statusHighRisk,
+                ),
+              ],
+            ],
+          ),
+          SizedBox(height: 6),
+          Text(
+            resource.description,
+            style: TextStyle(
+              fontSize: 12,
+              color: AppColors.mutedText,
+              height: 1.4,
+            ),
+          ),
+          SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              if (resource.phone != null)
+                OutlinedButton.icon(
+                  onPressed: () => _openPhone(resource.phone!),
+                  icon: Icon(Icons.call, size: 16),
+                  label: Text(resource.phone!),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primaryBlue,
+                    side: BorderSide(color: AppColors.primaryBlue),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  ),
+                ),
+              TextButton.icon(
+                onPressed: () => _openExternalLink(resource.link),
+                icon: Icon(Icons.open_in_new_rounded, size: 16),
+                label: Text('Open link'),
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.primaryBlue,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _openExternalLink(String url) async {
+    final uri = Uri.parse(url);
+    final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!opened && mounted) {
+      _showSnackBar('Unable to open link right now.');
+    }
+  }
+
+  Future<void> _openPhone(String phone) async {
+    final uri = Uri.parse('tel:$phone');
+    final opened = await launchUrl(uri);
+    if (!opened && mounted) {
+      _showSnackBar('Unable to open phone dialer right now.');
+    }
   }
 
   Widget _buildRecommendation(String text) {
@@ -775,6 +946,24 @@ class _MapScreenState extends State<MapScreen> {
     }
     return value;
   }
+}
+
+class _MoreInfoResource {
+  const _MoreInfoResource({
+    required this.title,
+    required this.description,
+    required this.link,
+    required this.offline,
+    this.phone,
+    this.priority,
+  });
+
+  final String title;
+  final String description;
+  final String? phone;
+  final String link;
+  final bool offline;
+  final String? priority;
 }
 
 /// Temporary placeholder for incident detail screen
