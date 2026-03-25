@@ -672,18 +672,37 @@ class _MapScreenState extends State<MapScreen> {
       messenger.hideCurrentSnackBar();
       messenger.showSnackBar(
         SnackBar(
-          content: Text('New incident: ${incident.title} near ${incident.location}'),
+          content: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'New incident: ${incident.title} near ${incident.location}',
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  messenger.hideCurrentSnackBar();
+                  _navigateToIncidentDetail(incident);
+                },
+                child: Text(
+                  'View',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              IconButton(
+                onPressed: messenger.hideCurrentSnackBar,
+                icon: Icon(Icons.close, color: Colors.white, size: 20),
+                tooltip: 'Close alert',
+              ),
+            ],
+          ),
           backgroundColor: incident.severity >= 2
               ? AppColors.statusHighRisk
               : AppColors.primaryBlue,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
-          ),
-          action: SnackBarAction(
-            label: 'View',
-            textColor: Colors.white,
-            onPressed: () => _navigateToIncidentDetail(incident),
           ),
         ),
       );
