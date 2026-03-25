@@ -425,6 +425,11 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             );
             if (picked != null) {
               setState(() => _incidentTime = picked);
+              if (_isCampusClosedHour(picked.hour)) {
+                _showSnackBar(
+                  'Campus is closed from 12:00 AM to 6:00 AM.',
+                );
+              }
             }
           },
           child: Container(
@@ -981,9 +986,15 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
   }
 
   Widget _buildNextButton() {
+    final currentLocalHour = DateTime.now().hour;
+    final isReportingOpen = !_isCampusClosedHour(currentLocalHour);
+    final isSelectedTimeAllowed =
+      _incidentTime == null || !_isCampusClosedHour(_incidentTime!.hour);
     final isFormValid = _selectedType != null &&
         _descriptionController.text.trim().isNotEmpty &&
-        _selectedLocation != null;
+      _selectedLocation != null &&
+      isReportingOpen &&
+      isSelectedTimeAllowed;
 
     return SizedBox(
       width: double.infinity,
@@ -1006,7 +1017,11 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Next',
+              !isReportingOpen
+                  ? 'Reporting Unavailable'
+                  : (!isSelectedTimeAllowed
+                      ? 'Invalid Incident Time'
+                      : 'Next'),
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -1397,6 +1412,14 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
       return;
     }
 
+    final currentLocalHour = DateTime.now().hour;
+    if (_isCampusClosedHour(currentLocalHour)) {
+      _showSnackBar(
+        'Reporting is unavailable from 12:00 AM to 6:00 AM while campus is closed.',
+      );
+      return;
+    }
+
     setState(() {
       _isSubmitting = true;
     });
@@ -1465,6 +1488,10 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
       case IncidentType.maintenance:
         return 'Maintenance issue reported';
     }
+  }
+
+  bool _isCampusClosedHour(int hour24) {
+    return hour24 < 6;
   }
 
   String _typeToBackendValue(IncidentType type) {
