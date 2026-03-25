@@ -97,7 +97,7 @@ class _MapPlaceholderState extends State<MapPlaceholder> {
                           // Actual campus map image
                           Positioned.fill(
                             child: Image.asset(
-                              'assets/images/floor_plan.jpg',
+                              'assets/images/floor_plan.png',
                               fit: BoxFit.cover,
                             ),
                           ),

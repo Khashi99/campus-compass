@@ -196,7 +196,7 @@ class _MapScreenState extends State<MapScreen> {
                           tensionZoneLabel: _activeIncidents.isNotEmpty
                               ? _getTensionZoneLabel()
                               : null,
-                          tensionZonePosition: Offset(100, 180),
+                          tensionZonePosition: Offset(30, 30),
                         ),
 
                         if (_isLoadingIncidents)
