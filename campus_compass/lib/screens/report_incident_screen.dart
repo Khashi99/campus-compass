@@ -1387,6 +1387,10 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
       _showSnackBar('Sign in required before submitting a report.');
       return;
     }
+    if (user.isAnonymous) {
+      _showSnackBar('Guest users cannot submit reports. Please sign in.');
+      return;
+    }
 
     if (_selectedType == null || _selectedLocation == null || _descriptionController.text.trim().isEmpty) {
       _showSnackBar('Please complete all required fields.');
