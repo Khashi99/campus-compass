@@ -11,13 +11,11 @@ class CalmStatusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () => {},
       child: Container(
-        margin: const EdgeInsets.all(16),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.08),
@@ -87,10 +85,6 @@ class CalmStatusCard extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-            Icon(
-              Icons.chevron_right,
-              color: AppColors.mutedText,
             ),
           ],
         ),
