@@ -110,25 +110,10 @@ class _MapScreenState extends State<MapScreen> {
         centerTitle: true,
         leading: Padding(
           padding: const EdgeInsets.all(10),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(20),
-            onTap: () {
-              _showSnackBar('Campus status sync is automatic.');
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: AppColors.primaryBlue.withOpacity(0.5),
-                  width: 2,
-                ),
-              ),
-              child: Icon(
-                Icons.sync_rounded,
-                color: AppColors.primaryBlue,
-                size: 20,
-              ),
-            ),
+          child: Image.asset(
+            'assets/images/icon_prod_circ.png',
+            height: 32,
+            width: 32,
           ),
         ),
         title: Text(
@@ -139,15 +124,7 @@ class _MapScreenState extends State<MapScreen> {
             fontSize: 18,
           ),
         ),
-        actions: [
-          IconButton(
-            onPressed: () => _openScreen(const ProfileScreen()),
-            icon: Icon(
-              Icons.settings_outlined,
-              color: AppColors.darkText,
-            ),
-          ),
-        ],
+        actions: [],
       ),
       body: Stack(
         children: [
