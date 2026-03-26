@@ -1,9 +1,9 @@
-import 'dart:async';
 
-import 'package:campus_compass/screens/alerts_screen.dart';
+import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:campus_compass/screens/alerts_screen.dart';
 import 'package:campus_compass/screens/profile_screen.dart';
 import 'package:campus_compass/theme/app_colors.dart';
 import 'package:campus_compass/widgets/status_banner.dart';
@@ -18,6 +18,33 @@ import 'package:campus_compass/support/report_review_actions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+
+class _NetworkStatusBanner extends StatelessWidget {
+  final bool isOffline;
+  const _NetworkStatusBanner({required this.isOffline});
+
+  @override
+  Widget build(BuildContext context) {
+    if (!isOffline) return SizedBox.shrink();
+    return Container(
+      width: double.infinity,
+      color: Colors.redAccent,
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.wifi_off, color: Colors.white, size: 18),
+          SizedBox(width: 8),
+          Text(
+            'You are offline. The map will update when you are back online.',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 /// Main map screen that dynamically updates based on campus status
 /// This is the primary screen users see after onboarding
@@ -29,6 +56,10 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
+    bool _isOffline = false;
+    late final Connectivity _connectivity;
+    late final Stream<ConnectivityResult> _connectivityStream;
+    late final StreamSubscription<ConnectivityResult> _connectivitySubscription;
   static const String _defaultCampusId = 'sgw';
   static const String _alertStylePreferenceKey = 'profile_alert_style';
   static const List<_MoreInfoResource> _moreInfoResources = [
@@ -85,6 +116,29 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   void initState() {
+        _connectivity = Connectivity();
+        _connectivityStream = _connectivity.onConnectivityChanged;
+        _connectivitySubscription = _connectivityStream.listen((result) {
+          final offline = result == ConnectivityResult.none;
+          if (offline != _isOffline) {
+            setState(() {
+              _isOffline = offline;
+            });
+            if (offline) {
+              _showSnackBar('You are offline. The map will update when you are back online.');
+            } else {
+              _showSnackBar('You are back online.', isSuccess: true);
+            }
+          }
+        });
+        _connectivity.checkConnectivity().then((result) {
+          final offline = result == ConnectivityResult.none;
+          if (offline != _isOffline) {
+            setState(() {
+              _isOffline = offline;
+            });
+          }
+        });
     super.initState();
     _incidentStream = FirebaseFirestore.instance
         .collection('incidents')
@@ -95,135 +149,144 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   void dispose() {
+      _connectivitySubscription.cancel();
     _pendingReviewSubscription?.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.pageBackground,
-      appBar: AppBar(
-        backgroundColor: AppColors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        centerTitle: true,
-        leading: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Image.asset(
-            'assets/images/icon_prod_circ.png',
-            height: 32,
-            width: 32,
-          ),
-        ),
-        title: Text(
-          'Campus Safety Map',
-          style: TextStyle(
-            color: AppColors.darkText,
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
-          ),
-        ),
-        actions: [],
-      ),
-      body: Stack(
-        children: [
-          // Main content
-          Column(
-            children: [
-              // Dynamic status banner
-              StatusBanner(
-                status: _campusStatus,
-                onMoreInfo: () => _showStatusInfo(context),
-              ),
-              
-              // Map area
-              Expanded(
-                child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                  stream: _incidentStream,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      _isLoadingIncidents = true;
-                    } else if (snapshot.hasError) {
-                      _incidentLoadError = snapshot.error.toString();
-                      _isLoadingIncidents = false;
-                    } else {
-                      _incidentLoadError = null;
-                      _isLoadingIncidents = false;
-                      _activeIncidents = (snapshot.data?.docs ?? const [])
-                          .where(
-                            (doc) => _matchesCampusId(
-                              doc.data()['campusId'] as String?,
-                            ),
-                          )
-                          .map((doc) => Incident.fromFirestore(doc))
-                          .toList()
-                        ..sort(
-                          (a, b) => b.reportedTime.compareTo(a.reportedTime),
-                        );
-                      _handleIncomingIncidentAlerts(_activeIncidents);
-                      _deriveCampusStatusFromIncidents();
-                    }
-
-                    return Stack(
-                      children: [
-                        // Map with dynamic tension zones
-                        MapPlaceholder(
-                          showTensionZone: _activeIncidents.isNotEmpty,
-                          tensionZoneLabel: _activeIncidents.isNotEmpty
-                              ? _getTensionZoneLabel()
-                              : null,
-                          tensionZonePosition: Offset(30, 30),
-                        ),
-
-                        if (_isLoadingIncidents)
-                          const Center(
-                            child: CircularProgressIndicator(),
-                          ),
-
-                        if (_incidentLoadError != null)
-                          Positioned(
-                            top: 16,
-                            left: 16,
-                            right: 16,
-                            child: _buildErrorBanner(
-                              'Unable to load incidents from backend.',
-                            ),
-                          ),
-
-                        // Map legend (only show when there are incidents)
-                        if (_activeIncidents.isNotEmpty)
-                          const Positioned(
-                            right: 4,
-                            top: 8,
-                            child: MapLegend(),
-                          ),
-
-                        // Dynamic bottom card based on status
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          child: _buildBottomCard(),
-                        ),
-                      ],
-                    );
-                  },
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _NetworkStatusBanner(isOffline: _isOffline),
+        Expanded(
+          child: Scaffold(
+            backgroundColor: AppColors.pageBackground,
+            appBar: AppBar(
+              backgroundColor: AppColors.white,
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              centerTitle: true,
+              leading: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Image.asset(
+                  'assets/images/icon_prod_circ.png',
+                  height: 32,
+                  width: 32,
                 ),
               ),
-            ],
+              title: Text(
+                'Campus Safety Map',
+                style: TextStyle(
+                  color: AppColors.darkText,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 18,
+                ),
+              ),
+              actions: [],
+            ),
+            body: Stack(
+              children: [
+                // Main content
+                Column(
+                  children: [
+                    // Dynamic status banner
+                    StatusBanner(
+                      status: _campusStatus,
+                      onMoreInfo: () => _showStatusInfo(context),
+                    ),
+                    
+                    // Map area
+                    Expanded(
+                      child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                        stream: _incidentStream,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            _isLoadingIncidents = true;
+                          } else if (snapshot.hasError) {
+                            _incidentLoadError = snapshot.error.toString();
+                            _isLoadingIncidents = false;
+                          } else {
+                            _incidentLoadError = null;
+                            _isLoadingIncidents = false;
+                            _activeIncidents = (snapshot.data?.docs ?? const [])
+                                .where(
+                                  (doc) => _matchesCampusId(
+                                    doc.data()['campusId'] as String?,
+                                  ),
+                                )
+                                .map((doc) => Incident.fromFirestore(doc))
+                                .toList()
+                              ..sort(
+                                (a, b) => b.reportedTime.compareTo(a.reportedTime),
+                              );
+                            _handleIncomingIncidentAlerts(_activeIncidents);
+                            _deriveCampusStatusFromIncidents();
+                          }
+
+                          return Stack(
+                            children: [
+                              // Map with dynamic tension zones
+                              MapPlaceholder(
+                                showTensionZone: _activeIncidents.isNotEmpty,
+                                tensionZoneLabel: _activeIncidents.isNotEmpty
+                                    ? _getTensionZoneLabel()
+                                    : null,
+                                tensionZonePosition: Offset(30, 30),
+                              ),
+
+                              if (_isLoadingIncidents)
+                                const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+
+                              if (_incidentLoadError != null)
+                                Positioned(
+                                  top: 16,
+                                  left: 16,
+                                  right: 16,
+                                  child: _buildErrorBanner(
+                                    'Unable to load incidents from backend.',
+                                  ),
+                                ),
+
+                              // Map legend (only show when there are incidents)
+                              if (_activeIncidents.isNotEmpty)
+                                const Positioned(
+                                  right: 4,
+                                  top: 8,
+                                  child: MapLegend(),
+                                ),
+
+                              // Dynamic bottom card based on status
+                              Positioned(
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                child: _buildBottomCard(),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                
+                // High risk overlay (appears when user enters danger zone)
+                if (_showHighRiskOverlay && _activeIncidents.isNotEmpty)
+                  _buildHighRiskOverlay(),
+              ],
+            ),
+            bottomNavigationBar: BottomNavBar(
+              currentIndex: _currentNavIndex,
+              onTap: _handleNavTap,
+              alertBadgeCount: _activeIncidents.length + _pendingReviewCount,
+            ),
           ),
-          
-          // High risk overlay (appears when user enters danger zone)
-          if (_showHighRiskOverlay && _activeIncidents.isNotEmpty)
-            _buildHighRiskOverlay(),
-        ],
-      ),
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: _currentNavIndex,
-        onTap: _handleNavTap,
-        alertBadgeCount: _activeIncidents.length + _pendingReviewCount,
-      ),
+        ),
+      ],
     );
   }
 

@@ -378,10 +378,8 @@ class _HighRiskAlertCardState extends State<HighRiskAlertCard> {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
       curve: Curves.easeInOut,
-      margin: _isCollapsed ? EdgeInsets.zero : const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: _isCollapsed ? BorderRadius.zero : BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.12),
@@ -398,10 +396,6 @@ class _HighRiskAlertCardState extends State<HighRiskAlertCard> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppColors.statusHighRisk,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
-              ),
             ),
             child: Row(
               children: [
