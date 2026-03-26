@@ -15,6 +15,7 @@ import 'package:campus_compass/screens/incident_detail_screen.dart';
 import 'package:campus_compass/screens/report_incident_screen.dart';
 import 'package:campus_compass/screens/safety_route_screen.dart';
 import 'package:campus_compass/support/report_review_actions.dart';
+import 'package:campus_compass/utils/map_highlight_position.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -233,7 +234,11 @@ class _MapScreenState extends State<MapScreen> {
                                 tensionZoneLabel: _activeIncidents.isNotEmpty
                                     ? _getTensionZoneLabel()
                                     : null,
-                                tensionZonePosition: Offset(30, 30),
+                                tensionZonePosition: _activeIncidents.isNotEmpty
+                                    ? MapHighlightPosition.forIncidentLocation(
+                                        _activeIncidents.first.location,
+                                      )
+                                    : MapHighlightPosition.defaultPosition,
                               ),
 
                               if (_isLoadingIncidents)

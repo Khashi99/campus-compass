@@ -370,6 +370,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             ),
             underline: SizedBox(),
             items: [
+              'Lounge',
               'Hive Café',
               'HoJo Concordia',
               "Reggie's Pub",

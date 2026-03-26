@@ -4,6 +4,7 @@ import 'package:campus_compass/screens/profile_screen.dart';
 import 'package:campus_compass/screens/report_incident_screen.dart';
 import 'package:campus_compass/theme/app_colors.dart';
 import 'package:campus_compass/models/incident.dart';
+import 'package:campus_compass/utils/map_highlight_position.dart';
 import 'package:campus_compass/widgets/bottom_nav_bar.dart';
 import 'package:campus_compass/widgets/map_placeholder.dart';
 
@@ -222,18 +223,22 @@ class IncidentDetailScreen extends StatelessWidget {
                 incident.imageUrl!,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
-                  return const MapPlaceholder(
+                  return MapPlaceholder(
                     showTensionZone: true,
-                    tensionZonePosition: Offset(60, 40),
+                    tensionZonePosition: MapHighlightPosition.forIncidentLocation(
+                      incident.location,
+                    ),
                   );
                 },
               ),
             )
           else
-            const Positioned.fill(
+            Positioned.fill(
               child: MapPlaceholder(
                 showTensionZone: true,
-                tensionZonePosition: Offset(60, 40),
+                tensionZonePosition: MapHighlightPosition.forIncidentLocation(
+                  incident.location,
+                ),
               ),
             ),
           Positioned(
