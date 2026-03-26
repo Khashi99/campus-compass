@@ -88,10 +88,11 @@ class CalmStatusCard extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(
-              Icons.chevron_right,
-              color: AppColors.mutedText,
-            ),
+            if (onTap != null)
+              Icon(
+                Icons.chevron_right,
+                color: AppColors.mutedText,
+              ),
           ],
         ),
       ),

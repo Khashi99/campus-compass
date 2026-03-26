@@ -254,12 +254,7 @@ class _MapScreenState extends State<MapScreen> {
   Widget _buildBottomCard() {
     switch (_campusStatus) {
       case CampusStatus.normal:
-        return CalmStatusCard(
-          onTap: () {
-            // In real app: navigate to safety tips or history
-            _showSnackBar('No active incidents. Campus is safe!');
-          },
-        );
+        return const CalmStatusCard();
       
       case CampusStatus.caution:
         return IncidentPreviewCard(
