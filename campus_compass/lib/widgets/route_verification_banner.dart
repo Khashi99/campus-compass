@@ -28,7 +28,7 @@ class RouteVerificationBanner extends StatelessWidget {
           SizedBox(width: 6),
           Flexible(
             child: Text(
-              'You are following a security-verified safety route',
+              text,
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
