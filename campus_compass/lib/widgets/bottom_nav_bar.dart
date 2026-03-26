@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:campus_compass/theme/app_colors.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -15,6 +16,7 @@ class BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isGuest = FirebaseAuth.instance.currentUser?.isAnonymous ?? false;
     return Container(
       decoration: BoxDecoration(
         color: AppColors.white,
@@ -33,7 +35,8 @@ class BottomNavBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildNavItem(0, Icons.map_outlined, Icons.map, 'Map'),
-              _buildNavItem(1, Icons.add_circle_outline, Icons.add_circle, 'Report'),
+              if (!isGuest)
+                _buildNavItem(1, Icons.add_circle_outline, Icons.add_circle, 'Report'),
               _buildNavItem(2, Icons.notifications_outlined, Icons.notifications, 'Alerts', badgeCount: alertBadgeCount),
               _buildNavItem(3, Icons.person_outline, Icons.person, 'Profile'),
             ],
