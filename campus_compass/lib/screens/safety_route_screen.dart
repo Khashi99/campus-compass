@@ -105,15 +105,7 @@ class _SafetyRouteScreenState extends State<SafetyRouteScreen> {
           onPressed: () => Navigator.maybePop(context),
           icon: Icon(Icons.arrow_back_ios_new, color: AppColors.darkText),
         ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: Icon(
-              Icons.settings_outlined,
-              color: AppColors.darkText,
-            ),
-          ),
-        ],
+        actions: [],
       ),
       body: Column(
         children: [
