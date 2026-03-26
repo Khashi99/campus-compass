@@ -141,27 +141,6 @@ class _MapPlaceholderState extends State<MapPlaceholder> {
                                 ],
                               ),
                             ),
-                          // Current location marker (blue dot)
-                          Positioned(
-                            left: 50,
-                            top: 50,
-                            child: Container(
-                              width: 20,
-                              height: 20,
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryBlue,
-                                shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 3),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColors.primaryBlue.withOpacity(0.3),
-                                    blurRadius: 8,
-                                    spreadRadius: 2,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                     ),
