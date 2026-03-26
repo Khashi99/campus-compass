@@ -123,7 +123,7 @@ class _SafetyRouteScreenState extends State<SafetyRouteScreen> {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
               children: [
                 const RouteVerificationBanner(
-                  text: "Verified by security",
+                  text: "Verified by Campus Safety",
                 ),
                 SizedBox(height: 14),
                 Text(

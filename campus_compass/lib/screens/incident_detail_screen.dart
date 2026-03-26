@@ -136,7 +136,7 @@ class IncidentDetailScreen extends StatelessWidget {
                   ),
                   SizedBox(width: 4),
                   Text(
-                    'Verified by Safety',
+                    'Verified by Campus Safety',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
