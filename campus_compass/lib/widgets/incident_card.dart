@@ -213,7 +213,7 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
               ),
               IconButton(
                 icon: Icon(
-                  _isCollapsed ? Icons.expand_more : Icons.expand_less,
+                  _isCollapsed ? Icons.expand_less : Icons.expand_more,
                   color: AppColors.mutedText,
                 ),
                 onPressed: () {
@@ -444,7 +444,7 @@ class _HighRiskAlertCardState extends State<HighRiskAlertCard> {
                 ),
                 IconButton(
                   icon: Icon(
-                    _isCollapsed ? Icons.expand_more : Icons.expand_less,
+                    _isCollapsed ? Icons.expand_less : Icons.expand_more,
                     color: Colors.white,
                   ),
                   onPressed: () {

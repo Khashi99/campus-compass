@@ -123,7 +123,7 @@ class _SafetyRouteScreenState extends State<SafetyRouteScreen> {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
               children: [
                 const RouteVerificationBanner(
-                  text: 'You are following a security-verified safety route',
+                  text: "Verified by security",
                 ),
                 SizedBox(height: 14),
                 Text(
