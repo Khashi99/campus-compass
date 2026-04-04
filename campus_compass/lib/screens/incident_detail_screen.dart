@@ -225,9 +225,6 @@ class IncidentDetailScreen extends StatelessWidget {
                 errorBuilder: (context, error, stackTrace) {
                   return MapPlaceholder(
                     showTensionZone: true,
-                    tensionZonePosition: MapHighlightPosition.forIncidentLocation(
-                      incident.location,
-                    ),
                   );
                 },
               ),
@@ -236,9 +233,6 @@ class IncidentDetailScreen extends StatelessWidget {
             Positioned.fill(
               child: MapPlaceholder(
                 showTensionZone: true,
-                tensionZonePosition: MapHighlightPosition.forIncidentLocation(
-                  incident.location,
-                ),
               ),
             ),
           Positioned(

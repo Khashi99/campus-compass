@@ -4,14 +4,14 @@ import 'package:campus_compass/theme/app_colors.dart';
 class MapPlaceholder extends StatefulWidget {
   final bool showTensionZone;
   final String? tensionZoneLabel;
-  final Offset? tensionZonePosition;
+  //final Offset? tensionZonePosition;
   final bool showZoomControls;
 
   const MapPlaceholder({
     super.key,
     this.showTensionZone = false,
     this.tensionZoneLabel,
-    this.tensionZonePosition,
+    //this.tensionZonePosition,
     this.showZoomControls = true,
   });
 
@@ -102,43 +102,60 @@ class _MapPlaceholderState extends State<MapPlaceholder> {
                             ),
                           ),
                           // Tension zone overlay
+                          // Tension zone overlay - CENTERED and RESPONSIVE (Fixes #4 and #5)
                           if (widget.showTensionZone)
-                            Positioned(
-                              left: widget.tensionZonePosition?.dx ?? 80,
-                              top: widget.tensionZonePosition?.dy ?? 200,
-                              child: Column(
-                                children: [
-                                  Container(
-                                    width: 120,
-                                    height: 120,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: AppColors.tensionZone.withOpacity(0.25),
-                                      border: Border.all(
-                                        color: AppColors.tensionZone.withOpacity(0.7),
-                                        width: 3,
-                                      ),
-                                    ),
-                                  ),
-                                  if (widget.tensionZoneLabel != null) ...[
-                                    SizedBox(height: 8),
+                            Positioned.fill(
+                              child: Center(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      width: 120,
+                                      height: 120,
                                       decoration: BoxDecoration(
-                                        color: AppColors.statusHighRisk,
-                                        borderRadius: BorderRadius.circular(4),
+                                        shape: BoxShape.circle,
+                                        color: AppColors.tensionZone.withOpacity(0.25),
+                                        border: Border.all(
+                                          color: AppColors.tensionZone.withOpacity(0.7),
+                                          width: 3,
+                                        ),
                                       ),
-                                      child: Text(
-                                        widget.tensionZoneLabel!,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
+                                      child: Center(
+                                        child: Icon(
+                                          Icons.warning_rounded,
+                                          color: AppColors.tensionZone.withOpacity(0.8),
+                                          size: 40,
                                         ),
                                       ),
                                     ),
+                                    if (widget.tensionZoneLabel != null) ...[
+                                      SizedBox(height: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.statusHighRisk,
+                                          borderRadius: BorderRadius.circular(6),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(0.2),
+                                              blurRadius: 4,
+                                              offset: Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Text(
+                                          widget.tensionZoneLabel!,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ],
-                                ],
+                                ),
                               ),
                             ),
                         ],
