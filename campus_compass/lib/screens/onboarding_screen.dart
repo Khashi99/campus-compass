@@ -1,6 +1,7 @@
 import 'package:campus_compass/theme/app_colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'onboarding_contents.dart';
 
@@ -15,6 +16,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _controller = PageController();
   int _currentPage = 0;
   int _selectedAlertIndex = 1; // Haptic selected by default
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -23,21 +25,37 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _nextPage() async {
+    if (_isSubmitting) {
+      return;
+    }
+
     if (_currentPage < contents.length - 1) {
       _controller.nextPage(
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeInOut,
       );
     } else {
-      await _saveAlertPreference();
+      setState(() => _isSubmitting = true);
+      try {
+        await _saveAlertPreference();
+      } catch (error) {
+        debugPrint('Failed to save alert preference: $error');
+      }
+
       if (!mounted) {
         return;
       }
+
+      setState(() => _isSubmitting = false);
       Navigator.pushNamed(context, '/login');
     }
   }
 
   Future<void> _saveAlertPreference() async {
+    if (Firebase.apps.isEmpty) {
+      return;
+    }
+
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       return;
@@ -49,13 +67,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       _ => 'silent',
     };
 
-    await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-      'alertPreference': {
-        'mode': mode,
-        'quietHours': null,
-      },
-      'updatedAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .set({
+          'alertPreference': {
+            'mode': mode,
+            'quietHours': null,
+          },
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true))
+        .timeout(const Duration(seconds: 6));
   }
 
   void _skip() {
@@ -269,7 +291,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       width: double.infinity,
                       height: 56,
                       child: ElevatedButton(
-                        onPressed: _nextPage,
+                        onPressed: _isSubmitting ? null : _nextPage,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primaryBlue,
                           foregroundColor: Colors.white,
@@ -281,12 +303,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                    Text(
-                      item.buttonText,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
+                            Text(
+                              _isSubmitting ? 'Saving...' : item.buttonText,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                             if (index == 0) ...[
                               SizedBox(width: 10),

@@ -2,6 +2,9 @@ import 'package:campus_compass/firebase_options.dart';
 import 'package:campus_compass/screens/login_screen.dart';
 import 'package:campus_compass/screens/map_screen.dart';
 import 'package:campus_compass/screens/onboarding_screen.dart';
+import 'package:campus_compass/screens/alerts_screen.dart';
+import 'package:campus_compass/screens/profile_screen.dart';
+import 'package:campus_compass/screens/report_incident_screen.dart';
 import 'package:campus_compass/screens/safety_route_screen.dart';
 import 'package:campus_compass/theme/app_theme.dart';
 import 'package:campus_compass/theme/app_theme_controller.dart';
@@ -76,6 +79,9 @@ class MyApp extends StatelessWidget {
           routes: {
             '/login': (context) => const LoginScreen(),
             '/map': (context) => const MapScreen(),
+            '/alerts': (context) => const AlertsScreen(),
+            '/profile': (context) => const ProfileScreen(),
+            '/report-incident': (context) => const ReportIncidentScreen(),
             '/safety-route': (context) => const SafetyRouteScreen(),
           },
           title: 'Campus Compass',

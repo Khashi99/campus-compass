@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:campus_compass/theme/app_colors.dart';
 import 'package:campus_compass/theme/app_theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -20,6 +23,8 @@ class _MyWidgetState extends State<LoginScreen> {
   bool _obscureText = true;
   bool _isChecked = false;
   bool _isAuthLoading = false;
+
+  bool get _isFirebaseReady => Firebase.apps.isNotEmpty;
 
   @override
   void dispose() {
@@ -385,6 +390,11 @@ class _MyWidgetState extends State<LoginScreen> {
   }
 
   Future<void> _login() async {
+    if (!_isFirebaseReady) {
+      _showAuthError('Firebase is not configured for iOS yet. Use guest access for now.');
+      return;
+    }
+
     if (!_validateForm()) {
       return;
     }
@@ -394,11 +404,13 @@ class _MyWidgetState extends State<LoginScreen> {
     });
 
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
-      );
-      await _ensureUserProfileDocument();
+      await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text,
+          )
+          .timeout(const Duration(seconds: 12));
+      await _ensureUserProfileDocument().timeout(const Duration(seconds: 8));
 
       if (!mounted) {
         return;
@@ -406,6 +418,12 @@ class _MyWidgetState extends State<LoginScreen> {
       Navigator.pushReplacementNamed(context, '/map');
     } on FirebaseAuthException catch (e) {
       _showAuthError(_mapAuthError(e));
+    } on FirebaseException catch (e) {
+      _showAuthError(e.message ?? 'Firebase is unavailable. Check iOS Firebase configuration.');
+    } on TimeoutException {
+      _showAuthError('Request timed out. Check your connection and try again.');
+    } catch (_) {
+      _showAuthError('Login failed. Please try again.');
     } finally {
       if (mounted) {
         setState(() {
@@ -416,6 +434,11 @@ class _MyWidgetState extends State<LoginScreen> {
   }
 
   Future<void> _createAccount() async {
+    if (!_isFirebaseReady) {
+      _showAuthError('Firebase is not configured for iOS yet. Use guest access for now.');
+      return;
+    }
+
     if (!_validateForm()) {
       return;
     }
@@ -435,14 +458,18 @@ class _MyWidgetState extends State<LoginScreen> {
           email: email,
           password: password,
         );
-        await currentUser.linkWithCredential(credential);
+        await currentUser
+            .linkWithCredential(credential)
+            .timeout(const Duration(seconds: 12));
       } else {
-        await auth.createUserWithEmailAndPassword(
-          email: email,
-          password: password,
-        );
+        await auth
+            .createUserWithEmailAndPassword(
+              email: email,
+              password: password,
+            )
+            .timeout(const Duration(seconds: 12));
       }
-      await _ensureUserProfileDocument();
+      await _ensureUserProfileDocument().timeout(const Duration(seconds: 8));
 
       if (!mounted) {
         return;
@@ -459,6 +486,12 @@ class _MyWidgetState extends State<LoginScreen> {
       } else {
         _showAuthError(_mapAuthError(e));
       }
+    } on FirebaseException catch (e) {
+      _showAuthError(e.message ?? 'Firebase is unavailable. Check iOS Firebase configuration.');
+    } on TimeoutException {
+      _showAuthError('Request timed out. Check your connection and try again.');
+    } catch (_) {
+      _showAuthError('Could not create account right now. Please try again.');
     } finally {
       if (mounted) {
         setState(() {
@@ -500,11 +533,13 @@ class _MyWidgetState extends State<LoginScreen> {
     required String password,
   }) async {
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      await _ensureUserProfileDocument();
+      await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+            email: email,
+            password: password,
+          )
+          .timeout(const Duration(seconds: 12));
+      await _ensureUserProfileDocument().timeout(const Duration(seconds: 8));
 
       if (!mounted) {
         return;
@@ -515,10 +550,19 @@ class _MyWidgetState extends State<LoginScreen> {
       Navigator.pushReplacementNamed(context, '/map');
     } on FirebaseAuthException {
       _showAuthError('Account already exists. Use the correct password to log in.');
+    } on FirebaseException catch (e) {
+      _showAuthError(e.message ?? 'Firebase is unavailable. Check iOS Firebase configuration.');
+    } on TimeoutException {
+      _showAuthError('Request timed out. Check your connection and try again.');
     }
   }
 
   Future<void> _sendPasswordReset() async {
+    if (!_isFirebaseReady) {
+      _showAuthError('Firebase is not configured for iOS yet. Password reset is unavailable.');
+      return;
+    }
+
     final email = _emailController.text.trim();
     if (email.isEmpty || !email.contains('@')) {
       _showAuthError('Enter a valid email first, then tap Forgot password.');
@@ -526,7 +570,9 @@ class _MyWidgetState extends State<LoginScreen> {
     }
 
     try {
-      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      await FirebaseAuth.instance
+          .sendPasswordResetEmail(email: email)
+          .timeout(const Duration(seconds: 12));
       if (!mounted) {
         return;
       }
@@ -535,6 +581,10 @@ class _MyWidgetState extends State<LoginScreen> {
       );
     } on FirebaseAuthException catch (e) {
       _showAuthError(_mapAuthError(e));
+    } on FirebaseException catch (e) {
+      _showAuthError(e.message ?? 'Firebase is unavailable. Check iOS Firebase configuration.');
+    } on TimeoutException {
+      _showAuthError('Password reset timed out. Try again.');
     }
   }
 
@@ -545,25 +595,29 @@ class _MyWidgetState extends State<LoginScreen> {
     }
 
     final usersRef = FirebaseFirestore.instance.collection('users').doc(user.uid);
-    final snapshot = await usersRef.get();
+    final snapshot = await usersRef.get().timeout(const Duration(seconds: 8));
     final now = FieldValue.serverTimestamp();
 
     if (!snapshot.exists) {
-      await usersRef.set({
-        'displayName': user.isAnonymous ? 'Anonymous User' : (user.email ?? 'Student'),
-        'alertPreference': {
-          'mode': 'haptic',
-          'quietHours': null,
-        },
-        'createdAt': now,
-        'updatedAt': now,
-      });
+      await usersRef
+          .set({
+            'displayName': user.isAnonymous ? 'Anonymous User' : (user.email ?? 'Student'),
+            'alertPreference': {
+              'mode': 'haptic',
+              'quietHours': null,
+            },
+            'createdAt': now,
+            'updatedAt': now,
+          })
+          .timeout(const Duration(seconds: 8));
       return;
     }
 
-    await usersRef.set({
-      'updatedAt': now,
-    }, SetOptions(merge: true));
+    await usersRef
+        .set({
+          'updatedAt': now,
+        }, SetOptions(merge: true))
+        .timeout(const Duration(seconds: 8));
   }
 
   void _showAuthError(String message) {

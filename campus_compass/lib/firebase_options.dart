@@ -23,10 +23,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for macos - '
@@ -58,9 +55,19 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCR2TdSpAqD95naLCKRGKJCrccsYnUjuMA',
-    appId: '1:624617651104:android:9d6c820a8c4076855742c5',
+    appId: '1:624617651104:android:388353a43245b94e5742c5',
     messagingSenderId: '624617651104',
     projectId: 'campus-compas-soen6751',
     storageBucket: 'campus-compas-soen6751.firebasestorage.app',
   );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyCcllcNPrgvYzF9RhdNcSvqXwrDJEH0pWo',
+    appId: '1:624617651104:ios:a00fdd6ea7d2bc255742c5',
+    messagingSenderId: '624617651104',
+    projectId: 'campus-compas-soen6751',
+    storageBucket: 'campus-compas-soen6751.firebasestorage.app',
+    iosBundleId: 'com.farzadyounespour.campuscompass',
+  );
+
 }
