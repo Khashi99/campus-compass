@@ -13,15 +13,24 @@ import 'package:flutter/material.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AppThemeController.instance.load();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
 
-  if (FirebaseAuth.instance.currentUser == null) {
-    await FirebaseAuth.instance.signInAnonymously();
+  // Do not block first frame forever on startup network/auth operations.
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    ).timeout(const Duration(seconds: 15));
+
+    if (FirebaseAuth.instance.currentUser == null) {
+      await FirebaseAuth.instance
+          .signInAnonymously()
+          .timeout(const Duration(seconds: 10));
+    }
+
+    await _ensureUserProfileDocument().timeout(const Duration(seconds: 10));
+  } catch (error, stackTrace) {
+    debugPrint('Startup initialization skipped: $error');
+    debugPrint('$stackTrace');
   }
-
-  await _ensureUserProfileDocument();
 
   runApp(const MyApp());
 }
