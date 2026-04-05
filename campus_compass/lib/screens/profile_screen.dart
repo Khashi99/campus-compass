@@ -20,6 +20,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   static const _reduceMotionKey = 'profile_reduce_motion';
   static const _hideLowRiskKey = 'profile_hide_low_risk_zones';
   static const _alertStyleKey = 'profile_alert_style';
+  static const _hapticPulseCountKey = 'profile_haptic_pulse_count';
 
   bool _isLoadingPreferences = true;
   bool _isSaving = false;
@@ -30,6 +31,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _hideLowRiskZones = true;
   bool _darkMode = false;
   String? _selectedAlertStyle;
+  int _hapticPulseCount = 1;
 
   @override
   void initState() {
@@ -62,10 +64,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(
-            height: 1,
-            color: AppColors.cardBorder,
-          ),
+          child: Container(height: 1, color: AppColors.cardBorder),
         ),
       ),
       body: user == null
@@ -86,12 +85,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   return Center(child: CircularProgressIndicator());
                 }
 
-                final userData = snapshot.data?.data() ?? const <String, dynamic>{};
+                final userData =
+                    snapshot.data?.data() ?? const <String, dynamic>{};
                 final displayName = _displayNameForUser(userData, user);
                 final email = user.email ?? 'Not provided';
                 final alertPreference =
                     userData['alertPreference'] as Map<String, dynamic>?;
-                final selectedAlertStyle = _selectedAlertStyle ??
+                final selectedAlertStyle =
+                    _selectedAlertStyle ??
                     _alertStyleFromBackend(alertPreference?['mode'] as String?);
 
                 return Column(
@@ -196,7 +197,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     setState(() {
                                       _darkMode = value;
                                     });
-                                    AppThemeController.instance.setDarkMode(value);
+                                    AppThemeController.instance.setDarkMode(
+                                      value,
+                                    );
                                   },
                                 ),
                               ],
@@ -275,6 +278,58 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     fontStyle: FontStyle.italic,
                                   ),
                                 ),
+                                SizedBox(height: 14),
+                                Text(
+                                  'Incident Haptic Pattern',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.darkText,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                DropdownButtonFormField<int>(
+                                  value: _hapticPulseCount,
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: AppColors.white,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                      vertical: 16,
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(
+                                        color: AppColors.cardBorder,
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(
+                                        color: AppColors.primaryBlue,
+                                        width: 1.4,
+                                      ),
+                                    ),
+                                  ),
+                                  items: const [
+                                    DropdownMenuItem<int>(
+                                      value: 1,
+                                      child: Text('One pulse'),
+                                    ),
+                                    DropdownMenuItem<int>(
+                                      value: 2,
+                                      child: Text('Two pulses'),
+                                    ),
+                                  ],
+                                  onChanged: (value) {
+                                    if (value == null) {
+                                      return;
+                                    }
+                                    setState(() {
+                                      _hapticPulseCount = value;
+                                    });
+                                  },
+                                ),
                               ],
                             ),
                             SizedBox(height: 24),
@@ -284,18 +339,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 onPressed: _isSaving || _isLoadingPreferences
                                     ? null
                                     : () => _saveChanges(
-                                          user: user,
-                                          quietHours:
-                                              alertPreference?['quietHours'],
-                                          selectedAlertStyle: selectedAlertStyle,
-                                        ),
+                                        user: user,
+                                        quietHours:
+                                            alertPreference?['quietHours'],
+                                        selectedAlertStyle: selectedAlertStyle,
+                                      ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.primaryBlue,
                                   foregroundColor: Colors.white,
                                   elevation: 4,
-                                  shadowColor:
-                                      AppColors.primaryBlue.withValues(alpha: 0.24),
-                                  padding: const EdgeInsets.symmetric(vertical: 18),
+                                  shadowColor: AppColors.primaryBlue.withValues(
+                                    alpha: 0.24,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 18,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(18),
                                   ),
@@ -308,8 +366,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           strokeWidth: 2,
                                           valueColor:
                                               AlwaysStoppedAnimation<Color>(
-                                            Colors.white,
-                                          ),
+                                                Colors.white,
+                                              ),
                                         ),
                                       )
                                     : Text(
@@ -345,6 +403,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _reduceMotion = prefs.getBool(_reduceMotionKey) ?? true;
       _hideLowRiskZones = prefs.getBool(_hideLowRiskKey) ?? true;
       _darkMode = AppThemeController.instance.isDarkMode;
+      _hapticPulseCount = _sanitizeHapticPulseCount(
+        prefs.getInt(_hapticPulseCountKey),
+      );
       _selectedAlertStyle = _sanitizeAlertStyle(
         prefs.getString(_alertStyleKey),
       );
@@ -380,6 +441,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       await prefs.setBool(_reduceMotionKey, _reduceMotion);
       await prefs.setBool(_hideLowRiskKey, _hideLowRiskZones);
       await prefs.setString(_alertStyleKey, selectedAlertStyle);
+      await prefs.setInt(_hapticPulseCountKey, _hapticPulseCount);
       await AppThemeController.instance.setDarkMode(_darkMode);
 
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
@@ -393,16 +455,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile settings saved.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Profile settings saved.')));
     } catch (e) {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save settings: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to save settings: $e')));
     } finally {
       if (!mounted) {
         return;
@@ -428,9 +490,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Logout failed: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Logout failed: $e')));
     } finally {
       if (!mounted) {
         return;
@@ -453,17 +515,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       case 1:
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => const ReportIncidentScreen(),
-          ),
+          MaterialPageRoute(builder: (context) => const ReportIncidentScreen()),
         );
         break;
       case 2:
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => const AlertsScreen(),
-          ),
+          MaterialPageRoute(builder: (context) => const AlertsScreen()),
         );
         break;
       case 3:
@@ -496,10 +554,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           Row(
             children: [
-              _AvatarBadge(
-                displayName: displayName,
-                photoUrl: user.photoURL,
-              ),
+              _AvatarBadge(displayName: displayName, photoUrl: user.photoURL),
               SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -567,10 +622,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  static String _displayNameForUser(
-    Map<String, dynamic> userData,
-    User user,
-  ) {
+  static String _displayNameForUser(Map<String, dynamic> userData, User user) {
     final profileName = (userData['displayName'] as String?)?.trim();
     if (profileName != null && profileName.isNotEmpty) {
       return profileName;
@@ -630,16 +682,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   static String? _sanitizeAlertStyle(String? value) {
-    const validValues = {
-      'haptic_visual',
-      'visual',
-      'haptic',
-      'silent',
-    };
+    const validValues = {'haptic_visual', 'visual', 'haptic', 'silent'};
     if (value == null || !validValues.contains(value)) {
       return null;
     }
     return value;
+  }
+
+  static int _sanitizeHapticPulseCount(int? value) {
+    if (value == 2) {
+      return 2;
+    }
+    return 1;
   }
 }
 
@@ -663,9 +717,7 @@ class _SectionLabel extends StatelessWidget {
 }
 
 class _PreferenceCard extends StatelessWidget {
-  const _PreferenceCard({
-    required this.children,
-  });
+  const _PreferenceCard({required this.children});
 
   final List<Widget> children;
 
@@ -721,11 +773,7 @@ class _PreferenceSwitchTile extends StatelessWidget {
             color: const Color(0xFFF1F7FF),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(
-            icon,
-            color: AppColors.primaryBlue,
-            size: 20,
-          ),
+          child: Icon(icon, color: AppColors.primaryBlue, size: 20),
         ),
         SizedBox(width: 14),
         Expanded(
@@ -769,10 +817,7 @@ class _PreferenceSwitchTile extends StatelessWidget {
 }
 
 class _AvatarBadge extends StatelessWidget {
-  const _AvatarBadge({
-    required this.displayName,
-    required this.photoUrl,
-  });
+  const _AvatarBadge({required this.displayName, required this.photoUrl});
 
   final String displayName;
   final String? photoUrl;
@@ -780,10 +825,7 @@ class _AvatarBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (photoUrl != null && photoUrl!.trim().isNotEmpty) {
-      return CircleAvatar(
-        radius: 24,
-        backgroundImage: NetworkImage(photoUrl!),
-      );
+      return CircleAvatar(radius: 24, backgroundImage: NetworkImage(photoUrl!));
     }
 
     return Container(
@@ -794,10 +836,7 @@ class _AvatarBadge extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF7DD3FC),
-            Color(0xFF3B82F6),
-          ],
+          colors: [Color(0xFF7DD3FC), Color(0xFF3B82F6)],
         ),
       ),
       alignment: Alignment.center,
