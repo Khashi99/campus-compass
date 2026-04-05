@@ -261,7 +261,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     if (value == null) {
                                       return;
                                     }
-                                    AppHaptics.selection();
+                                    AppHaptics.primeAlertStyle(value);
+                                    AppHaptics.selection(
+                                      alertStyleOverride: value,
+                                    );
                                     setState(() {
                                       _selectedAlertStyle = value;
                                     });
@@ -398,7 +401,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (!mounted) {
         return;
       }
-      AppHaptics.medium();
+      AppHaptics.primeAlertStyle(selectedAlertStyle);
+      AppHaptics.medium(alertStyleOverride: selectedAlertStyle);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profile settings saved.')),
       );

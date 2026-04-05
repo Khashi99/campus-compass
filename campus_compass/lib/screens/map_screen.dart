@@ -926,9 +926,9 @@ class _MapScreenState extends State<MapScreen> {
 
     if (allowHaptic) {
       if (incident.severity >= 2) {
-        AppHaptics.heavy();
+        AppHaptics.heavy(force: true);
       } else {
-        AppHaptics.medium();
+        AppHaptics.medium(force: true);
       }
     }
 

@@ -233,7 +233,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 option: item.alertOptions[i],
                                 isSelected: i == _selectedAlertIndex,
                                 onTap: () {
-                                  AppHaptics.selection();
+                                  final selectedStyle = switch (i) {
+                                    0 => 'visual',
+                                    1 => 'haptic',
+                                    _ => 'silent',
+                                  };
+                                  AppHaptics.primeAlertStyle(selectedStyle);
+                                  AppHaptics.selection(
+                                    alertStyleOverride: selectedStyle,
+                                  );
                                   setState(() => _selectedAlertIndex = i);
                                 },
                                 cardBlue: AppColors.primaryBlue,
