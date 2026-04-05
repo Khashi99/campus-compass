@@ -14,7 +14,8 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _controller = PageController();
   int _currentPage = 0;
-  int _selectedAlertIndex = 1; // Haptic selected by default
+  bool _hapticEnabled = false;
+  bool _soundEnabled = false;
 
   @override
   void dispose() {
@@ -43,16 +44,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       return;
     }
 
-    final mode = switch (_selectedAlertIndex) {
-      0 => 'haptic_visual',
-      1 =>  'visual',
-      2 => 'haptic',
-      _ => 'silent',
-    };
-
     await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
       'alertPreference': {
-        'mode': mode,
+        'visual': true, // always on
+        'haptic': _hapticEnabled,
+        'sound': _soundEnabled,
         'quietHours': null,
       },
       'updatedAt': FieldValue.serverTimestamp(),
@@ -204,16 +200,87 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             ...item.bullets.map((b) => _bulletTile(b)),
 
                           if (index == 1) ...[
-                            for (int i = 0; i < item.alertOptions.length; i++)
-                              _alertOptionCard(
-                                option: item.alertOptions[i],
-                                isSelected: i == _selectedAlertIndex,
-                                onTap: () {
-                                  setState(() => _selectedAlertIndex = i);
-                                },
-                                cardBlue: AppColors.primaryBlue,
-                                border: AppColors.cardBorder,
+                            // Visual alerts (always on)
+                            Card(
+                              margin: const EdgeInsets.only(bottom: 22),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                side: BorderSide(color: AppColors.cardBorder),
                               ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 4),
+                                child: ListTile(
+                                  leading: Icon(Icons.remove_red_eye_outlined, color: AppColors.primaryBlue),
+                                  title: Text('Visual alerts (always on)', style: TextStyle(fontWeight: FontWeight.w600)),
+                                  subtitle: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Subtle banners on your screen'),
+                                      SizedBox(height: 4),
+                                      Text('You will always see a visual notification for important safety alerts.',
+                                        style: TextStyle(fontSize: 13, color: AppColors.mutedText),
+                                      ),
+                                    ],
+                                  ),
+                                  trailing: Icon(Icons.check, color: AppColors.primaryBlue),
+                                ),
+                              ),
+                            ),
+                            Card(
+                              margin: const EdgeInsets.only(bottom: 22),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                side: BorderSide(color: AppColors.cardBorder),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 4),
+                                child: SwitchListTile(
+                                  value: _hapticEnabled,
+                                  onChanged: (val) => setState(() => _hapticEnabled = val),
+                                  title: Text('Haptic feedback', style: TextStyle(fontWeight: FontWeight.w600)),
+                                  subtitle: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Vibrations you can feel'),
+                                      SizedBox(height: 4),
+                                      Text('Get a gentle vibration when an alert is triggered. Great for when your phone is in your pocket or you want a discreet cue.',
+                                        style: TextStyle(fontSize: 13, color: AppColors.mutedText),
+                                      ),
+                                    ],
+                                  ),
+                                  secondary: Icon(Icons.vibration_rounded, color: AppColors.primaryBlue),
+                                ),
+                              ),
+                            ),
+                            Card(
+                              margin: const EdgeInsets.only(bottom: 22),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                side: BorderSide(color: AppColors.cardBorder),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 4),
+                                child: SwitchListTile(
+                                  value: _soundEnabled,
+                                  onChanged: (val) => setState(() => _soundEnabled = val),
+                                  title: Text('Sound alerts', style: TextStyle(fontWeight: FontWeight.w600)),
+                                  subtitle: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Audio notifications'),
+                                      SizedBox(height: 4),
+                                      Text('Play a sound when an alert is triggered. Useful if you want to be notified even when not looking at your device.',
+                                        style: TextStyle(fontSize: 13, color: AppColors.mutedText),
+                                      ),
+                                    ],
+                                  ),
+                                  secondary: Icon(Icons.volume_up_rounded, color: AppColors.primaryBlue),
+                                ),
+                              ),
+                            ),
                             SizedBox(height: 5),
                             if (item.quote != null)
                               Container(
