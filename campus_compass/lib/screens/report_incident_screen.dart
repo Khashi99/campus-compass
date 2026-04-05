@@ -1020,27 +1020,43 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 214, 234, 254),
-            borderRadius: BorderRadius.circular(8),
+            color: AppColors.primaryBlue.withValues(alpha: 0.1),
+            border: Border.all(
+              color: AppColors.primaryBlue.withValues(alpha: 0.3),
+            ),
+            borderRadius: BorderRadius.circular(12),
           ),
-          child: Column(
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Review Details',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.darkText,
-                ),
+              Icon(
+                Icons.fact_check_outlined,
+                color: AppColors.primaryBlue,
+                size: 28,
               ),
-              SizedBox(height: 6),
-              Text(
-                'Please ensure the information below is accurate before sharing it with the campus.',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppColors.mutedText,
-                  height: 1.4,
+              SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Review Details',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.primaryBlue,
+                      ),
+                    ),
+                    SizedBox(height: 6),
+                    Text(
+                      'Please ensure the information below is accurate before sharing it with the campus.',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppColors.darkText,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -1099,8 +1115,11 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 232, 232, 232),
-            borderRadius: BorderRadius.circular(8),
+            color: AppColors.primaryBlue.withValues(alpha: 0.1),
+            border: Border.all(
+              color: AppColors.primaryBlue.withValues(alpha: 0.3),
+            ),
+            borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1109,7 +1128,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                 padding: const EdgeInsets.all(4),
                 child: Icon(
                   Icons.security_outlined,
-                  color: Colors.blueGrey,
+                  color: AppColors.primaryBlue,
                   size: 24,
                 ),
               ),
@@ -1119,7 +1138,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                   'Your report will be anonymous to other students. Only campus security can view your account profile if required for safety verification.',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.blueGrey,
+                    color: AppColors.darkText,
                     height: 1.4,
                   ),
                 ),
