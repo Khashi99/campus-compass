@@ -79,22 +79,27 @@ const List<OnboardingContents> contents = [
     showSkip: false,
     alertOptions: [
       AlertOption(
+        icon: Icons.notification_important_outlined,
+        title: 'Haptic & Visual',
+        subtitle: 'You\'d like to see and feel the alert',
+      ),
+      AlertOption(
         icon: Icons.remove_red_eye_outlined,
         title: 'Visual only',
         subtitle: 'Subtle banners on your screen',
       ),
       AlertOption(
         icon: Icons.vibration_rounded,
-        title: 'Haptic',
+        title: 'Haptic only',
         subtitle: 'Vibrations you can feel instantly',
       ),
       AlertOption(
         icon: Icons.notifications_off_outlined,
         title: 'Silent',
-        subtitle: 'Discreet alerts in your ear',
+        subtitle: 'Discreet alerts in your feed',
       ),
     ],
     quote:
-        '"We prioritize your comfort. These settings ensure you receive information in a way that reduces anxiety."',
+        'We prioritize your comfort. These settings ensure you receive information in a way that reduces anxiety.',
   ),
 ];
