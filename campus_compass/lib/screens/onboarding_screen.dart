@@ -44,8 +44,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
 
     final mode = switch (_selectedAlertIndex) {
-      0 => 'visual',
-      1 => 'haptic',
+      0 => 'haptic_visual',
+      1 =>  'visual',
+      2 => 'haptic',
       _ => 'silent',
     };
 
@@ -147,8 +148,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (index == 0) ...[
-                            //TODO: finalize either custom symbols Hero card or use iilustration
-                            // _screenOneHero(AppColors.pageBackground, AppColors.primaryBlue),
                             ClipRRect(borderRadius: BorderRadius.circular(20),
                             child: Image.asset(
                               'assets/images/instructions_map_vector.png', 
@@ -162,17 +161,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 width: 92,
                                 height: 92,
                                 decoration: BoxDecoration(
-                                  color: AppColors.lightCircle,
+                                  color: AppColors.secondaryBlue.withValues(alpha: 0.20),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
-                                  Icons.notifications_none_rounded,
+                                  Icons.notifications_active_rounded,
                                   size: 42,
                                   color: AppColors.primaryBlue,
                                 ),
                               ),
                             ),
-                            SizedBox(height: 28),
+                            SizedBox(height: 10),
                           ],
 
                           Center(
@@ -187,7 +186,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 14),
+                          SizedBox(height: 8),
                           Center(
                             child: Text(
                               item.description,
@@ -199,7 +198,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 26),
+                          SizedBox(height: 12),
 
                           if (index == 0)
                             ...item.bullets.map((b) => _bulletTile(b)),
@@ -215,7 +214,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 cardBlue: AppColors.primaryBlue,
                                 border: AppColors.cardBorder,
                               ),
-                            SizedBox(height: 18),
+                            SizedBox(height: 5),
                             if (item.quote != null)
                               Container(
                                 width: double.infinity,
@@ -429,138 +428,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  //custom symbols Hero card
-  Widget _screenOneHero(Color pageBg, Color blue) {
-    return Container(
-      width: double.infinity,
-      height: 255,
-      decoration: BoxDecoration(
-        color: pageBg,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            left: 38,
-            top: 48,
-            child: Transform.rotate(
-              angle: 0.06,
-              child: _mapCard(width: 92, height: 62),
-            ),
-          ),
-          Positioned(
-            right: 42,
-            top: 95,
-            child: Transform.rotate(
-              angle: -0.03,
-              child: _mapCard(width: 92, height: 96),
-            ),
-          ),
-          Positioned(
-            left: 78,
-            top: 120,
-            child: Transform.rotate(
-              angle: 0.08,
-              child: _mapCard(width: 92, height: 62),
-            ),
-          ),
-          Positioned(
-            left: 36,
-            top: 142,
-            child: Icon(Icons.location_on_outlined,
-                size: 26, color: Color(0xFF111827)),
-          ),
-          Positioned(
-            right: 64,
-            top: 36,
-            child: Icon(Icons.place_outlined,
-                size: 24, color: Color(0xFF4ADE80)),
-          ),
-
-          Positioned(
-            top: 24,
-            left: 42,
-            child: SizedBox(
-              width: 220,
-              height: 90,
-              child: CustomPaint(
-                painter: DashedCurvePainter(
-                  color: const Color(0xFFBFDBFE),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 28,
-            left: 36,
-            child: SizedBox(
-              width: 250,
-              height: 60,
-              child: CustomPaint(
-                painter: DashedCurvePainter(
-                  color: const Color(0xFFBBF7D0),
-                  flip: true,
-                ),
-              ),
-            ),
-          ),
-
-          Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 84,
-                  height: 84,
-                  decoration: BoxDecoration(
-                    color: blue,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: blue.withValues(alpha: 0.25),
-                        blurRadius: 16,
-                        offset: Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-                    Icons.shield_outlined,
-                    color: Colors.white,
-                    size: 38,
-                  ),
-                ),
-                SizedBox(height: 10),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.circular(18),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color(0x14000000),
-                        blurRadius: 10,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Text(
-                    'Secure Campus',
-                    style: TextStyle(
-                      color: AppColors.primaryBlue,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
