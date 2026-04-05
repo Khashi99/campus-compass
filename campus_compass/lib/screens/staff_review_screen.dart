@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:campus_compass/support/report_review_actions.dart';
 import 'package:campus_compass/theme/app_colors.dart';
+import 'package:campus_compass/utils/incident_haptics.dart';
 
 class StaffReviewScreen extends StatelessWidget {
   const StaffReviewScreen({super.key});
@@ -96,8 +97,8 @@ class StaffReviewScreen extends StatelessWidget {
 
         final allDocs = snapshot.data?.docs ?? const [];
         final docs = allDocs
-          .where((doc) => (doc.data()['status'] as String?) == 'reported')
-          .where((doc) => doc.data()['linkedIncidentId'] == null)
+            .where((doc) => (doc.data()['status'] as String?) == 'reported')
+            .where((doc) => doc.data()['linkedIncidentId'] == null)
             .toList();
 
         if (docs.isEmpty) {
@@ -106,10 +107,12 @@ class StaffReviewScreen extends StatelessWidget {
 
         return Column(
           children: docs
-              .map((doc) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: _buildReportCard(context, doc),
-                  ))
+              .map(
+                (doc) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _buildReportCard(context, doc),
+                ),
+              )
               .toList(),
         );
       },
@@ -148,10 +151,12 @@ class StaffReviewScreen extends StatelessWidget {
 
         return Column(
           children: docs
-              .map((doc) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: _buildIncidentCard(context, doc),
-                  ))
+              .map(
+                (doc) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _buildIncidentCard(context, doc),
+                ),
+              )
               .toList(),
         );
       },
@@ -188,10 +193,12 @@ class StaffReviewScreen extends StatelessWidget {
 
         return Column(
           children: docs
-              .map((doc) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: _buildResolvedIncidentCard(context, doc),
-                  ))
+              .map(
+                (doc) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _buildResolvedIncidentCard(context, doc),
+                ),
+              )
               .toList(),
         );
       },
@@ -478,10 +485,7 @@ class StaffReviewScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.cardBorder),
       ),
-      child: Text(
-        message,
-        style: TextStyle(color: AppColors.mutedText),
-      ),
+      child: Text(message, style: TextStyle(color: AppColors.mutedText)),
     );
   }
 
@@ -491,6 +495,7 @@ class StaffReviewScreen extends StatelessWidget {
   ) async {
     try {
       await ReportReviewActions.approveReport(reportDoc);
+      await IncidentHaptics.playForEvent(IncidentHapticEvent.reportApproved);
 
       if (!context.mounted) {
         return;
@@ -502,9 +507,9 @@ class StaffReviewScreen extends StatelessWidget {
       if (!context.mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Approval failed: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Approval failed: $e')));
     }
   }
 
@@ -518,16 +523,16 @@ class StaffReviewScreen extends StatelessWidget {
       if (!context.mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Report dismissed.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Report dismissed.')));
     } catch (e) {
       if (!context.mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Dismiss failed: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Dismiss failed: $e')));
     }
   }
 
@@ -548,9 +553,9 @@ class StaffReviewScreen extends StatelessWidget {
       if (!context.mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Resolve failed: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Resolve failed: $e')));
     }
   }
 
@@ -558,7 +563,8 @@ class StaffReviewScreen extends StatelessWidget {
     BuildContext context,
     QueryDocumentSnapshot<Map<String, dynamic>> incidentDoc,
   ) async {
-    final currentStatus = (incidentDoc.data()['status'] as String?) ?? 'reported';
+    final currentStatus =
+        (incidentDoc.data()['status'] as String?) ?? 'reported';
 
     try {
       if (currentStatus == 'reported') {
@@ -569,6 +575,9 @@ class StaffReviewScreen extends StatelessWidget {
         await _updateLinkedReports(
           incidentId: incidentDoc.id,
           status: 'investigating',
+        );
+        await IncidentHaptics.playForEvent(
+          IncidentHapticEvent.reportedToInvestigating,
         );
 
         if (!context.mounted) {
@@ -591,6 +600,9 @@ class StaffReviewScreen extends StatelessWidget {
           incidentId: incidentDoc.id,
           status: 'verified',
         );
+        await IncidentHaptics.playForEvent(
+          IncidentHapticEvent.escalatedToVerifiedOrResolved,
+        );
 
         if (!context.mounted) {
           return;
@@ -612,6 +624,9 @@ class StaffReviewScreen extends StatelessWidget {
           incidentId: incidentDoc.id,
           status: 'resolved',
         );
+        await IncidentHaptics.playForEvent(
+          IncidentHapticEvent.escalatedToVerifiedOrResolved,
+        );
 
         if (!context.mounted) {
           return;
@@ -624,9 +639,9 @@ class StaffReviewScreen extends StatelessWidget {
       if (!context.mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Status update failed: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Status update failed: $e')));
     }
   }
 
@@ -699,18 +714,20 @@ class StaffReviewScreen extends StatelessWidget {
       if (!context.mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to remove incident: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to remove incident: $e')));
     }
   }
 
   static String _prettyType(String rawType) {
     final words = rawType.split('_');
     return words
-        .map((word) => word.isEmpty
-            ? word
-            : '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}')
+        .map(
+          (word) => word.isEmpty
+              ? word
+              : '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}',
+        )
         .join(' ');
   }
 

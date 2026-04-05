@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:campus_compass/models/incident.dart';
 import 'package:campus_compass/theme/app_colors.dart';
 import 'package:campus_compass/utils/campus_time.dart';
+import 'package:campus_compass/utils/incident_haptics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
@@ -25,11 +26,7 @@ class EvidenceFile {
   final bool isVideo;
   final Uint8List? thumbnail;
 
-  EvidenceFile({
-    required this.file,
-    required this.isVideo,
-    this.thumbnail,
-  });
+  EvidenceFile({required this.file, required this.isVideo, this.thumbnail});
 }
 
 class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
@@ -169,7 +166,9 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                 child: Container(
                   height: 4,
                   decoration: BoxDecoration(
-                    color: step == 2 ? AppColors.primaryBlue : AppColors.cardBorder,
+                    color: step == 2
+                        ? AppColors.primaryBlue
+                        : AppColors.cardBorder,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -252,62 +251,55 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
   }
 
   Widget _buildDescriptionField() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Row(
-        children: [
-          Icon(
-            Icons.info_outlined,
-            color: AppColors.primaryBlue,
-            size: 20,
-          ),
-          SizedBox(width: 8),
-          RichText(
-            text: TextSpan(
-              text: 'Description',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppColors.darkText,
-              ),
-              children: [
-                TextSpan(
-                  text: ' *',
-                  style: TextStyle(color: AppColors.statusHighRisk),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.info_outlined, color: AppColors.primaryBlue, size: 20),
+            SizedBox(width: 8),
+            RichText(
+              text: TextSpan(
+                text: 'Description',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.darkText,
                 ),
-              ],
+                children: [
+                  TextSpan(
+                    text: ' *',
+                    style: TextStyle(color: AppColors.statusHighRisk),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-      SizedBox(height: 12),
+          ],
+        ),
+        SizedBox(height: 12),
 
-      TextField(
-        controller: _descriptionController,
-        style: TextStyle(
-          fontSize: 14,
-          color: AppColors.darkText,
-        ),
-        maxLines: 6,
-        decoration: InputDecoration(
-          hintText:
-              "Briefly describe the situation (e.g., Main entrance blocked by protestors, please use the side gate.)",
-          hintStyle: TextStyle(color: AppColors.mutedText),
-          border: OutlineInputBorder(
-            borderSide: BorderSide(color: AppColors.cardBorder),
-            borderRadius: BorderRadius.circular(8),
+        TextField(
+          controller: _descriptionController,
+          style: TextStyle(fontSize: 14, color: AppColors.darkText),
+          maxLines: 6,
+          decoration: InputDecoration(
+            hintText:
+                "Briefly describe the situation (e.g., Main entrance blocked by protestors, please use the side gate.)",
+            hintStyle: TextStyle(color: AppColors.mutedText),
+            border: OutlineInputBorder(
+              borderSide: BorderSide(color: AppColors.cardBorder),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            filled: true,
+            fillColor: AppColors.white,
+            contentPadding: EdgeInsets.all(12),
+            counterText: '', // hides default counter inside the field
           ),
-          filled: true,
-          fillColor: AppColors.white,
-          contentPadding: EdgeInsets.all(12),
-          counterText: '', // hides default counter inside the field
+          onChanged: (_) => setState(() {}),
         ),
-        onChanged: (_) => setState(() {}),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 
   Widget _buildLocationField() {
     return Column(
@@ -355,20 +347,21 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
               style: TextStyle(color: AppColors.mutedText),
             ),
             underline: SizedBox(),
-            items: [
-              'Lounge',
-              'Hive Café',
-              'HoJo Concordia',
-              "Reggie's Pub",
-              'Student association offices',
-              'Escalators',
-              'Presentation booths',
-            ].map((location) {
-              return DropdownMenuItem(
-                value: location,
-                child: Text(location),
-              );
-            }).toList(),
+            items:
+                [
+                  'Lounge',
+                  'Hive Café',
+                  'HoJo Concordia',
+                  "Reggie's Pub",
+                  'Student association offices',
+                  'Escalators',
+                  'Presentation booths',
+                ].map((location) {
+                  return DropdownMenuItem(
+                    value: location,
+                    child: Text(location),
+                  );
+                }).toList(),
             onChanged: (value) {
               setState(() => _selectedLocation = value);
             },
@@ -410,9 +403,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             if (picked != null) {
               setState(() => _incidentTime = picked);
               if (_isCampusClosedHour(picked.hour)) {
-                _showSnackBar(
-                  'Campus is closed from 12:00 AM to 6:00 AM.',
-                );
+                _showSnackBar('Campus is closed from 12:00 AM to 6:00 AM.');
               }
             }
           },
@@ -456,11 +447,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
       children: [
         Row(
           children: [
-            Icon(
-              Icons.image_outlined,
-              color: AppColors.primaryBlue,
-              size: 20,
-            ),
+            Icon(Icons.image_outlined, color: AppColors.primaryBlue, size: 20),
             SizedBox(width: 8),
             Text(
               'Evidence (Optional)',
@@ -480,7 +467,10 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
               onTap: _showMediaPickerOptions,
               child: DashedBorderPainter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 12),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 32,
+                    horizontal: 12,
+                  ),
                   child: Column(
                     children: [
                       Icon(
@@ -560,21 +550,15 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             ),
             child: evidence.isVideo
                 ? (evidence.thumbnail != null
-                    ? Image.memory(
-                        evidence.thumbnail!,
-                        fit: BoxFit.cover,
-                      )
-                    : Center(
-                        child: Icon(
-                          Icons.videocam,
-                          color: AppColors.primaryBlue,
-                          size: 40,
-                        ),
-                      ))
-                : Image.file(
-                    File(evidence.file.path),
-                    fit: BoxFit.cover,
-                  ),
+                      ? Image.memory(evidence.thumbnail!, fit: BoxFit.cover)
+                      : Center(
+                          child: Icon(
+                            Icons.videocam,
+                            color: AppColors.primaryBlue,
+                            size: 40,
+                          ),
+                        ))
+                : Image.file(File(evidence.file.path), fit: BoxFit.cover),
           ),
           if (evidence.isVideo)
             Positioned(
@@ -586,11 +570,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                   color: Colors.black54,
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: Icon(
-                  Icons.play_arrow,
-                  color: Colors.white,
-                  size: 16,
-                ),
+                child: Icon(Icons.play_arrow, color: Colors.white, size: 16),
               ),
             ),
           Positioned(
@@ -606,11 +586,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 padding: const EdgeInsets.all(4),
-                child: Icon(
-                  Icons.close,
-                  color: Colors.white,
-                  size: 16,
-                ),
+                child: Icon(Icons.close, color: Colors.white, size: 16),
               ),
             ),
           ),
@@ -713,11 +689,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
         ),
         child: Row(
           children: [
-            Icon(
-              icon,
-              color: AppColors.primaryBlue,
-              size: 24,
-            ),
+            Icon(icon, color: AppColors.primaryBlue, size: 24),
             SizedBox(width: 12),
             Text(
               label,
@@ -735,9 +707,13 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
 
   Future<void> _pickImageFromCamera() async {
     try {
-      final XFile? photo = await _imagePicker.pickImage(source: ImageSource.camera);
+      final XFile? photo = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+      );
       if (photo != null) {
-        setState(() => _evidenceFiles.add(EvidenceFile(file: photo, isVideo: false)));
+        setState(
+          () => _evidenceFiles.add(EvidenceFile(file: photo, isVideo: false)),
+        );
       }
     } catch (e) {
       _showSnackBar('Error picking image: $e');
@@ -746,7 +722,9 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
 
   Future<void> _pickVideoFromCamera() async {
     try {
-      final XFile? video = await _imagePicker.pickVideo(source: ImageSource.camera);
+      final XFile? video = await _imagePicker.pickVideo(
+        source: ImageSource.camera,
+      );
       if (video != null) {
         final thumbnail = await VideoThumbnail.thumbnailData(
           video: video.path,
@@ -754,7 +732,11 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
           maxWidth: 128,
           quality: 70,
         );
-        setState(() => _evidenceFiles.add(EvidenceFile(file: video, isVideo: true, thumbnail: thumbnail)));
+        setState(
+          () => _evidenceFiles.add(
+            EvidenceFile(file: video, isVideo: true, thumbnail: thumbnail),
+          ),
+        );
       }
     } catch (e) {
       _showSnackBar('Error picking video: $e');
@@ -763,9 +745,13 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
 
   Future<void> _pickImageFromGallery() async {
     try {
-      final XFile? photo = await _imagePicker.pickImage(source: ImageSource.gallery);
+      final XFile? photo = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+      );
       if (photo != null) {
-        setState(() => _evidenceFiles.add(EvidenceFile(file: photo, isVideo: false)));
+        setState(
+          () => _evidenceFiles.add(EvidenceFile(file: photo, isVideo: false)),
+        );
       }
     } catch (e) {
       _showSnackBar('Error picking image: $e');
@@ -774,7 +760,9 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
 
   Future<void> _pickVideoFromGallery() async {
     try {
-      final XFile? video = await _imagePicker.pickVideo(source: ImageSource.gallery);
+      final XFile? video = await _imagePicker.pickVideo(
+        source: ImageSource.gallery,
+      );
       if (video != null) {
         final thumbnail = await VideoThumbnail.thumbnailData(
           video: video.path,
@@ -782,7 +770,11 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
           maxWidth: 128,
           quality: 70,
         );
-        setState(() => _evidenceFiles.add(EvidenceFile(file: video, isVideo: true, thumbnail: thumbnail)));
+        setState(
+          () => _evidenceFiles.add(
+            EvidenceFile(file: video, isVideo: true, thumbnail: thumbnail),
+          ),
+        );
       }
     } catch (e) {
       _showSnackBar('Error picking video: $e');
@@ -834,11 +826,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                       borderRadius: BorderRadius.circular(24),
                     ),
                     padding: const EdgeInsets.all(8),
-                    child: Icon(
-                      Icons.close,
-                      color: Colors.white,
-                      size: 24,
-                    ),
+                    child: Icon(Icons.close, color: Colors.white, size: 24),
                   ),
                 ),
               ),
@@ -938,12 +926,8 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                     ),
                   ),
                   TextSpan(
-                    text:
-                        'Please contact Campus Security directly at ',
-                    style: TextStyle(
-                      color: AppColors.darkText,
-                      fontSize: 13,
-                    ),
+                    text: 'Please contact Campus Security directly at ',
+                    style: TextStyle(color: AppColors.darkText, fontSize: 13),
                   ),
                   TextSpan(
                     text: '+1 514-555-0199',
@@ -955,10 +939,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                   ),
                   TextSpan(
                     text: ' before filing a report.',
-                    style: TextStyle(
-                      color: AppColors.darkText,
-                      fontSize: 13,
-                    ),
+                    style: TextStyle(color: AppColors.darkText, fontSize: 13),
                   ),
                 ],
               ),
@@ -973,12 +954,13 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
     final currentLocalHour = DateTime.now().hour;
     final isReportingOpen = !_isCampusClosedHour(currentLocalHour);
     final isSelectedTimeAllowed =
-      _incidentTime == null || !_isCampusClosedHour(_incidentTime!.hour);
-    final isFormValid = _selectedType != null &&
+        _incidentTime == null || !_isCampusClosedHour(_incidentTime!.hour);
+    final isFormValid =
+        _selectedType != null &&
         _descriptionController.text.trim().isNotEmpty &&
-      _selectedLocation != null &&
-      isReportingOpen &&
-      isSelectedTimeAllowed;
+        _selectedLocation != null &&
+        isReportingOpen &&
+        isSelectedTimeAllowed;
 
     return SizedBox(
       width: double.infinity,
@@ -991,7 +973,9 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
               }
             : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: isFormValid ? AppColors.primaryBlue : AppColors.cardBorder,
+          backgroundColor: isFormValid
+              ? AppColors.primaryBlue
+              : AppColors.cardBorder,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -1003,9 +987,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             Text(
               !isReportingOpen
                   ? 'Reporting Unavailable'
-                  : (!isSelectedTimeAllowed
-                      ? 'Invalid Incident Time'
-                      : 'Next'),
+                  : (!isSelectedTimeAllowed ? 'Invalid Incident Time' : 'Next'),
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -1110,7 +1092,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
         ),
         SizedBox(height: 12),
         if (_evidenceFiles.isNotEmpty) _buildEvidenceReviewList(),
-  
+
         SizedBox(height: 12),
 
         // Privacy info
@@ -1338,17 +1320,17 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                       Positioned.fill(
                         child: evidence.isVideo
                             ? (evidence.thumbnail != null
-                                ? Image.memory(
-                                    evidence.thumbnail!,
-                                    fit: BoxFit.cover,
-                                  )
-                                : Center(
-                                    child: Icon(
-                                      Icons.videocam,
-                                      color: AppColors.primaryBlue,
-                                      size: 40,
-                                    ),
-                                  ))
+                                  ? Image.memory(
+                                      evidence.thumbnail!,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Center(
+                                      child: Icon(
+                                        Icons.videocam,
+                                        color: AppColors.primaryBlue,
+                                        size: 40,
+                                      ),
+                                    ))
                             : Image.file(
                                 File(evidence.file.path),
                                 fit: BoxFit.cover,
@@ -1359,7 +1341,10 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                           bottom: 4,
                           left: 4,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 4,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.black54,
                               borderRadius: BorderRadius.circular(4),
@@ -1391,7 +1376,9 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
       return;
     }
 
-    if (_selectedType == null || _selectedLocation == null || _descriptionController.text.trim().isEmpty) {
+    if (_selectedType == null ||
+        _selectedLocation == null ||
+        _descriptionController.text.trim().isEmpty) {
       _showSnackBar('Please complete all required fields.');
       return;
     }
@@ -1439,6 +1426,8 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
         'reportedTime': Timestamp.fromDate(reportedAt),
         'updatedAt': FieldValue.serverTimestamp(),
       });
+
+      await IncidentHaptics.playForEvent(IncidentHapticEvent.reportSubmitted);
 
       _showSnackBar('Report submitted successfully!', isSuccess: true);
 
@@ -1652,7 +1641,9 @@ class _VideoPlaybackDialogState extends State<_VideoPlaybackDialog> {
                       ],
                     );
                   } else {
-                    return CircularProgressIndicator(color: AppColors.primaryBlue);
+                    return CircularProgressIndicator(
+                      color: AppColors.primaryBlue,
+                    );
                   }
                 },
               ),
@@ -1669,11 +1660,7 @@ class _VideoPlaybackDialogState extends State<_VideoPlaybackDialog> {
                   borderRadius: BorderRadius.circular(24),
                 ),
                 padding: const EdgeInsets.all(8),
-                child: Icon(
-                  Icons.close,
-                  color: Colors.white,
-                  size: 24,
-                ),
+                child: Icon(Icons.close, color: Colors.white, size: 24),
               ),
             ),
           ),
