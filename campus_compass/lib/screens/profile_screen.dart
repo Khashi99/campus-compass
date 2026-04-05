@@ -22,6 +22,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   static const _alertStyleKey = 'profile_alert_style';
   static const _hapticPulseCountKey = 'profile_haptic_pulse_count';
 
+  // Onboarding alert preferences keys
+  static const _onboardingHapticKey = 'profile_onboarding_haptic';
+  static const _onboardingSoundKey = 'profile_onboarding_sound';
+
   bool _isLoadingPreferences = true;
   bool _isSaving = false;
   bool _isLoggingOut = false;
@@ -32,6 +36,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _darkMode = false;
   String? _selectedAlertStyle;
   int _hapticPulseCount = 1;
+
+  // Onboarding alert preferences
+  bool _onboardingHaptic = false;
+  bool _onboardingSound = false;
 
   @override
   void initState() {
@@ -89,11 +97,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     snapshot.data?.data() ?? const <String, dynamic>{};
                 final displayName = _displayNameForUser(userData, user);
                 final email = user.email ?? 'Not provided';
-                final alertPreference =
-                    userData['alertPreference'] as Map<String, dynamic>?;
+
+                final alertPreference = userData['alertPreference'] as Map<String, dynamic>?;
                 final selectedAlertStyle =
                     _selectedAlertStyle ??
-                    _alertStyleFromBackend(alertPreference?['mode'] as String?);
+                  _alertStyleFromBackend(alertPreference?['mode'] as String?);
+
+
+                // Defensive: ensure bools for onboarding toggles (Firestore may store null)
+                _onboardingHaptic = (alertPreference?['haptic'] is bool)
+                  ? alertPreference!['haptic'] as bool
+                  : (_onboardingHaptic ?? false);
+                _onboardingSound = (alertPreference?['sound'] is bool)
+                  ? alertPreference!['sound'] as bool
+                  : (_onboardingSound ?? false);
+
+                // Defensive: ensure int for haptic pulse count (Firestore may store null or wrong type)
+                final firestorePulse = alertPreference?['hapticPulseCount'];
+                if (firestorePulse is int) {
+                  _hapticPulseCount = _sanitizeHapticPulseCount(firestorePulse);
+                } else {
+                  _hapticPulseCount = 1;
+                }
 
                 return Column(
                   children: [
@@ -177,6 +202,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   onChanged: (value) {
                                     setState(() {
                                       _hideLowRiskZones = value;
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 18),
+                            _SectionLabel('Alert Preferences'),
+                            SizedBox(height: 10),
+                            _PreferenceCard(
+                              children: [
+                                _PreferenceSwitchTile(
+                                  icon: Icons.remove_red_eye_outlined,
+                                  title: 'Visual alerts',
+                                  subtitle: 'Subtle banners on your screen (always on)',
+                                  value: true,
+                                  onChanged: (_) {}, // always on, so no-op
+                                ),
+                                SizedBox(height: 16),
+                                Divider(height: 1, color: AppColors.cardBorder),
+                                SizedBox(height: 16),
+                                _PreferenceSwitchTile(
+                                  icon: Icons.vibration_rounded,
+                                  title: 'Haptic feedback',
+                                  subtitle: 'Vibrations you can feel',
+                                  value: _onboardingHaptic,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _onboardingHaptic = value;
+                                    });
+                                  },
+                                ),
+                                SizedBox(height: 16),
+                                Divider(height: 1, color: AppColors.cardBorder),
+                                SizedBox(height: 16),
+                                _PreferenceSwitchTile(
+                                  icon: Icons.volume_up_rounded,
+                                  title: 'Sound alerts',
+                                  subtitle: 'Audio notifications',
+                                  value: _onboardingSound,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _onboardingSound = value;
                                     });
                                   },
                                 ),
@@ -409,6 +476,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _selectedAlertStyle = _sanitizeAlertStyle(
         prefs.getString(_alertStyleKey),
       );
+      _onboardingHaptic = prefs.getBool(_onboardingHapticKey) ?? false;
+      _onboardingSound = prefs.getBool(_onboardingSoundKey) ?? false;
       _isLoadingPreferences = false;
     });
   }
@@ -442,12 +511,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
       await prefs.setBool(_hideLowRiskKey, _hideLowRiskZones);
       await prefs.setString(_alertStyleKey, selectedAlertStyle);
       await prefs.setInt(_hapticPulseCountKey, _hapticPulseCount);
+      await prefs.setBool(_onboardingHapticKey, _onboardingHaptic);
+      await prefs.setBool(_onboardingSoundKey, _onboardingSound);
       await AppThemeController.instance.setDarkMode(_darkMode);
 
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
         'alertPreference': {
           'mode': _backendAlertMode(selectedAlertStyle),
           'quietHours': quietHours,
+          'visual': true,
+          'haptic': _onboardingHaptic,
+          'sound': _onboardingSound,
         },
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
@@ -690,7 +764,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   static int _sanitizeHapticPulseCount(int? value) {
-    if (value == 2) {
+    if (value != null && value == 2) {
       return 2;
     }
     return 1;
