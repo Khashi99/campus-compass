@@ -304,9 +304,9 @@ class _MyWidgetState extends State<LoginScreen> {
 
                         // Guest access
                         GestureDetector(
-                          onTap: _isAuthLoading
+                            onTap: _isAuthLoading
                               ? null
-                              : () => Navigator.pushReplacementNamed(context, '/map'),
+                              : () => Navigator.pushReplacementNamed(context, '/home'),
                           child: Container(
                             padding: EdgeInsets.symmetric(
                               horizontal:
@@ -403,7 +403,7 @@ class _MyWidgetState extends State<LoginScreen> {
       if (!mounted) {
         return;
       }
-      Navigator.pushReplacementNamed(context, '/map');
+      Navigator.pushReplacementNamed(context, '/home');
     } on FirebaseAuthException catch (e) {
       _showAuthError(_mapAuthError(e));
     } finally {
@@ -451,7 +451,7 @@ class _MyWidgetState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Account created successfully.')),
       );
-      Navigator.pushReplacementNamed(context, '/map');
+      Navigator.pushReplacementNamed(context, '/home');
     } on FirebaseAuthException catch (e) {
       // If the email already exists, treat this as login so the flow doesn't dead-end.
       if (e.code == 'email-already-in-use' || e.code == 'credential-already-in-use') {
@@ -512,7 +512,7 @@ class _MyWidgetState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Existing account found. Logged in.')),
       );
-      Navigator.pushReplacementNamed(context, '/map');
+      Navigator.pushReplacementNamed(context, '/home');
     } on FirebaseAuthException {
       _showAuthError('Account already exists. Use the correct password to log in.');
     }

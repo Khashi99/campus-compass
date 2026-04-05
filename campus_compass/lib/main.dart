@@ -5,6 +5,7 @@ import 'package:campus_compass/screens/onboarding_screen.dart';
 import 'package:campus_compass/screens/safety_route_screen.dart';
 import 'package:campus_compass/theme/app_theme.dart';
 import 'package:campus_compass/theme/app_theme_controller.dart';
+import 'package:campus_compass/screens/home_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -68,15 +69,12 @@ class MyApp extends StatelessWidget {
             '/login': (context) => const LoginScreen(),
             '/map': (context) => const MapScreen(),
             '/safety-route': (context) => const SafetyRouteScreen(),
+            '/home': (context) => HomeScreen(),
           },
           title: 'Campus Compass',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.themeData,
           home: const OnboardingScreen(),
-
-          // For testing: Use MapScreen directly
-          // For production: Use OnboardingScreen and navigate to MapScreen after
-          //home: const MapScreen(),
         );
       },
     );

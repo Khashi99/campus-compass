@@ -63,21 +63,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
           child: _currentStep == 1 ? _buildStep1() : _buildStep2(),
         ),
       ),
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: 1,
-        onTap: (index) {
-          // Navigation logic: 0 = Map, 1 = Report, 2 = Alerts, 3 = Profile
-          if (index == 0) {
-            Navigator.pushReplacementNamed(context, '/map');
-          } else if (index == 1) {
-            // Already on Report
-          } else if (index == 2) {
-            Navigator.pushReplacementNamed(context, '/alerts');
-          } else if (index == 3) {
-            Navigator.pushReplacementNamed(context, '/profile');
-          }
-        },
-      ),
+      // bottomNavigationBar removed: handled by HomeScreen
     );
   }
 

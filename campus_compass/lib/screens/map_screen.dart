@@ -279,11 +279,7 @@ class _MapScreenState extends State<MapScreen> {
                   _buildHighRiskOverlay(),
               ],
             ),
-            bottomNavigationBar: BottomNavBar(
-              currentIndex: _currentNavIndex,
-              onTap: _handleNavTap,
-              alertBadgeCount: _activeIncidents.length + _pendingReviewCount,
-            ),
+            // bottomNavigationBar removed: handled by HomeScreen
           ),
         ),
       ],

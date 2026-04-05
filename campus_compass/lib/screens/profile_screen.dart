@@ -330,10 +330,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 );
               },
             ),
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: 3,
-        onTap: _handleBottomNavTap,
-      ),
+      // bottomNavigationBar removed: handled by HomeScreen
     );
   }
 

@@ -78,11 +78,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
               ),
             )
           : _buildAlertFeed(),
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: 2,
-        onTap: _handleBottomNavTap,
-        alertBadgeCount: _visibleUnreadCount,
-      ),
+      // bottomNavigationBar removed: handled by HomeScreen
     );
   }
 
