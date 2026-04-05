@@ -103,6 +103,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     _selectedAlertStyle ??
                   _alertStyleFromBackend(alertPreference?['mode'] as String?);
 
+
                 // Defensive: ensure bools for onboarding toggles (Firestore may store null)
                 _onboardingHaptic = (alertPreference?['haptic'] is bool)
                   ? alertPreference!['haptic'] as bool
@@ -110,6 +111,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _onboardingSound = (alertPreference?['sound'] is bool)
                   ? alertPreference!['sound'] as bool
                   : (_onboardingSound ?? false);
+
+                // Defensive: ensure int for haptic pulse count (Firestore may store null or wrong type)
+                final firestorePulse = alertPreference?['hapticPulseCount'];
+                if (firestorePulse is int) {
+                  _hapticPulseCount = _sanitizeHapticPulseCount(firestorePulse);
+                } else {
+                  _hapticPulseCount = 1;
+                }
 
                 return Column(
                   children: [
@@ -755,7 +764,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   static int _sanitizeHapticPulseCount(int? value) {
-    if (value == 2) {
+    if (value != null && value == 2) {
       return 2;
     }
     return 1;
