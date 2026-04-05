@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:campus_compass/theme/app_colors.dart';
+import 'package:campus_compass/utils/app_haptics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class BottomNavBar extends StatelessWidget {
@@ -50,7 +51,10 @@ class BottomNavBar extends StatelessWidget {
     final isSelected = currentIndex == index;
     
     return GestureDetector(
-      onTap: () => onTap(index),
+      onTap: () {
+        AppHaptics.selection();
+        onTap(index);
+      },
       behavior: HitTestBehavior.opaque,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:campus_compass/utils/app_haptics.dart';
 import 'onboarding_contents.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -232,6 +233,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 option: item.alertOptions[i],
                                 isSelected: i == _selectedAlertIndex,
                                 onTap: () {
+                                  AppHaptics.selection();
                                   setState(() => _selectedAlertIndex = i);
                                 },
                                 cardBlue: AppColors.primaryBlue,

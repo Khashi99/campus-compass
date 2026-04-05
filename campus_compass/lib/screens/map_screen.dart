@@ -1,11 +1,11 @@
 
 import 'dart:async';
-import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:campus_compass/screens/alerts_screen.dart';
 import 'package:campus_compass/screens/profile_screen.dart';
 import 'package:campus_compass/theme/app_colors.dart';
+import 'package:campus_compass/utils/app_haptics.dart';
 import 'package:campus_compass/widgets/status_banner.dart';
 import 'package:campus_compass/widgets/bottom_nav_bar.dart';
 import 'package:campus_compass/widgets/map_placeholder.dart';
@@ -926,9 +926,9 @@ class _MapScreenState extends State<MapScreen> {
 
     if (allowHaptic) {
       if (incident.severity >= 2) {
-        await HapticFeedback.heavyImpact();
+        AppHaptics.heavy();
       } else {
-        await HapticFeedback.mediumImpact();
+        AppHaptics.medium();
       }
     }
 

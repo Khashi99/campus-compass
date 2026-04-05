@@ -2,6 +2,7 @@ import 'package:campus_compass/screens/alerts_screen.dart';
 import 'package:campus_compass/screens/report_incident_screen.dart';
 import 'package:campus_compass/theme/app_colors.dart';
 import 'package:campus_compass/theme/app_theme_controller.dart';
+import 'package:campus_compass/utils/app_haptics.dart';
 import 'package:campus_compass/widgets/bottom_nav_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -260,6 +261,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     if (value == null) {
                                       return;
                                     }
+                                    AppHaptics.selection();
                                     setState(() {
                                       _selectedAlertStyle = value;
                                     });
@@ -396,6 +398,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (!mounted) {
         return;
       }
+      AppHaptics.medium();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profile settings saved.')),
       );
