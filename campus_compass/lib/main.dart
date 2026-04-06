@@ -98,7 +98,24 @@ class MyApp extends StatelessWidget {
         ),
 
         ShellRoute(
-          builder: (context, state, child) => HomeScreen(child: child),
+          builder: (context, state, child) {
+            // Compute the active tab index from the current URI path and
+            // pass it into the HomeScreen so the shell highlights correctly
+            // on forward/back navigation.
+            final path = state.uri.path;
+            var tabIndex = 0;
+            if (path.startsWith('/home/report')) {
+              tabIndex = 1;
+            } else if (path.startsWith('/home/alerts')) {
+              tabIndex = 2;
+            } else if (path.startsWith('/home/profile')) {
+              tabIndex = 3;
+            } else if (path.startsWith('/home/map') || path.startsWith('/map')) {
+              tabIndex = 0;
+            }
+
+            return HomeScreen(key: ValueKey(state.uri.toString()), tabIndex: tabIndex, child: child);
+          },
           routes: [
             GoRoute(
               path: '/home/map',

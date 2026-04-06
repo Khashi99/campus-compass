@@ -5,9 +5,10 @@ Future<bool> vibrateWithPattern(List<int> pattern) async {
     return false;
   }
 
+  dynamic result;
   try {
     final dynamic navigator = html.window.navigator;
-    final result = navigator.vibrate(pattern);
+    result = navigator.vibrate(pattern);
     if (result is bool) {
       if (result) {
         return true;
@@ -18,6 +19,11 @@ Future<bool> vibrateWithPattern(List<int> pattern) async {
   } catch (_) {
     // Ignore and attempt iOS Safari fallback below.
   }
+
+  try {
+    // Log to console for diagnostics
+    html.window.console.log('web_vibration_api_web: vibrate called with pattern $pattern, result=$result');
+  } catch (_) {}
 
   if (_isIOSSafari()) {
     return _attemptSafariSwitchHaptic(_pulseCountFromPattern(pattern));

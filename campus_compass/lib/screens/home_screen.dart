@@ -18,7 +18,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late int _currentIndex;
+  // No local currentIndex: derive active tab from router location.
 
   final List<Widget> _screens = const [
     MapScreen(),
@@ -30,14 +30,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _currentIndex = widget.tabIndex;
   }
 
   void _onTabChanged(int index) {
-    if (_currentIndex == index) return;
-    setState(() {
-      _currentIndex = index;
-    });
     // Update the URL using go_router
     final tabPaths = ['/home/map', '/home/report', '/home/alerts', '/home/profile'];
     if (index >= 0 && index < tabPaths.length) {
@@ -48,20 +43,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final child = widget.child;
-    final body = child ?? IndexedStack(index: _currentIndex, children: _screens);
 
-    // If child is provided by a ShellRoute, derive selected index from location
-    int effectiveIndex = _currentIndex;
-    try {
-      final loc = Uri.base.path;
-      if (loc.startsWith('/home/report'))
-        effectiveIndex = 1;
-      else if (loc.startsWith('/home/alerts'))
-        effectiveIndex = 2;
-      else if (loc.startsWith('/home/profile'))
-        effectiveIndex = 3;
-      else if (loc.startsWith('/home/map')) effectiveIndex = 0;
-    } catch (_) {}
+    // Use the tabIndex provided by the ShellRoute builder so the shell
+    // reliably reflects the router state (works across back navigation).
+    int effectiveIndex = widget.tabIndex;
+
+    final body = child ?? IndexedStack(index: effectiveIndex, children: _screens);
 
     return Scaffold(
       body: body,

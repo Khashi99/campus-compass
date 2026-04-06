@@ -45,6 +45,11 @@ class IncidentHaptics {
       final webSucceeded = await vibrateWithPattern(
         _patternForPulseCount(pulseCount),
       );
+      // Debug: log web vibration result for troubleshooting
+      try {
+        // ignore: avoid_print
+        print('IncidentHaptics: web vibrate result: $webSucceeded (pattern=${_patternForPulseCount(pulseCount)})');
+      } catch (_) {}
       if (webSucceeded) {
         return;
       }
