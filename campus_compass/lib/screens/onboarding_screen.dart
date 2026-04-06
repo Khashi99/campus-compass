@@ -21,6 +21,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int _currentPage = 0;
   bool _hapticEnabled = false;
   bool _soundEnabled = false;
+  String _soundType = IncidentSounds.oneBeepSoundType;
   bool _darkMode = false;
   @override
   void initState() {
@@ -51,6 +52,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       await _saveAlertPreference();
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(kOnboardingCompletedKey, true);
+      await prefs.setString(IncidentSounds.soundTypeKey, _soundType);
       if (!mounted) {
         return;
       }
@@ -70,6 +72,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         'visual': true, // always on
         'haptic': _hapticEnabled,
         'sound': _soundEnabled,
+        'soundType': _soundType,
         'quietHours': null,
       },
       'updatedAt': FieldValue.serverTimestamp(),
@@ -260,6 +263,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                         if (val) {
                                           await IncidentSounds.playTestTone(
                                             ignorePreferences: true,
+                                            soundType: _soundType,
                                           );
                                         }
                                       },
@@ -275,6 +279,53 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                         ],
                                       ),
                                       secondary: Icon(Icons.volume_up_rounded, color: AppColors.primaryBlue),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(16, 6, 16, 8),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.music_note_rounded,
+                                            size: 18,
+                                            color: AppColors.primaryBlue,
+                                          ),
+                                          SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              'Sound type',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                color: AppColors.darkText,
+                                              ),
+                                            ),
+                                          ),
+                                          DropdownButton<String>(
+                                            value: _soundType,
+                                            items: const [
+                                              DropdownMenuItem(
+                                                value: IncidentSounds.oneBeepSoundType,
+                                                child: Text('One beep'),
+                                              ),
+                                              DropdownMenuItem(
+                                                value: IncidentSounds.twoBeepSoundType,
+                                                child: Text('Two beep'),
+                                              ),
+                                            ],
+                                            onChanged: (value) async {
+                                              if (value == null || value == _soundType) {
+                                                return;
+                                              }
+                                              setState(() => _soundType = value);
+                                              if (_soundEnabled) {
+                                                await IncidentSounds.playTestTone(
+                                                  ignorePreferences: true,
+                                                  soundType: value,
+                                                );
+                                              }
+                                            },
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),
