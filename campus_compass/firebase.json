@@ -8,12 +8,31 @@
           "fileOutput": "android/app/google-services.json"
         }
       },
+      "ios": {
+        "default": {
+          "projectId": "campus-compas-soen6751",
+          "appId": "1:624617651104:ios:b32fc8b021f5ff4e5742c5",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "macos": {
+        "default": {
+          "projectId": "campus-compas-soen6751",
+          "appId": "1:624617651104:ios:05922ba689b0f9ed5742c5",
+          "uploadDebugSymbols": false,
+          "fileOutput": "macos/Runner/GoogleService-Info.plist"
+        }
+      },
       "dart": {
         "lib/firebase_options.dart": {
           "projectId": "campus-compas-soen6751",
           "configurations": {
             "android": "1:624617651104:android:9d6c820a8c4076855742c5",
-            "web": "1:624617651104:web:ded67b330b52a81e5742c5"
+            "ios": "1:624617651104:ios:b32fc8b021f5ff4e5742c5",
+            "macos": "1:624617651104:ios:05922ba689b0f9ed5742c5",
+            "web": "1:624617651104:web:ded67b330b52a81e5742c5",
+            "windows": "1:624617651104:web:cb2cffa8856fd3b55742c5"
           }
         }
       }

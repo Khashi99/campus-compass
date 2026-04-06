@@ -23,22 +23,13 @@ class DefaultFirebaseOptions {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
         return web;
       case TargetPlatform.linux:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       default:
         throw UnsupportedError(
           'DefaultFirebaseOptions are not supported for this platform.',
@@ -63,4 +54,33 @@ class DefaultFirebaseOptions {
     projectId: 'campus-compas-soen6751',
     storageBucket: 'campus-compas-soen6751.firebasestorage.app',
   );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyCcllcNPrgvYzF9RhdNcSvqXwrDJEH0pWo',
+    appId: '1:624617651104:ios:05922ba689b0f9ed5742c5',
+    messagingSenderId: '624617651104',
+    projectId: 'campus-compas-soen6751',
+    storageBucket: 'campus-compas-soen6751.firebasestorage.app',
+    iosBundleId: 'com.example.campusCompass',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyCcllcNPrgvYzF9RhdNcSvqXwrDJEH0pWo',
+    appId: '1:624617651104:ios:b32fc8b021f5ff4e5742c5',
+    messagingSenderId: '624617651104',
+    projectId: 'campus-compas-soen6751',
+    storageBucket: 'campus-compas-soen6751.firebasestorage.app',
+    iosBundleId: 'com.hcigroup6.campusCompass',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyBz4zxuTaZyMe-gMC3ezp3Q7i7UaEKueqs',
+    appId: '1:624617651104:web:cb2cffa8856fd3b55742c5',
+    messagingSenderId: '624617651104',
+    projectId: 'campus-compas-soen6751',
+    authDomain: 'campus-compas-soen6751.firebaseapp.com',
+    storageBucket: 'campus-compas-soen6751.firebasestorage.app',
+    measurementId: 'G-KF85N117T2',
+  );
+
 }
