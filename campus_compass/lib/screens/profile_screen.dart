@@ -1,8 +1,6 @@
-import 'package:campus_compass/screens/alerts_screen.dart';
-import 'package:campus_compass/screens/report_incident_screen.dart';
 import 'package:campus_compass/theme/app_colors.dart';
 import 'package:campus_compass/theme/app_theme_controller.dart';
-import 'package:campus_compass/widgets/bottom_nav_bar.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -17,34 +15,37 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   static const _stairsFreeKey = 'profile_stairs_free_routing';
-  static const _reduceMotionKey = 'profile_reduce_motion';
-  static const _hideLowRiskKey = 'profile_hide_low_risk_zones';
-  static const _alertStyleKey = 'profile_alert_style';
-  static const _hapticPulseCountKey = 'profile_haptic_pulse_count';
+  // Removed unused _reduceMotionKey and _hideLowRiskKey
+  // Removed unused _alertStyleKey
+  // Removed unused _hapticPulseCountKey
 
   // Onboarding alert preferences keys
   static const _onboardingHapticKey = 'profile_onboarding_haptic';
   static const _onboardingSoundKey = 'profile_onboarding_sound';
 
   bool _isLoadingPreferences = true;
-  bool _isSaving = false;
   bool _isLoggingOut = false;
 
   bool _stairsFreeRouting = false;
-  bool _reduceMotion = true;
-  bool _hideLowRiskZones = true;
+  // Removed unused _reduceMotion and _hideLowRiskZones
   bool _darkMode = false;
-  String? _selectedAlertStyle;
-  int _hapticPulseCount = 1;
+  // Removed unused _selectedAlertStyle
+  // Removed unused _hapticPulseCount
 
   // Onboarding alert preferences
   bool _onboardingHaptic = false;
   bool _onboardingSound = false;
 
+
+  Future<void> _initThemeAndPreferences() async {
+    await AppThemeController.instance.load();
+    await _loadPreferences();
+  }
+
   @override
   void initState() {
     super.initState();
-    _loadPreferences();
+    _initThemeAndPreferences();
   }
 
   @override
@@ -99,26 +100,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 final email = user.email ?? 'Not provided';
 
                 final alertPreference = userData['alertPreference'] as Map<String, dynamic>?;
-                final selectedAlertStyle =
-                    _selectedAlertStyle ??
-                  _alertStyleFromBackend(alertPreference?['mode'] as String?);
+                // Removed unused selectedAlertStyle
 
 
                 // Defensive: ensure bools for onboarding toggles (Firestore may store null)
                 _onboardingHaptic = (alertPreference?['haptic'] is bool)
                   ? alertPreference!['haptic'] as bool
-                  : (_onboardingHaptic ?? false);
+                  : _onboardingHaptic;
                 _onboardingSound = (alertPreference?['sound'] is bool)
                   ? alertPreference!['sound'] as bool
-                  : (_onboardingSound ?? false);
+                  : _onboardingSound;
 
-                // Defensive: ensure int for haptic pulse count (Firestore may store null or wrong type)
-                final firestorePulse = alertPreference?['hapticPulseCount'];
-                if (firestorePulse is int) {
-                  _hapticPulseCount = _sanitizeHapticPulseCount(firestorePulse);
-                } else {
-                  _hapticPulseCount = 1;
-                }
+                // Removed unused hapticPulseCount logic
 
                 return Column(
                   children: [
@@ -174,63 +167,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ],
                             ),
                             SizedBox(height: 18),
-                            _SectionLabel('Visual & Calm Controls'),
-                            SizedBox(height: 10),
-                            _PreferenceCard(
-                              children: [
-                                _PreferenceSwitchTile(
-                                  icon: Icons.air_rounded,
-                                  title: 'Reduce motion',
-                                  subtitle:
-                                      'Minimize animations and smooth out map transitions for a calmer visual experience.',
-                                  value: _reduceMotion,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _reduceMotion = value;
-                                    });
-                                  },
-                                ),
-                                SizedBox(height: 16),
-                                Divider(height: 1, color: AppColors.cardBorder),
-                                SizedBox(height: 16),
-                                _PreferenceSwitchTile(
-                                  icon: Icons.visibility_outlined,
-                                  title: 'Hide low-risk zones',
-                                  subtitle:
-                                      'Only show active tension areas. Hides construction or minor blockages to reduce clutter.',
-                                  value: _hideLowRiskZones,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _hideLowRiskZones = value;
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 18),
+                            // Visual & Calm Controls section removed
                             _SectionLabel('Alert Preferences'),
                             SizedBox(height: 10),
                             _PreferenceCard(
                               children: [
                                 _PreferenceSwitchTile(
-                                  icon: Icons.remove_red_eye_outlined,
-                                  title: 'Visual alerts',
-                                  subtitle: 'Subtle banners on your screen (always on)',
-                                  value: true,
-                                  onChanged: (_) {}, // always on, so no-op
-                                ),
-                                SizedBox(height: 16),
-                                Divider(height: 1, color: AppColors.cardBorder),
-                                SizedBox(height: 16),
-                                _PreferenceSwitchTile(
                                   icon: Icons.vibration_rounded,
                                   title: 'Haptic feedback',
                                   subtitle: 'Vibrations you can feel',
                                   value: _onboardingHaptic,
-                                  onChanged: (value) {
+                                  onChanged: (value) async {
                                     setState(() {
                                       _onboardingHaptic = value;
                                     });
+                                    final user = FirebaseAuth.instance.currentUser;
+                                    if (user != null) {
+                                      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+                                        'alertPreference': {
+                                          'haptic': value,
+                                          'sound': _onboardingSound,
+                                          'visual': true,
+                                        },
+                                      }, SetOptions(merge: true));
+                                    }
                                   },
                                 ),
                                 SizedBox(height: 16),
@@ -241,10 +201,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   title: 'Sound alerts',
                                   subtitle: 'Audio notifications',
                                   value: _onboardingSound,
-                                  onChanged: (value) {
+                                  onChanged: (value) async {
                                     setState(() {
                                       _onboardingSound = value;
                                     });
+                                    final user = FirebaseAuth.instance.currentUser;
+                                    if (user != null) {
+                                      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+                                        'alertPreference': {
+                                          'haptic': _onboardingHaptic,
+                                          'sound': value,
+                                          'visual': true,
+                                        },
+                                      }, SetOptions(merge: true));
+                                    }
                                   },
                                 ),
                               ],
@@ -257,195 +227,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 _PreferenceSwitchTile(
                                   icon: Icons.dark_mode_outlined,
                                   title: 'Dark mode',
-                                  subtitle:
-                                      'Increases color contrast for map markers and text elements to improve legibility.',
+                                  subtitle: 'Increases color contrast for map markers and text elements to improve legibility.',
                                   value: _darkMode,
                                   onChanged: (value) {
                                     setState(() {
                                       _darkMode = value;
                                     });
-                                    AppThemeController.instance.setDarkMode(
-                                      value,
-                                    );
+                                    AppThemeController.instance.setDarkMode(value);
                                   },
                                 ),
                               ],
                             ),
                             SizedBox(height: 18),
-                            _SectionLabel('Communication Style'),
-                            SizedBox(height: 10),
-                            _PreferenceCard(
-                              children: [
-                                Text(
-                                  'Alert Style',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.darkText,
-                                  ),
-                                ),
-                                SizedBox(height: 12),
-                                DropdownButtonFormField<String>(
-                                  value: selectedAlertStyle,
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: AppColors.white,
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 14,
-                                      vertical: 16,
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(
-                                        color: AppColors.cardBorder,
-                                      ),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(
-                                        color: AppColors.primaryBlue,
-                                        width: 1.4,
-                                      ),
-                                    ),
-                                  ),
-                                  items: [
-                                    DropdownMenuItem(
-                                      value: 'haptic_visual',
-                                      child: Text('Haptic & Visual'),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: 'visual',
-                                      child: Text('Visual Only'),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: 'haptic',
-                                      child: Text('Haptic Only'),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: 'silent',
-                                      child: Text('Silent'),
-                                    ),
-                                  ],
-                                  onChanged: (value) {
-                                    if (value == null) {
-                                      return;
-                                    }
-                                    setState(() {
-                                      _selectedAlertStyle = value;
-                                    });
-                                  },
-                                ),
-                                SizedBox(height: 10),
-                                Text(
-                                  '* Alerts use calming tones and soft vibrations to prevent panic.',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    height: 1.4,
-                                    color: AppColors.mutedText,
-                                    fontStyle: FontStyle.italic,
-                                  ),
-                                ),
-                                SizedBox(height: 14),
-                                Text(
-                                  'Incident Haptic Pattern',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.darkText,
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                DropdownButtonFormField<int>(
-                                  value: _hapticPulseCount,
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: AppColors.white,
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 14,
-                                      vertical: 16,
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(
-                                        color: AppColors.cardBorder,
-                                      ),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(
-                                        color: AppColors.primaryBlue,
-                                        width: 1.4,
-                                      ),
-                                    ),
-                                  ),
-                                  items: const [
-                                    DropdownMenuItem<int>(
-                                      value: 1,
-                                      child: Text('One pulse'),
-                                    ),
-                                    DropdownMenuItem<int>(
-                                      value: 2,
-                                      child: Text('Two pulses'),
-                                    ),
-                                  ],
-                                  onChanged: (value) {
-                                    if (value == null) {
-                                      return;
-                                    }
-                                    setState(() {
-                                      _hapticPulseCount = value;
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 24),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: _isSaving || _isLoadingPreferences
-                                    ? null
-                                    : () => _saveChanges(
-                                        user: user,
-                                        quietHours:
-                                            alertPreference?['quietHours'],
-                                        selectedAlertStyle: selectedAlertStyle,
-                                      ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primaryBlue,
-                                  foregroundColor: Colors.white,
-                                  elevation: 4,
-                                  shadowColor: AppColors.primaryBlue.withValues(
-                                    alpha: 0.24,
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 18,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(18),
-                                  ),
-                                ),
-                                child: _isSaving
-                                    ? const SizedBox(
-                                        width: 18,
-                                        height: 18,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                                Colors.white,
-                                              ),
-                                        ),
-                                      )
-                                    : Text(
-                                        'Save Changes',
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                              ),
-                            ),
+                            // Communication Style section removed
+                            // Save Changes button removed
                             SizedBox(height: 10),
                           ],
                         ),
@@ -465,19 +260,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return;
     }
 
+    // Set defaults to true if not present (except dark mode)
+    bool stairsFree = prefs.getBool(_stairsFreeKey) ?? true;
+    bool onboardingHaptic = prefs.getBool(_onboardingHapticKey) ?? true;
+    bool onboardingSound = prefs.getBool(_onboardingSoundKey) ?? true;
+    // Save defaults if not present
+    if (!prefs.containsKey(_stairsFreeKey)) await prefs.setBool(_stairsFreeKey, true);
+    if (!prefs.containsKey(_onboardingHapticKey)) await prefs.setBool(_onboardingHapticKey, true);
+    if (!prefs.containsKey(_onboardingSoundKey)) await prefs.setBool(_onboardingSoundKey, true);
+
     setState(() {
-      _stairsFreeRouting = prefs.getBool(_stairsFreeKey) ?? false;
-      _reduceMotion = prefs.getBool(_reduceMotionKey) ?? true;
-      _hideLowRiskZones = prefs.getBool(_hideLowRiskKey) ?? true;
-      _darkMode = AppThemeController.instance.isDarkMode;
-      _hapticPulseCount = _sanitizeHapticPulseCount(
-        prefs.getInt(_hapticPulseCountKey),
-      );
-      _selectedAlertStyle = _sanitizeAlertStyle(
-        prefs.getString(_alertStyleKey),
-      );
-      _onboardingHaptic = prefs.getBool(_onboardingHapticKey) ?? false;
-      _onboardingSound = prefs.getBool(_onboardingSoundKey) ?? false;
+      _stairsFreeRouting = stairsFree;
+      _darkMode = AppThemeController.instance.isDarkMode; // dark mode remains off by default
+      _onboardingHaptic = onboardingHaptic;
+      _onboardingSound = onboardingSound;
       _isLoadingPreferences = false;
     });
   }
@@ -495,59 +291,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Future<void> _saveChanges({
-    required User user,
-    required dynamic quietHours,
-    required String selectedAlertStyle,
-  }) async {
-    setState(() {
-      _isSaving = true;
-    });
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(_stairsFreeKey, _stairsFreeRouting);
-      await prefs.setBool(_reduceMotionKey, _reduceMotion);
-      await prefs.setBool(_hideLowRiskKey, _hideLowRiskZones);
-      await prefs.setString(_alertStyleKey, selectedAlertStyle);
-      await prefs.setInt(_hapticPulseCountKey, _hapticPulseCount);
-      await prefs.setBool(_onboardingHapticKey, _onboardingHaptic);
-      await prefs.setBool(_onboardingSoundKey, _onboardingSound);
-      await AppThemeController.instance.setDarkMode(_darkMode);
-
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-        'alertPreference': {
-          'mode': _backendAlertMode(selectedAlertStyle),
-          'quietHours': quietHours,
-          'visual': true,
-          'haptic': _onboardingHaptic,
-          'sound': _onboardingSound,
-        },
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-
-      if (!mounted) {
-        return;
-      }
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Profile settings saved.')));
-    } catch (e) {
-      if (!mounted) {
-        return;
-      }
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to save settings: $e')));
-    } finally {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _isSaving = false;
-      });
-    }
-  }
+  // _saveChanges method removed
 
   Future<void> _logout() async {
     setState(() {
@@ -577,31 +321,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  void _handleBottomNavTap(int index) {
-    switch (index) {
-      case 0:
-        if (Navigator.canPop(context)) {
-          Navigator.pop(context);
-        } else {
-          Navigator.pushReplacementNamed(context, '/map');
-        }
-        break;
-      case 1:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const ReportIncidentScreen()),
-        );
-        break;
-      case 2:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const AlertsScreen()),
-        );
-        break;
-      case 3:
-        break;
-    }
-  }
+  // Removed unused _handleBottomNavTap
 
   Widget _buildProfileHeaderCard({
     required String displayName,
@@ -696,7 +416,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  static String _displayNameForUser(Map<String, dynamic> userData, User user) {
+  String _displayNameForUser(Map<String, dynamic> userData, User user) {
     final profileName = (userData['displayName'] as String?)?.trim();
     if (profileName != null && profileName.isNotEmpty) {
       return profileName;
@@ -725,50 +445,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return user.isAnonymous ? 'Guest User' : 'Campus User';
   }
 
-  static String _alertStyleFromBackend(String? backendMode) {
-    switch (backendMode) {
-      case 'haptic_visual':
-        return 'haptic_visual';
-      case 'visual':
-        return 'visual';
-      case 'silent':
-        return 'silent';
-      case 'haptic':
-        return 'haptic';
-      default:
-        return 'haptic_visual';
-    }
-  }
+  // Removed unused _alertStyleFromBackend
 
-  static String _backendAlertMode(String alertStyle) {
-    switch (alertStyle) {
-      case 'haptic_visual':
-        return 'haptic_visual';
-      case 'visual':
-        return 'visual';
-      case 'silent':
-        return 'silent';
-      case 'haptic':
-        return 'haptic';
-      default:
-        return 'haptic_visual';
-    }
-  }
+  // Removed unused _backendAlertMode
 
-  static String? _sanitizeAlertStyle(String? value) {
-    const validValues = {'haptic_visual', 'visual', 'haptic', 'silent'};
-    if (value == null || !validValues.contains(value)) {
-      return null;
-    }
-    return value;
-  }
+  // Removed unused _sanitizeAlertStyle
 
-  static int _sanitizeHapticPulseCount(int? value) {
-    if (value != null && value == 2) {
-      return 2;
-    }
-    return 1;
-  }
+  // Removed unused _sanitizeHapticPulseCount
 }
 
 class _SectionLabel extends StatelessWidget {
