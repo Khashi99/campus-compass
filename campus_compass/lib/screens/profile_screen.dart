@@ -26,6 +26,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // Onboarding alert preferences keys
   static const _onboardingHapticKey = 'profile_onboarding_haptic';
   static const _onboardingSoundKey = 'profile_onboarding_sound';
+  static const _onboardingSoundTypeKey = IncidentSounds.soundTypeKey;
 
   bool _isLoadingPreferences = true;
   bool _isLoggingOut = false;
@@ -39,6 +40,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // Onboarding alert preferences
   bool _onboardingHaptic = false;
   bool _onboardingSound = false;
+  String _soundType = IncidentSounds.oneBeepSoundType;
 
 
   Future<void> _initThemeAndPreferences() async {
@@ -72,13 +74,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         centerTitle: true,
         leading: IconButton(
-          onPressed: () {
-            if (Navigator.canPop(context)) {
-              context.pop();
-            } else {
-              context.go('/home/map');
-            }
-          },
+          onPressed: _handleBack,
           icon: Icon(Icons.arrow_back_ios_new, color: AppColors.darkText),
         ),
         bottom: PreferredSize(
@@ -120,6 +116,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _onboardingSound = (alertPreference?['sound'] is bool)
                   ? alertPreference!['sound'] as bool
                   : _onboardingSound;
+                final remoteSoundType = alertPreference?['soundType'];
+                if (remoteSoundType is String &&
+                    IncidentSounds.isValidSoundType(remoteSoundType)) {
+                  _soundType = _normalizeSoundTypeForUi(remoteSoundType);
+                }
 
                 // Removed unused hapticPulseCount logic
 
@@ -145,21 +146,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Text(
                               'Personalize for Your Comfort',
                               style: TextStyle(
-                                fontSize: 20,
+                                fontSize: 18,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.darkText,
                               ),
                             ),
-                            SizedBox(height: 8),
+                            SizedBox(height: 6),
                             Text(
                               'Customize how you navigate and receive safety information to reduce sensory overload and cognitive stress.',
                               style: TextStyle(
-                                fontSize: 14,
-                                height: 1.45,
+                                fontSize: 13,
+                                height: 1.35,
                                 color: AppColors.mutedText,
                               ),
                             ),
-                            SizedBox(height: 12),
+                            SizedBox(height: 10),
                             _SectionLabel('Campus Navigation'),
                             SizedBox(height: 10),
                             _PreferenceCard(
@@ -197,6 +198,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         'alertPreference': {
                                           'haptic': value,
                                           'sound': _onboardingSound,
+                                          'soundType': _soundType,
                                           'visual': true,
                                         },
                                       }, SetOptions(merge: true));
@@ -221,6 +223,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         'alertPreference': {
                                           'haptic': _onboardingHaptic,
                                           'sound': value,
+                                          'soundType': _soundType,
                                           'visual': true,
                                         },
                                       }, SetOptions(merge: true));
@@ -232,10 +235,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     if (value) {
                                       await IncidentSounds.playTestTone(
                                         ignorePreferences: true,
+                                        soundType: _soundType,
                                       );
                                     }
                                   },
                                 ),
+                                SizedBox(height: 12),
+                                _buildSoundTypeSelector(),
                                 SizedBox(height: 10),
                                 SizedBox(
                                   width: double.infinity,
@@ -243,6 +249,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     onPressed: () async {
                                       await IncidentSounds.playTestTone(
                                         ignorePreferences: true,
+                                        soundType: _soundType,
                                       );
                                     },
                                     style: OutlinedButton.styleFrom(
@@ -307,18 +314,124 @@ class _ProfileScreenState extends State<ProfileScreen> {
     bool stairsFree = prefs.getBool(_stairsFreeKey) ?? true;
     bool onboardingHaptic = prefs.getBool(_onboardingHapticKey) ?? true;
     bool onboardingSound = prefs.getBool(_onboardingSoundKey) ?? true;
+    String onboardingSoundType =
+      prefs.getString(_onboardingSoundTypeKey) ??
+      IncidentSounds.oneBeepSoundType;
     // Save defaults if not present
     if (!prefs.containsKey(_stairsFreeKey)) await prefs.setBool(_stairsFreeKey, true);
     if (!prefs.containsKey(_onboardingHapticKey)) await prefs.setBool(_onboardingHapticKey, true);
     if (!prefs.containsKey(_onboardingSoundKey)) await prefs.setBool(_onboardingSoundKey, true);
+    if (!IncidentSounds.isValidSoundType(onboardingSoundType)) {
+      onboardingSoundType = IncidentSounds.oneBeepSoundType;
+      await prefs.setString(_onboardingSoundTypeKey, onboardingSoundType);
+    }
+
+    onboardingSoundType = _normalizeSoundTypeForUi(onboardingSoundType);
 
     setState(() {
       _stairsFreeRouting = stairsFree;
       _darkMode = AppThemeController.instance.isDarkMode; // dark mode remains off by default
       _onboardingHaptic = onboardingHaptic;
       _onboardingSound = onboardingSound;
+      _soundType = onboardingSoundType;
       _isLoadingPreferences = false;
     });
+  }
+
+  Widget _buildSoundTypeSelector() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(
+            color: const Color(0xFFF1F7FF),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(
+            Icons.music_note_rounded,
+            size: 18,
+            color: AppColors.primaryBlue,
+          ),
+        ),
+        SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Alert sound type',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.darkText,
+                ),
+              ),
+              SizedBox(height: 2),
+              Text(
+                'Choose your notification tone',
+                style: TextStyle(
+                  fontSize: 12.5,
+                  height: 1.3,
+                  color: AppColors.mutedText,
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(width: 12),
+        DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            value: _soundType,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: AppColors.darkText,
+            ),
+            items: const [
+              DropdownMenuItem(
+                value: IncidentSounds.oneBeepSoundType,
+                child: Text('One beep'),
+              ),
+              DropdownMenuItem(
+                value: IncidentSounds.twoBeepSoundType,
+                child: Text('Two beep'),
+              ),
+            ],
+            onChanged: (value) async {
+              if (value == null || value == _soundType) {
+                return;
+              }
+
+              setState(() {
+                _soundType = value;
+              });
+
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setString(_onboardingSoundTypeKey, value);
+
+              final user = FirebaseAuth.instance.currentUser;
+              if (user != null) {
+                await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+                  'alertPreference': {
+                    'haptic': _onboardingHaptic,
+                    'sound': _onboardingSound,
+                    'soundType': value,
+                    'visual': true,
+                  },
+                }, SetOptions(merge: true));
+              }
+
+              await IncidentSounds.playTestTone(
+                ignorePreferences: true,
+                soundType: value,
+              );
+            },
+          ),
+        ),
+      ],
+    );
   }
 
   Future<void> _updateStairsFreeRouting(bool value) async {
@@ -331,6 +444,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
       await prefs.setBool(_stairsFreeKey, value);
     } catch (_) {
       // Keep UI responsive even if local persistence fails.
+    }
+  }
+
+  String _normalizeSoundTypeForUi(String value) {
+    switch (value) {
+      case 'classic':
+      case 'pulse':
+        return IncidentSounds.oneBeepSoundType;
+      case 'double_beep':
+      case 'triple_beep':
+      case 'chime':
+      case 'beacon':
+        return IncidentSounds.twoBeepSoundType;
+      default:
+        return value;
     }
   }
 
@@ -370,7 +498,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       onBack();
       return;
     }
-    Navigator.maybePop(context);
+    if (Navigator.canPop(context)) {
+      context.pop();
+    } else {
+      context.go('/home/map');
+    }
   }
 
   // Removed unused _handleBottomNavTap
@@ -534,7 +666,7 @@ class _PreferenceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -576,34 +708,33 @@ class _PreferenceSwitchTile extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: 38,
-          height: 38,
+          width: 34,
+          height: 34,
           decoration: BoxDecoration(
             color: const Color(0xFFF1F7FF),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: AppColors.primaryBlue, size: 20),
+          child: Icon(icon, color: AppColors.primaryBlue, size: 18),
         ),
-        SizedBox(width: 14),
+        SizedBox(width: 10),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 2),
               Text(
                 title,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: FontWeight.w600,
                   color: AppColors.darkText,
                 ),
               ),
-              SizedBox(height: 4),
+              SizedBox(height: 2),
               Text(
                 subtitle,
                 style: TextStyle(
-                  fontSize: 13.5,
-                  height: 1.45,
+                  fontSize: 12.5,
+                  height: 1.3,
                   color: AppColors.mutedText,
                 ),
               ),
