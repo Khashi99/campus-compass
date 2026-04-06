@@ -1,1 +1,36 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"campus-compas-soen6751","appId":"1:624617651104:android:9d6c820a8c4076855742c5","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"campus-compas-soen6751","configurations":{"android":"1:624617651104:android:9d6c820a8c4076855742c5","web":"1:624617651104:web:ded67b330b52a81e5742c5"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "campus-compas-soen6751",
+          "appId": "1:624617651104:android:9d6c820a8c4076855742c5",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "campus-compas-soen6751",
+          "configurations": {
+            "android": "1:624617651104:android:9d6c820a8c4076855742c5",
+            "web": "1:624617651104:web:ded67b330b52a81e5742c5"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
