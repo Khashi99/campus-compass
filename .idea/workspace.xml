@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="NONE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="4d841805-2577-41c2-86f7-f4a39db8edf7" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/campus_compass/flutter_native_splash.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/campus_compass/flutter_native_splash.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/campus_compass/ios/Flutter/Debug.xcconfig" beforeDir="false" afterPath="$PROJECT_DIR$/campus_compass/ios/Flutter/Debug.xcconfig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/campus_compass/ios/Flutter/Release.xcconfig" beforeDir="false" afterPath="$PROJECT_DIR$/campus_compass/ios/Flutter/Release.xcconfig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/campus_compass/ios/Podfile" beforeDir="false" afterPath="$PROJECT_DIR$/campus_compass/ios/Podfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/campus_compass/ios/Runner.xcodeproj/project.pbxproj" beforeDir="false" afterPath="$PROJECT_DIR$/campus_compass/ios/Runner.xcodeproj/project.pbxproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/campus_compass/ios/Runner.xcworkspace/contents.xcworkspacedata" beforeDir="false" afterPath="$PROJECT_DIR$/campus_compass/ios/Runner.xcworkspace/contents.xcworkspacedata" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/campus_compass/ios/Runner/Info.plist" beforeDir="false" afterPath="$PROJECT_DIR$/campus_compass/ios/Runner/Info.plist" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/campus_compass/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/campus_compass/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/campus_compass/lib/theme/app_colors.dart" beforeDir="false" afterPath="$PROJECT_DIR$/campus_compass/lib/theme/app_colors.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/campus_compass/lib/theme/app_theme.dart" beforeDir="false" afterPath="$PROJECT_DIR$/campus_compass/lib/theme/app_theme.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/campus_compass/macos/Flutter/GeneratedPluginRegistrant.swift" beforeDir="false" afterPath="$PROJECT_DIR$/campus_compass/macos/Flutter/GeneratedPluginRegistrant.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/campus_compass/macos/Runner.xcodeproj/project.pbxproj" beforeDir="false" afterPath="$PROJECT_DIR$/campus_compass/macos/Runner.xcodeproj/project.pbxproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/campus_compass/macos/Runner.xcworkspace/contents.xcworkspacedata" beforeDir="false" afterPath="$PROJECT_DIR$/campus_compass/macos/Runner.xcworkspace/contents.xcworkspacedata" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/campus_compass/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/campus_compass/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/campus_compass/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/campus_compass/pubspec.yaml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 4
+}]]></component>
+  <component name="ProjectId" id="3B9k68FjstOMAW0ZCFeokSm2rBJ" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/salmataha/Documents/campus-compass",
+    "project.structure.last.edited": "Global Libraries",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "experimental"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="4d841805-2577-41c2-86f7-f4a39db8edf7" name="Changes" comment="" />
+      <created>1773908496960</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1773908496960</updated>
+    </task>
+    <servers />
+  </component>
+</project>

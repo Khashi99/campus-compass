@@ -75,7 +75,7 @@ class _MyWidgetState extends State<LoginScreen> {
                           child: Row(
                             children: [
                               Text(
-                                'University Email',
+                                'Email',
                                 style: AppTheme.bulletStyle,
                               )
                             ],
