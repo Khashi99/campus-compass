@@ -63,13 +63,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
             ),
             centerTitle: true,
             leading: IconButton(
-              onPressed: () {
-                if (Navigator.canPop(context)) {
-                  context.pop();
-                } else {
-                  context.go('/home/map');
-                }
-              },
+              onPressed: _handleBack,
               icon: Icon(Icons.arrow_back_ios_new, color: AppColors.darkText),
             ),
             bottom: PreferredSize(
@@ -150,7 +144,11 @@ class _AlertsScreenState extends State<AlertsScreen> {
       onBack();
       return;
     }
-    Navigator.maybePop(context);
+    if (Navigator.canPop(context)) {
+      context.pop();
+    } else {
+      context.go('/home/map');
+    }
   }
 
   Widget _buildAlertFeedContent({
@@ -453,10 +451,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
       MaterialPageRoute(
         builder: (context) => IncidentDetailScreen(
           incident: incident,
-          onViewLiveMap: () {
-            Navigator.pop(context);
-            widget.onBack?.call();
-          },
+          onViewLiveMap: () => context.go('/home/map'),
           onRequestUpdate: () => _requestAlertUpdate(incident),
         ),
       ),
@@ -531,10 +526,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                         MaterialPageRoute(
                           builder: (context) => IncidentDetailScreen(
                             incident: incident,
-                            onViewLiveMap: () {
-                              Navigator.pop(context);
-                              widget.onBack?.call();
-                            },
+                            onViewLiveMap: () => context.go('/home/map'),
                             onRequestUpdate: () => _requestAlertUpdate(incident),
                           ),
                         ),

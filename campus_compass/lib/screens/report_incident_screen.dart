@@ -79,15 +79,9 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
     return AppBar(
       backgroundColor: AppColors.white,
       elevation: 0,
-            leading: IconButton(
+      leading: IconButton(
         icon: Icon(Icons.arrow_back_ios_new, color: AppColors.darkText),
-        onPressed: () {
-          if (Navigator.canPop(context)) {
-            context.pop();
-          } else {
-            context.go('/home/map');
-          }
-        },
+        onPressed: _handleBack,
       ),
       title: Text(
         'Report an Incident',
@@ -107,7 +101,11 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
       onBack();
       return;
     }
-    Navigator.maybePop(context);
+    if (Navigator.canPop(context)) {
+      context.pop();
+    } else {
+      context.go('/home/map');
+    }
   }
 
   // ============ STEP 1: INCIDENT DETAILS ============
@@ -118,7 +116,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
       children: [
         // Progress indicator
         _buildProgressIndicator(1),
-        SizedBox(height: 16),
+        SizedBox(height: 12),
 
         // Title
         Text(
@@ -138,31 +136,31 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             height: 1.5,
           ),
         ),
-        SizedBox(height: 24),
+        SizedBox(height: 16),
 
         // Incident Type Field
         _buildIncidentTypeField(),
-        SizedBox(height: 20),
+        SizedBox(height: 14),
 
         // Description Field
         _buildDescriptionField(),
-        SizedBox(height: 20),
+        SizedBox(height: 14),
 
         // Location Field
         _buildLocationField(),
-        SizedBox(height: 20),
+        SizedBox(height: 14),
 
         // Time Input Field
         _buildTimeField(),
-        SizedBox(height: 20),
+        SizedBox(height: 12),
 
         // Evidence Section
         _buildEvidenceSection(),
-        SizedBox(height: 24),
+        SizedBox(height: 18),
 
         // Emergency Info Box
         _buildEmergencyInfoBox(),
-        SizedBox(height: 32),
+        SizedBox(height: 24),
 
         // Next Button
         _buildNextButton(),
@@ -305,7 +303,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
         TextField(
           controller: _descriptionController,
           style: TextStyle(fontSize: 14, color: AppColors.darkText),
-          maxLines: 6,
+          maxLines: 5,
           decoration: InputDecoration(
             hintText:
                 "Briefly describe the situation (e.g., Main entrance blocked by protestors, please use the side gate.)",

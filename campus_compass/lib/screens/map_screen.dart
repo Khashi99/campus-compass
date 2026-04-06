@@ -438,13 +438,7 @@ class _MapScreenState extends State<MapScreen> {
       MaterialPageRoute(
         builder: (context) => IncidentDetailScreen(
           incident: incident,
-          onViewLiveMap: () {
-            if (Navigator.canPop(context)) {
-              context.pop();
-            } else {
-              context.go('/home/map');
-            }
-          },
+          onViewLiveMap: () => context.go('/home/map'),
           onRequestUpdate: () => _requestAlertUpdate(incident),
         ),
       ),

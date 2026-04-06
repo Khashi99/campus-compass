@@ -276,13 +276,7 @@ class IncidentDetailScreen extends StatelessWidget {
             right: 0,
             child: Center(
               child: MiniMapButton(
-                onTap: onViewLiveMap ?? () {
-                  if (Navigator.canPop(context)) {
-                    context.pop();
-                  } else {
-                    context.go('/home/map');
-                  }
-                },
+                onTap: () => _openLiveMap(context),
               ),
             ),
           ),
@@ -673,11 +667,7 @@ class IncidentDetailScreen extends StatelessWidget {
   void _handleBottomNavTap(BuildContext context, int index) {
     switch (index) {
       case 0:
-        if (Navigator.canPop(context)) {
-          context.pop();
-        } else {
-          context.go('/home/map');
-        }
+        _openLiveMap(context);
         break;
       case 1:
         Navigator.push(
@@ -701,12 +691,8 @@ class IncidentDetailScreen extends StatelessWidget {
   }
 
   void _openLiveMap(BuildContext context) {
-    final callback = onViewLiveMap;
-    if (callback != null) {
-      callback();
-      return;
-    }
-    Navigator.maybePop(context);
+    onViewLiveMap?.call();
+    context.go('/home/map');
   }
 
   // Helper methods
