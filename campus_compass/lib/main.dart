@@ -69,12 +69,12 @@ class MyApp extends StatelessWidget {
             '/login': (context) => const LoginScreen(),
             '/map': (context) => const MapScreen(),
             '/safety-route': (context) => const SafetyRouteScreen(),
-            '/home': (context) => HomeScreen(),
+            '/home': (context) => const HomeScreen(),
           },
           title: 'Campus Compass',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.themeData,
-          home: const OnboardingScreen(),
+          home: const HomeScreen(),
         );
       },
     );
