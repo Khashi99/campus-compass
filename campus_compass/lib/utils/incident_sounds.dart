@@ -18,6 +18,17 @@ enum IncidentSoundEvent {
 
 class IncidentSounds {
   static const String _onboardingSoundKey = 'profile_onboarding_sound';
+  static const String soundTypeKey = 'profile_onboarding_sound_type';
+  static const String oneBeepSoundType = 'one_beep';
+  static const String twoBeepSoundType = 'two_beep';
+
+  // Legacy values kept for migration from older app versions.
+  static const String _legacyClassicSoundType = 'classic';
+  static const String _legacyDoubleBeepSoundType = 'double_beep';
+  static const String _legacyTripleBeepSoundType = 'triple_beep';
+  static const String _legacyPulseSoundType = 'pulse';
+  static const String _legacyChimeSoundType = 'chime';
+  static const String _legacyBeaconSoundType = 'beacon';
 
   static Future<void> playForEvent(
     IncidentSoundEvent event, {
@@ -27,15 +38,28 @@ class IncidentSounds {
       return;
     }
 
-    // Sound feedback stays a single short beep for all lifecycle events.
-    await _playSystemAlert(1);
+    await _playToneForType(await _resolveSoundType());
   }
 
-  static Future<void> playTestTone({bool ignorePreferences = false}) async {
+  static Future<void> playTestTone({
+    bool ignorePreferences = false,
+    String? soundType,
+  }) async {
     if (!ignorePreferences && !await _allowsSound()) {
       return;
     }
-    await _playSystemAlert(1);
+    await _playToneForType(soundType ?? await _resolveSoundType());
+  }
+
+  static bool isValidSoundType(String? soundType) {
+    return soundType == oneBeepSoundType ||
+      soundType == twoBeepSoundType ||
+        soundType == _legacyClassicSoundType ||
+        soundType == _legacyDoubleBeepSoundType ||
+      soundType == _legacyTripleBeepSoundType ||
+      soundType == _legacyPulseSoundType ||
+      soundType == _legacyChimeSoundType ||
+      soundType == _legacyBeaconSoundType;
   }
 
   static Future<bool> _allowsSound() async {
@@ -62,23 +86,93 @@ class IncidentSounds {
     return prefs.getBool(_onboardingSoundKey) ?? true;
   }
 
-  static Future<void> _playSystemAlert(int count) async {
+  static Future<String> _resolveSoundType() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        final userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+        final alertPreference =
+            userDoc.data()?['alertPreference'] as Map<String, dynamic>?;
+        final remoteType = alertPreference?['soundType'];
+        if (remoteType is String && isValidSoundType(remoteType)) {
+          return _normalizeSoundType(remoteType);
+        }
+      } catch (_) {
+        // Fall back to local setting if remote fetch fails.
+      }
+    }
+
+    final storedType = prefs.getString(soundTypeKey);
+    if (isValidSoundType(storedType)) {
+      return _normalizeSoundType(storedType!);
+    }
+    return oneBeepSoundType;
+  }
+
+  static Future<void> _playToneForType(String soundType) async {
+    final normalized = _normalizeSoundType(soundType);
+    if (normalized == twoBeepSoundType) {
+      await _playPattern([
+        _ToneStep(SystemSoundType.alert, 120),
+        _ToneStep(SystemSoundType.alert, 0),
+      ]);
+      return;
+    }
+    await _playPattern([
+      _ToneStep(SystemSoundType.alert, 0),
+    ]);
+  }
+
+  static String _normalizeSoundType(String soundType) {
+    switch (soundType) {
+      case _legacyClassicSoundType:
+      case _legacyPulseSoundType:
+        return oneBeepSoundType;
+      case _legacyDoubleBeepSoundType:
+      case _legacyTripleBeepSoundType:
+      case _legacyChimeSoundType:
+      case _legacyBeaconSoundType:
+        return twoBeepSoundType;
+      default:
+        return soundType;
+    }
+  }
+
+  static Future<void> _playPattern(List<_ToneStep> steps) async {
+    if (steps.isEmpty) {
+      return;
+    }
+
     if (kIsWeb) {
-      final played = await playBrowserAlertTone(count);
+      final played = await playBrowserAlertTone(steps.length);
       if (played) {
         return;
       }
     }
 
-    for (var i = 0; i < count; i++) {
+    for (final step in steps) {
       try {
-        await SystemSound.play(SystemSoundType.alert);
+        await SystemSound.play(step.soundType);
       } catch (_) {
         return;
       }
-      if (i < count - 1) {
-        await Future<void>.delayed(const Duration(milliseconds: 110));
+
+      if (step.delayMs > 0) {
+        await Future<void>.delayed(Duration(milliseconds: step.delayMs));
       }
     }
   }
+
+}
+
+class _ToneStep {
+  const _ToneStep(this.soundType, this.delayMs);
+
+  final SystemSoundType soundType;
+  final int delayMs;
 }
