@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:campus_compass/utils/incident_sounds.dart';
 import 'onboarding_contents.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -254,7 +255,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                     ),
                                     SwitchListTile(
                                       value: _soundEnabled,
-                                      onChanged: (val) => setState(() => _soundEnabled = val),
+                                      onChanged: (val) async {
+                                        setState(() => _soundEnabled = val);
+                                        if (val) {
+                                          await IncidentSounds.playTestTone(
+                                            ignorePreferences: true,
+                                          );
+                                        }
+                                      },
                                       title: Text('Sound alerts', style: TextStyle(fontWeight: FontWeight.w600)),
                                       subtitle: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
