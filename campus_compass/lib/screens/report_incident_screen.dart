@@ -8,6 +8,7 @@ import 'package:campus_compass/theme/app_colors.dart';
 import 'package:campus_compass/theme/app_theme_controller.dart';
 import 'package:campus_compass/utils/campus_time.dart';
 import 'package:campus_compass/utils/incident_haptics.dart';
+import 'package:campus_compass/utils/incident_sounds.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
@@ -1460,6 +1461,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
       });
 
       await IncidentHaptics.playForEvent(IncidentHapticEvent.reportSubmitted);
+      await IncidentSounds.playForEvent(IncidentSoundEvent.reportSubmitted);
 
       _showSnackBar('Report submitted successfully!', isSuccess: true);
 

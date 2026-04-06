@@ -4,6 +4,7 @@ import 'package:campus_compass/support/report_review_actions.dart';
 import 'package:campus_compass/theme/app_colors.dart';
 import 'package:campus_compass/theme/app_theme_controller.dart';
 import 'package:campus_compass/utils/campus_time.dart';
+import 'package:campus_compass/utils/incident_sounds.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -859,6 +860,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
   ) async {
     try {
       await ReportReviewActions.approveReport(reportDoc);
+      await IncidentSounds.playForEvent(IncidentSoundEvent.reportApproved);
       if (!mounted) {
         return;
       }
@@ -932,6 +934,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
           incidentId: incidentDoc.id,
           status: 'investigating',
         );
+        await IncidentSounds.playForEvent(
+          IncidentSoundEvent.reportedToInvestigating,
+        );
 
         if (!mounted) {
           return;
@@ -953,6 +958,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
           incidentId: incidentDoc.id,
           status: 'resolved',
         );
+        await IncidentSounds.playForEvent(
+          IncidentSoundEvent.escalatedToVerifiedOrResolved,
+        );
 
         if (!mounted) {
           return;
@@ -973,6 +981,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
         await _updateLinkedReports(
           incidentId: incidentDoc.id,
           status: 'verified',
+        );
+        await IncidentSounds.playForEvent(
+          IncidentSoundEvent.escalatedToVerifiedOrResolved,
         );
 
         if (!mounted) {

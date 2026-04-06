@@ -1,5 +1,6 @@
 import 'package:campus_compass/theme/app_colors.dart';
 import 'package:campus_compass/theme/app_theme_controller.dart';
+import 'package:campus_compass/utils/incident_sounds.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -215,7 +216,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         },
                                       }, SetOptions(merge: true));
                                     }
+
+                                    final prefs = await SharedPreferences.getInstance();
+                                    await prefs.setBool(_onboardingSoundKey, value);
+
+                                    if (value) {
+                                      await IncidentSounds.playTestTone(
+                                        ignorePreferences: true,
+                                      );
+                                    }
                                   },
+                                ),
+                                SizedBox(height: 14),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: OutlinedButton.icon(
+                                    onPressed: () async {
+                                      await IncidentSounds.playTestTone(
+                                        ignorePreferences: true,
+                                      );
+                                    },
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: AppColors.primaryBlue,
+                                      side: BorderSide(color: AppColors.primaryBlue),
+                                      padding: const EdgeInsets.symmetric(vertical: 12),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    icon: Icon(Icons.volume_up_rounded, size: 18),
+                                    label: Text(
+                                      'Test sound',
+                                      style: TextStyle(fontWeight: FontWeight.w600),
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),

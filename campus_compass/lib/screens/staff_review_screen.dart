@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:campus_compass/support/report_review_actions.dart';
 import 'package:campus_compass/theme/app_colors.dart';
 import 'package:campus_compass/utils/incident_haptics.dart';
+import 'package:campus_compass/utils/incident_sounds.dart';
 
 class StaffReviewScreen extends StatelessWidget {
   const StaffReviewScreen({super.key});
@@ -496,6 +497,7 @@ class StaffReviewScreen extends StatelessWidget {
     try {
       await ReportReviewActions.approveReport(reportDoc);
       await IncidentHaptics.playForEvent(IncidentHapticEvent.reportApproved);
+      await IncidentSounds.playForEvent(IncidentSoundEvent.reportApproved);
 
       if (!context.mounted) {
         return;
@@ -579,6 +581,9 @@ class StaffReviewScreen extends StatelessWidget {
         await IncidentHaptics.playForEvent(
           IncidentHapticEvent.reportedToInvestigating,
         );
+        await IncidentSounds.playForEvent(
+          IncidentSoundEvent.reportedToInvestigating,
+        );
 
         if (!context.mounted) {
           return;
@@ -603,6 +608,9 @@ class StaffReviewScreen extends StatelessWidget {
         await IncidentHaptics.playForEvent(
           IncidentHapticEvent.escalatedToVerifiedOrResolved,
         );
+        await IncidentSounds.playForEvent(
+          IncidentSoundEvent.escalatedToVerifiedOrResolved,
+        );
 
         if (!context.mounted) {
           return;
@@ -626,6 +634,9 @@ class StaffReviewScreen extends StatelessWidget {
         );
         await IncidentHaptics.playForEvent(
           IncidentHapticEvent.escalatedToVerifiedOrResolved,
+        );
+        await IncidentSounds.playForEvent(
+          IncidentSoundEvent.escalatedToVerifiedOrResolved,
         );
 
         if (!context.mounted) {
