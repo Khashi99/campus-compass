@@ -1461,7 +1461,9 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
       });
 
       await IncidentHaptics.playForEvent(IncidentHapticEvent.reportSubmitted);
-      await IncidentSounds.playForEvent(IncidentSoundEvent.reportSubmitted);
+      await IncidentSounds.playForEvent(
+        IncidentSoundEvent.reportSubmitted,
+      );
 
       _showSnackBar('Report submitted successfully!', isSuccess: true);
 

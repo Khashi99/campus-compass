@@ -11,6 +11,7 @@ import 'package:campus_compass/models/incident.dart';
 import 'package:campus_compass/screens/incident_detail_screen.dart';
 import 'package:campus_compass/screens/safety_route_screen.dart';
 import 'package:campus_compass/support/report_review_actions.dart';
+import 'package:campus_compass/utils/incident_sounds.dart';
 import 'package:campus_compass/utils/map_highlight_position.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -108,6 +109,8 @@ class _MapScreenState extends State<MapScreen> {
   StreamSubscription<QuerySnapshot<Map<String, dynamic>>>?
   _pendingReviewSubscription;
   final Set<String> _knownIncidentIds = <String>{};
+  final Map<String, IncidentStatus> _knownIncidentStatuses =
+      <String, IncidentStatus>{};
   bool _hasPrimedIncidentAlerts = false;
   String? _cachedAlertStyle;
 
@@ -873,11 +876,19 @@ class _MapScreenState extends State<MapScreen> {
 
   void _handleIncomingIncidentAlerts(List<Incident> incidents) {
     final currentIds = incidents.map((incident) => incident.id).toSet();
+    final previousStatuses = Map<String, IncidentStatus>.from(
+      _knownIncidentStatuses,
+    );
 
     if (!_hasPrimedIncidentAlerts) {
       _knownIncidentIds
         ..clear()
         ..addAll(currentIds);
+      _knownIncidentStatuses
+        ..clear()
+        ..addEntries(
+          incidents.map((incident) => MapEntry(incident.id, incident.status)),
+        );
       _hasPrimedIncidentAlerts = true;
       return;
     }
@@ -885,19 +896,78 @@ class _MapScreenState extends State<MapScreen> {
     final newIncidents = incidents
         .where((incident) => !_knownIncidentIds.contains(incident.id))
         .toList();
+    final changedStatusIncidents = incidents
+        .where(
+          (incident) =>
+              previousStatuses.containsKey(incident.id) &&
+              previousStatuses[incident.id] != incident.status,
+        )
+        .toList();
+    final removedFromActiveIds = previousStatuses.keys
+      .where((id) => !currentIds.contains(id))
+      .toList();
 
     _knownIncidentIds
       ..clear()
       ..addAll(currentIds);
+    _knownIncidentStatuses
+      ..clear()
+      ..addEntries(
+        incidents.map((incident) => MapEntry(incident.id, incident.status)),
+      );
 
-    if (newIncidents.isEmpty) {
+    if (newIncidents.isEmpty &&
+        changedStatusIncidents.isEmpty &&
+        removedFromActiveIds.isEmpty) {
       return;
     }
 
-    unawaited(_deliverAlertFeedback(newIncidents.first));
+    if (removedFromActiveIds.isNotEmpty) {
+      final removedId = removedFromActiveIds.first;
+      final previousStatus = previousStatuses[removedId];
+      if (previousStatus == IncidentStatus.verified) {
+        unawaited(
+          IncidentSounds.playForEvent(
+            IncidentSoundEvent.escalatedToVerifiedOrResolved,
+          ),
+        );
+        return;
+      }
+    }
+
+    if (changedStatusIncidents.isNotEmpty) {
+      final incident = changedStatusIncidents.first;
+      final previousStatus = previousStatuses[incident.id];
+      final event = _soundEventForChange(
+        currentStatus: incident.status,
+        previousStatus: previousStatus,
+      );
+      unawaited(
+        _deliverAlertFeedback(
+          incident,
+          soundEvent: event,
+          visualMessage:
+              'Incident update: ${incident.title} is now ${_statusLabel(incident.status)}.',
+        ),
+      );
+      return;
+    }
+
+    final incident = newIncidents.first;
+    unawaited(
+      _deliverAlertFeedback(
+        incident,
+        soundEvent: IncidentSoundEvent.reportApproved,
+        visualMessage: 'New incident: ${incident.title} near ${incident.location}',
+      ),
+    );
   }
 
-  Future<void> _deliverAlertFeedback(Incident incident) async {
+  Future<void> _deliverAlertFeedback(
+    Incident incident, {
+    required IncidentSoundEvent soundEvent,
+    required String visualMessage,
+  }) async {
     if (!mounted) {
       return;
     }
@@ -910,6 +980,8 @@ class _MapScreenState extends State<MapScreen> {
     if (isSilent) {
       return;
     }
+
+    await IncidentSounds.playForEvent(soundEvent);
 
     if (allowHaptic) {
       if (incident.severity >= 2) {
@@ -928,7 +1000,7 @@ class _MapScreenState extends State<MapScreen> {
             children: [
               Expanded(
                 child: Text(
-                  'New incident: ${incident.title} near ${incident.location}',
+                  visualMessage,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -953,6 +1025,36 @@ class _MapScreenState extends State<MapScreen> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       );
+    }
+  }
+
+  IncidentSoundEvent _soundEventForChange({
+    required IncidentStatus currentStatus,
+    IncidentStatus? previousStatus,
+  }) {
+    if (previousStatus == IncidentStatus.reported &&
+        currentStatus == IncidentStatus.investigating) {
+      return IncidentSoundEvent.reportedToInvestigating;
+    }
+
+    if (currentStatus == IncidentStatus.verified ||
+        currentStatus == IncidentStatus.resolved) {
+      return IncidentSoundEvent.escalatedToVerifiedOrResolved;
+    }
+
+    return IncidentSoundEvent.reportApproved;
+  }
+
+  String _statusLabel(IncidentStatus status) {
+    switch (status) {
+      case IncidentStatus.reported:
+        return 'Reported';
+      case IncidentStatus.investigating:
+        return 'Investigating';
+      case IncidentStatus.verified:
+        return 'Verified';
+      case IncidentStatus.resolved:
+        return 'Resolved';
     }
   }
 

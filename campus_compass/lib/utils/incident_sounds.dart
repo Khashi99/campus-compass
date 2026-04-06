@@ -19,8 +19,11 @@ enum IncidentSoundEvent {
 class IncidentSounds {
   static const String _onboardingSoundKey = 'profile_onboarding_sound';
 
-  static Future<void> playForEvent(IncidentSoundEvent event) async {
-    if (!await _allowsSound()) {
+  static Future<void> playForEvent(
+    IncidentSoundEvent event, {
+    bool force = false,
+  }) async {
+    if (!force && !await _allowsSound()) {
       return;
     }
 
