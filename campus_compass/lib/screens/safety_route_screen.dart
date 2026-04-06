@@ -8,6 +8,7 @@ import 'package:campus_compass/widgets/route_verification_banner.dart';
 import 'package:campus_compass/widgets/safety_route_step_tile.dart';
 import 'package:campus_compass/widgets/safety_time_bar.dart';
 import 'package:campus_compass/widgets/bottom_nav_bar.dart';
+import 'package:campus_compass/screens/home_screen.dart';
 import 'package:campus_compass/theme/app_colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
@@ -53,7 +54,7 @@ class _SafetyRouteScreenState extends State<SafetyRouteScreen> {
 
     switch (index) {
       case 0:
-        context.go('/map');
+        context.go('/home/map');
         break;
       case 1:
         context.go('/home/report');
@@ -88,7 +89,13 @@ class _SafetyRouteScreenState extends State<SafetyRouteScreen> {
           ),
         ),
         leading: IconButton(
-          onPressed: () => Navigator.maybePop(context),
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.maybePop(context);
+            } else {
+              context.go('/home/map');
+            }
+          },
           icon: Icon(Icons.arrow_back_ios_new, color: AppColors.darkText),
         ),
         actions: [],
@@ -122,10 +129,12 @@ class _SafetyRouteScreenState extends State<SafetyRouteScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: _currentNavIndex,
-        onTap: _handleNavTap,
-      ),
+      bottomNavigationBar: (context.findAncestorWidgetOfExactType<HomeScreen>() == null)
+          ? BottomNavBar(
+              currentIndex: _currentNavIndex,
+              onTap: _handleNavTap,
+            )
+          : null,
     );
   }
 
