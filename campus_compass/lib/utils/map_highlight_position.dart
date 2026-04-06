@@ -6,7 +6,7 @@ class MapHighlightPosition {
   static const Offset defaultPosition = Offset(640, 494);
 
   static const Offset _lounge = Offset(220, 160);
-  static const Offset _hiveCafe = Offset(470, 165);
+  static const Offset _hiveCafe = Offset(440, 165);
   static const Offset _hojoConcordia = Offset(700, 165);
   static const Offset _studentAssociation = Offset(900, 170);
   static const Offset _escalators = Offset(340, 390);
