@@ -1,8 +1,10 @@
 import 'package:campus_compass/theme/app_colors.dart';
 import 'package:campus_compass/theme/app_theme_controller.dart';
+import 'package:campus_compass/support/app_prefs_keys.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'onboarding_contents.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -45,10 +47,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       );
     } else {
       await _saveAlertPreference();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(kOnboardingCompletedKey, true);
       if (!mounted) {
         return;
       }
-      Navigator.pushNamed(context, '/login');
+      Navigator.pushReplacementNamed(context, '/login');
     }
   }
 

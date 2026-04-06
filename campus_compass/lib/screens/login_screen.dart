@@ -289,7 +289,7 @@ class _MyWidgetState extends State<LoginScreen> {
                         GestureDetector(
                             onTap: _isAuthLoading
                               ? null
-                              : () => Navigator.pushReplacementNamed(context, '/home'),
+                              : _continueAsGuest,
                           child: Container(
                             padding: EdgeInsets.symmetric(
                               horizontal:
@@ -518,6 +518,34 @@ class _MyWidgetState extends State<LoginScreen> {
       );
     } on FirebaseAuthException catch (e) {
       _showAuthError(_mapAuthError(e));
+    }
+  }
+
+  Future<void> _continueAsGuest() async {
+    setState(() {
+      _isAuthLoading = true;
+    });
+
+    try {
+      final auth = FirebaseAuth.instance;
+      if (auth.currentUser == null) {
+        await auth.signInAnonymously();
+      }
+
+      await _ensureUserProfileDocument();
+
+      if (!mounted) {
+        return;
+      }
+      Navigator.pushReplacementNamed(context, '/home');
+    } on FirebaseAuthException catch (e) {
+      _showAuthError(_mapAuthError(e));
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isAuthLoading = false;
+        });
+      }
     }
   }
 
