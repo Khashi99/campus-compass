@@ -195,12 +195,6 @@ class _MapScreenState extends State<MapScreen> {
                     // Main content
                     Column(
                       children: [
-                        // Dynamic status banner
-                        StatusBanner(
-                          status: _campusStatus,
-                          onMoreInfo: () => _showStatusInfo(context),
-                        ),
-
                         // Map area
                         Expanded(
                           child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
@@ -235,48 +229,65 @@ class _MapScreenState extends State<MapScreen> {
 
                               return Stack(
                                 children: [
-                                  // Map with dynamic tension zones
-                                  MapPlaceholder(
-                                    showTensionZone: _activeIncidents.isNotEmpty,
-                                    tensionZoneLabel: _activeIncidents.isNotEmpty
-                                        ? _getTensionZoneLabel()
-                                        : null,
-                                    tensionZonePosition: _activeIncidents.isNotEmpty
-                                        ? MapHighlightPosition.forIncidentLocation(
-                                            _activeIncidents.first.location,
-                                          )
-                                        : MapHighlightPosition.defaultPosition,
-                                  ),
-
-                                  if (_isLoadingIncidents)
-                                    const Center(
-                                      child: CircularProgressIndicator(),
-                                    ),
-
-                                  if (_incidentLoadError != null)
-                                    Positioned(
-                                      top: 16,
-                                      left: 16,
-                                      right: 16,
-                                      child: _buildErrorBanner(
-                                        'Unable to load incidents from backend.',
+                                  Column(
+                                    children: [
+                                      StatusBanner(
+                                        status: _campusStatus,
+                                        onMoreInfo: () => _showStatusInfo(context),
                                       ),
-                                    ),
+                                      Expanded(
+                                        child: Stack(
+                                          children: [
+                                            // Map with dynamic tension zones
+                                            MapPlaceholder(
+                                              showTensionZone:
+                                                  _activeIncidents.isNotEmpty,
+                                              tensionZoneLabel:
+                                                  _activeIncidents.isNotEmpty
+                                                  ? _getTensionZoneLabel()
+                                                  : null,
+                                              tensionZonePosition:
+                                                  _activeIncidents.isNotEmpty
+                                                  ? MapHighlightPosition.forIncidentLocation(
+                                                      _activeIncidents.first.location,
+                                                    )
+                                                  : MapHighlightPosition.defaultPosition,
+                                            ),
 
-                                  // Map legend (only show when there are incidents)
-                                  if (_activeIncidents.isNotEmpty)
-                                    const Positioned(
-                                      right: 4,
-                                      top: 8,
-                                      child: MapLegend(),
-                                    ),
+                                            if (_isLoadingIncidents)
+                                              const Center(
+                                                child: CircularProgressIndicator(),
+                                              ),
 
-                                  // Dynamic bottom card based on status
-                                  Positioned(
-                                    left: 0,
-                                    right: 0,
-                                    bottom: 0,
-                                    child: _buildBottomCard(),
+                                            if (_incidentLoadError != null)
+                                              Positioned(
+                                                top: 16,
+                                                left: 16,
+                                                right: 16,
+                                                child: _buildErrorBanner(
+                                                  'Unable to load incidents from backend.',
+                                                ),
+                                              ),
+
+                                            // Map legend (only show when there are incidents)
+                                            if (_activeIncidents.isNotEmpty)
+                                              const Positioned(
+                                                right: 4,
+                                                top: 8,
+                                                child: MapLegend(),
+                                              ),
+
+                                            // Dynamic bottom card based on status
+                                            Positioned(
+                                              left: 0,
+                                              right: 0,
+                                              bottom: 0,
+                                              child: _buildBottomCard(),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               );

@@ -146,6 +146,9 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
   @override
   Widget build(BuildContext context) {
     final isVerified = _isVerified(widget.incident);
+    final status = widget.incident.status;
+    final statusLabel = _statusLabel(status);
+    final statusColor = _statusColor(status);
     final canNavigateToSafety =
         widget.incident.status == IncidentStatus.verified;
     final incidentAccent = isVerified
@@ -238,20 +241,13 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
                       // Animated verification progress
                       Row(
                         children: [
-                          // Pulsing verification icon
-                          isVerified
-                              ? Icon(
-                                  Icons.verified,
-                                  size: 14,
-                                  color: AppColors.verifiedBadge,
-                                )
-                              : _buildPulsingIcon(),
+                          _buildStatusIcon(status, statusColor),
                           SizedBox(width: 6),
                           Text(
-                            isVerified ? 'Verified' : 'Reported',
+                            statusLabel,
                             style: TextStyle(
                               fontSize: 12,
-                              color: AppColors.verifiedBadge,
+                              color: statusColor,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -316,8 +312,47 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
     );
   }
 
-  /// Pulsing green dot indicator
-  Widget _buildPulsingIcon() {
+  Widget _buildStatusIcon(IncidentStatus status, Color color) {
+    switch (status) {
+      case IncidentStatus.reported:
+        return _buildPulsingIcon(color);
+      case IncidentStatus.investigating:
+        return Icon(Icons.manage_search_rounded, size: 14, color: color);
+      case IncidentStatus.verified:
+        return Icon(Icons.verified, size: 14, color: color);
+      case IncidentStatus.resolved:
+        return Icon(Icons.check_circle, size: 14, color: color);
+    }
+  }
+
+  String _statusLabel(IncidentStatus status) {
+    switch (status) {
+      case IncidentStatus.reported:
+        return 'Reported';
+      case IncidentStatus.investigating:
+        return 'Investigating';
+      case IncidentStatus.verified:
+        return 'Verified';
+      case IncidentStatus.resolved:
+        return 'Resolved';
+    }
+  }
+
+  Color _statusColor(IncidentStatus status) {
+    switch (status) {
+      case IncidentStatus.reported:
+        return AppColors.verifiedBadge;
+      case IncidentStatus.investigating:
+        return AppColors.primaryBlue;
+      case IncidentStatus.verified:
+        return AppColors.statusHighRisk;
+      case IncidentStatus.resolved:
+        return AppColors.statusNormal;
+    }
+  }
+
+  /// Pulsing status indicator used for newly reported incidents.
+  Widget _buildPulsingIcon(Color color) {
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
@@ -326,7 +361,7 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
           height: 14,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: AppColors.verifiedBadge.withOpacity(
+            color: color.withOpacity(
               0.5 +
                   (_controller.value *
                       0.5), // Pulses between 0.5 and 1.0 opacity
@@ -338,7 +373,7 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
               height: 8,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.verifiedBadge,
+                color: color,
               ),
             ),
           ),
