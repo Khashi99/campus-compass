@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -57,10 +56,10 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-    bool _isOffline = false;
-    late final Connectivity _connectivity;
-    late final Stream<ConnectivityResult> _connectivityStream;
-    late final StreamSubscription<ConnectivityResult> _connectivitySubscription;
+  bool _isOffline = false;
+  late final Connectivity _connectivity;
+  late final Stream<ConnectivityResult> _connectivityStream;
+  late final StreamSubscription<ConnectivityResult> _connectivitySubscription;
   static const String _defaultCampusId = 'sgw';
   static const String _alertStylePreferenceKey = 'profile_alert_style';
   static const List<_MoreInfoResource> _moreInfoResources = [
@@ -96,13 +95,13 @@ class _MapScreenState extends State<MapScreen> {
 
   // Current navigation tab
   int _currentNavIndex = 0;
-  
+
   // Campus status - in real app, this comes from backend/API
   CampusStatus _campusStatus = CampusStatus.normal;
-  
+
   // Active incidents - in real app, this comes from backend/API
   List<Incident> _activeIncidents = [];
-  
+
   // Is high risk overlay showing?
   bool _showHighRiskOverlay = false;
   bool _isLoadingIncidents = true;
@@ -110,36 +109,38 @@ class _MapScreenState extends State<MapScreen> {
   int _pendingReviewCount = 0;
   late final Stream<QuerySnapshot<Map<String, dynamic>>> _incidentStream;
   StreamSubscription<QuerySnapshot<Map<String, dynamic>>>?
-      _pendingReviewSubscription;
+  _pendingReviewSubscription;
   final Set<String> _knownIncidentIds = <String>{};
   bool _hasPrimedIncidentAlerts = false;
   String? _cachedAlertStyle;
 
   @override
   void initState() {
-        _connectivity = Connectivity();
-        _connectivityStream = _connectivity.onConnectivityChanged;
-        _connectivitySubscription = _connectivityStream.listen((result) {
-          final offline = result == ConnectivityResult.none;
-          if (offline != _isOffline) {
-            setState(() {
-              _isOffline = offline;
-            });
-            if (offline) {
-              _showSnackBar('You are offline. The map will update when you are back online.');
-            } else {
-              _showSnackBar('You are back online.', isSuccess: true);
-            }
-          }
+    _connectivity = Connectivity();
+    _connectivityStream = _connectivity.onConnectivityChanged;
+    _connectivitySubscription = _connectivityStream.listen((result) {
+      final offline = result == ConnectivityResult.none;
+      if (offline != _isOffline) {
+        setState(() {
+          _isOffline = offline;
         });
-        _connectivity.checkConnectivity().then((result) {
-          final offline = result == ConnectivityResult.none;
-          if (offline != _isOffline) {
-            setState(() {
-              _isOffline = offline;
-            });
-          }
+        if (offline) {
+          _showSnackBar(
+            'You are offline. The map will update when you are back online.',
+          );
+        } else {
+          _showSnackBar('You are back online.', isSuccess: true);
+        }
+      }
+    });
+    _connectivity.checkConnectivity().then((result) {
+      final offline = result == ConnectivityResult.none;
+      if (offline != _isOffline) {
+        setState(() {
+          _isOffline = offline;
         });
+      }
+    });
     super.initState();
     _incidentStream = FirebaseFirestore.instance
         .collection('incidents')
@@ -150,7 +151,7 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   void dispose() {
-      _connectivitySubscription.cancel();
+    _connectivitySubscription.cancel();
     _pendingReviewSubscription?.cancel();
     super.dispose();
   }
@@ -197,13 +198,14 @@ class _MapScreenState extends State<MapScreen> {
                       status: _campusStatus,
                       onMoreInfo: () => _showStatusInfo(context),
                     ),
-                    
+
                     // Map area
                     Expanded(
                       child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                         stream: _incidentStream,
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
                             _isLoadingIncidents = true;
                           } else if (snapshot.hasError) {
                             _incidentLoadError = snapshot.error.toString();
@@ -211,17 +213,20 @@ class _MapScreenState extends State<MapScreen> {
                           } else {
                             _incidentLoadError = null;
                             _isLoadingIncidents = false;
-                            _activeIncidents = (snapshot.data?.docs ?? const [])
-                                .where(
-                                  (doc) => _matchesCampusId(
-                                    doc.data()['campusId'] as String?,
-                                  ),
-                                )
-                                .map((doc) => Incident.fromFirestore(doc))
-                                .toList()
-                              ..sort(
-                                (a, b) => b.reportedTime.compareTo(a.reportedTime),
-                              );
+                            _activeIncidents =
+                                (snapshot.data?.docs ?? const [])
+                                    .where(
+                                      (doc) => _matchesCampusId(
+                                        doc.data()['campusId'] as String?,
+                                      ),
+                                    )
+                                    .map((doc) => Incident.fromFirestore(doc))
+                                    .toList()
+                                  ..sort(
+                                    (a, b) => b.reportedTime.compareTo(
+                                      a.reportedTime,
+                                    ),
+                                  );
                             _handleIncomingIncidentAlerts(_activeIncidents);
                             _deriveCampusStatusFromIncidents();
                           }
@@ -234,6 +239,11 @@ class _MapScreenState extends State<MapScreen> {
                                 tensionZoneLabel: _activeIncidents.isNotEmpty
                                     ? _getTensionZoneLabel()
                                     : null,
+                                tensionZonePosition: _activeIncidents.isNotEmpty
+                                    ? MapHighlightPosition.forIncidentLocation(
+                                        _activeIncidents.first.location,
+                                      )
+                                    : MapHighlightPosition.defaultPosition,
                               ),
 
                               if (_isLoadingIncidents)
@@ -273,7 +283,7 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   ],
                 ),
-                
+
                 // High risk overlay (appears when user enters danger zone)
                 if (_showHighRiskOverlay && _activeIncidents.isNotEmpty)
                   _buildHighRiskOverlay(),
@@ -296,18 +306,20 @@ class _MapScreenState extends State<MapScreen> {
             _showSnackBar('No active incidents. Campus is safe!');
           },
         );
-      
+
       case CampusStatus.caution:
         return IncidentPreviewCard(
           incident: _activeIncidents.first,
-          onViewDetails: () => _navigateToIncidentDetail(_activeIncidents.first),
+          onViewDetails: () =>
+              _navigateToIncidentDetail(_activeIncidents.first),
           onNavigateToSafety: () => _navigateToSafety(_activeIncidents.first),
         );
-      
+
       case CampusStatus.highRisk:
         return HighRiskAlertCard(
           incident: _activeIncidents.first,
-          onViewDetails: () => _navigateToIncidentDetail(_activeIncidents.first),
+          onViewDetails: () =>
+              _navigateToIncidentDetail(_activeIncidents.first),
           onNavigateToSafety: () => _navigateToSafety(_activeIncidents.first),
           onReportTrust: () => _reportTrust(_activeIncidents.first),
         );
@@ -317,7 +329,7 @@ class _MapScreenState extends State<MapScreen> {
   /// Gets the label for tension zone based on incident type
   String _getTensionZoneLabel() {
     if (_activeIncidents.isEmpty) return '';
-    
+
     final incident = _activeIncidents.first;
     switch (incident.type) {
       case IncidentType.protest:
@@ -344,19 +356,21 @@ class _MapScreenState extends State<MapScreen> {
           children: [
             // Red status banner
             const StatusBanner(status: CampusStatus.highRisk),
-            
+
             Spacer(),
-            
+
             // High risk alert card
             HighRiskAlertCard(
               incident: _activeIncidents.first,
-              onViewDetails: () => _navigateToIncidentDetail(_activeIncidents.first),
-              onNavigateToSafety: () => _navigateToSafety(_activeIncidents.first),
+              onViewDetails: () =>
+                  _navigateToIncidentDetail(_activeIncidents.first),
+              onNavigateToSafety: () =>
+                  _navigateToSafety(_activeIncidents.first),
               onReportTrust: () => _reportTrust(_activeIncidents.first),
             ),
-            
+
             SizedBox(height: 16),
-            
+
             // Dismiss button
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -368,14 +382,11 @@ class _MapScreenState extends State<MapScreen> {
                 },
                 child: Text(
                   'Dismiss Alert',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.white, fontSize: 14),
                 ),
               ),
             ),
-            
+
             SizedBox(height: 32),
           ],
         ),
@@ -491,7 +502,8 @@ class _MapScreenState extends State<MapScreen> {
           'uid': user.uid,
           'vote': 'confirm',
           'submittedAt': voteSnap.exists
-              ? (voteSnap.data()?['submittedAt'] ?? FieldValue.serverTimestamp())
+              ? (voteSnap.data()?['submittedAt'] ??
+                    FieldValue.serverTimestamp())
               : FieldValue.serverTimestamp(),
           'updatedAt': FieldValue.serverTimestamp(),
         }, SetOptions(merge: true));
@@ -527,11 +539,11 @@ class _MapScreenState extends State<MapScreen> {
           .collection('updateRequests')
           .doc(user.uid)
           .set({
-        'uid': user.uid,
-        'message': 'Requesting a status update for this alert.',
-        'requestedAt': now,
-        'updatedAt': now,
-      }, SetOptions(merge: true));
+            'uid': user.uid,
+            'message': 'Requesting a status update for this alert.',
+            'requestedAt': now,
+            'updatedAt': now,
+          }, SetOptions(merge: true));
 
       _showSnackBar('Update request submitted.', isSuccess: true);
     } catch (e) {
@@ -563,18 +575,18 @@ class _MapScreenState extends State<MapScreen> {
           .orderBy('reportedTime', descending: true)
           .snapshots()
           .listen((snapshot) {
-        final pendingCount = snapshot.docs
-          .where((doc) => (doc.data()['status'] as String?) == 'reported')
-          .where((doc) => doc.data()['linkedIncidentId'] == null)
-            .length;
+            final pendingCount = snapshot.docs
+                .where((doc) => (doc.data()['status'] as String?) == 'reported')
+                .where((doc) => doc.data()['linkedIncidentId'] == null)
+                .length;
 
-        if (!mounted) {
-          return;
-        }
-        setState(() {
-          _pendingReviewCount = pendingCount;
-        });
-      });
+            if (!mounted) {
+              return;
+            }
+            setState(() {
+              _pendingReviewCount = pendingCount;
+            });
+          });
     } catch (_) {
       if (!mounted) {
         return;
@@ -591,7 +603,9 @@ class _MapScreenState extends State<MapScreen> {
       decoration: BoxDecoration(
         color: AppColors.statusCaution.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.statusCaution.withValues(alpha: 0.35)),
+        border: Border.all(
+          color: AppColors.statusCaution.withValues(alpha: 0.35),
+        ),
       ),
       child: Text(
         message,
@@ -641,8 +655,8 @@ class _MapScreenState extends State<MapScreen> {
                           _campusStatus == CampusStatus.normal
                               ? Icons.check_circle
                               : (_campusStatus == CampusStatus.caution
-                                  ? Icons.warning_amber_rounded
-                                  : Icons.error),
+                                    ? Icons.warning_amber_rounded
+                                    : Icons.error),
                           color: _campusStatus.color,
                           size: 24,
                         ),
@@ -679,7 +693,9 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   ),
                   SizedBox(height: 8),
-                  _buildRecommendation('Consider alternative routes if possible'),
+                  _buildRecommendation(
+                    'Consider alternative routes if possible',
+                  ),
                   _buildRecommendation('Stay aware of your surroundings'),
                   _buildRecommendation('Check for updates before heading out'),
                   SizedBox(height: 16),
@@ -692,8 +708,9 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   ),
                   SizedBox(height: 10),
-                  ..._moreInfoResources
-                      .map((resource) => _buildMoreInfoResourceCard(resource)),
+                  ..._moreInfoResources.map(
+                    (resource) => _buildMoreInfoResourceCard(resource),
+                  ),
                   SizedBox(height: 20),
                   SizedBox(
                     width: double.infinity,
@@ -754,8 +771,10 @@ class _MapScreenState extends State<MapScreen> {
               ),
               if (resource.offline)
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.statusNormal.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(999),
@@ -804,8 +823,10 @@ class _MapScreenState extends State<MapScreen> {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.primaryBlue,
                     side: BorderSide(color: AppColors.primaryBlue),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 8,
+                    ),
                   ),
                 ),
               TextButton.icon(
@@ -844,19 +865,12 @@ class _MapScreenState extends State<MapScreen> {
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(
         children: [
-          Icon(
-            Icons.check_circle,
-            size: 16,
-            color: AppColors.statusNormal,
-          ),
+          Icon(Icons.check_circle, size: 16, color: AppColors.statusNormal),
           SizedBox(width: 8),
           Expanded(
             child: Text(
               text,
-              style: TextStyle(
-                fontSize: 13,
-                color: AppColors.mutedText,
-              ),
+              style: TextStyle(fontSize: 13, color: AppColors.mutedText),
             ),
           ),
         ],
@@ -941,10 +955,7 @@ class _MapScreenState extends State<MapScreen> {
                   messenger.hideCurrentSnackBar();
                   _navigateToIncidentDetail(incident);
                 },
-                child: Text(
-                  'View',
-                  style: TextStyle(color: Colors.white),
-                ),
+                child: Text('View', style: TextStyle(color: Colors.white)),
               ),
               IconButton(
                 onPressed: messenger.hideCurrentSnackBar,
@@ -957,9 +968,7 @@ class _MapScreenState extends State<MapScreen> {
               ? AppColors.statusHighRisk
               : AppColors.primaryBlue,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       );
     }
@@ -992,8 +1001,10 @@ class _MapScreenState extends State<MapScreen> {
           .collection('users')
           .doc(user.uid)
           .get();
-      final mode = (snapshot.data()?['alertPreference'] as Map<String, dynamic>?)?['mode']
-          as String?;
+      final mode =
+          (snapshot.data()?['alertPreference']
+                  as Map<String, dynamic>?)?['mode']
+              as String?;
       switch (mode) {
         case 'haptic_visual':
           _cachedAlertStyle = 'haptic_visual';
@@ -1063,7 +1074,7 @@ class _MoreInfoResource {
 /// We'll create the full version next
 class _IncidentDetailPlaceholder extends StatelessWidget {
   final Incident incident;
-  
+
   const _IncidentDetailPlaceholder({required this.incident});
 
   @override
@@ -1080,18 +1091,11 @@ class _IncidentDetailPlaceholder extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.construction,
-                size: 64,
-                color: AppColors.mutedText,
-              ),
+              Icon(Icons.construction, size: 64, color: AppColors.mutedText),
               SizedBox(height: 16),
               Text(
                 incident.title,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 8),

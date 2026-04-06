@@ -28,7 +28,11 @@ class IncidentDetailScreen extends StatelessWidget {
         backgroundColor: AppColors.pageBackground,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new, color: AppColors.darkText, size: 18),
+          icon: Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColors.darkText,
+            size: 18,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -53,25 +57,25 @@ class IncidentDetailScreen extends StatelessWidget {
           children: [
             // Status badges
             _buildStatusBadges(),
-            
+
             // Incident title and time
             _buildTitleSection(),
-            
+
             // Map preview
             _buildMapPreview(context),
-            
+
             // Resolution progress
             _buildResolutionProgress(),
-            
+
             // Description
             _buildDescription(),
-            
+
             // Community insights
             _buildCommunityInsights(),
-            
+
             // Request update button
             _buildRequestUpdateButton(context),
-            
+
             SizedBox(height: 32),
           ],
         ),
@@ -94,18 +98,12 @@ class IncidentDetailScreen extends StatelessWidget {
             decoration: BoxDecoration(
               color: _getStatusColor().withOpacity(0.1),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: _getStatusColor().withOpacity(0.3),
-              ),
+              border: Border.all(color: _getStatusColor().withOpacity(0.3)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  _getStatusIcon(),
-                  size: 14,
-                  color: _getStatusColor(),
-                ),
+                Icon(_getStatusIcon(), size: 14, color: _getStatusColor()),
                 SizedBox(width: 4),
                 Text(
                   _getStatusText(),
@@ -170,11 +168,7 @@ class IncidentDetailScreen extends StatelessWidget {
           SizedBox(height: 10),
           Row(
             children: [
-              Icon(
-                Icons.schedule,
-                size: 16,
-                color: AppColors.mutedText,
-              ),
+              Icon(Icons.schedule, size: 16, color: AppColors.mutedText),
               SizedBox(width: 6),
               Text(
                 'Reported ${incident.timeAgo}',
@@ -185,11 +179,7 @@ class IncidentDetailScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(width: 18),
-              Icon(
-                Icons.people_outline,
-                size: 16,
-                color: AppColors.mutedText,
-              ),
+              Icon(Icons.people_outline, size: 16, color: AppColors.mutedText),
               SizedBox(width: 6),
               Text(
                 '${incident.userReports} User Reports',
@@ -225,6 +215,10 @@ class IncidentDetailScreen extends StatelessWidget {
                 errorBuilder: (context, error, stackTrace) {
                   return MapPlaceholder(
                     showTensionZone: true,
+                    tensionZonePosition:
+                        MapHighlightPosition.forIncidentLocation(
+                          incident.location,
+                        ),
                   );
                 },
               ),
@@ -233,6 +227,9 @@ class IncidentDetailScreen extends StatelessWidget {
             Positioned.fill(
               child: MapPlaceholder(
                 showTensionZone: true,
+                tensionZonePosition: MapHighlightPosition.forIncidentLocation(
+                  incident.location,
+                ),
               ),
             ),
           Positioned(
@@ -247,7 +244,11 @@ class IncidentDetailScreen extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.location_on_outlined, size: 14, color: AppColors.primaryBlue),
+                  Icon(
+                    Icons.location_on_outlined,
+                    size: 14,
+                    color: AppColors.primaryBlue,
+                  ),
                   SizedBox(width: 4),
                   Text(
                     incident.location,
@@ -306,30 +307,26 @@ class IncidentDetailScreen extends StatelessWidget {
           SizedBox(height: 16),
           Row(
             children: [
-              _buildProgressStep(
-                'REPORTED',
-                true,
-                isFirst: true,
-              ),
+              _buildProgressStep('REPORTED', true, isFirst: true),
               _buildProgressConnector(
                 incident.status == IncidentStatus.investigating ||
-                incident.status == IncidentStatus.verified ||
-                incident.status == IncidentStatus.resolved,
+                    incident.status == IncidentStatus.verified ||
+                    incident.status == IncidentStatus.resolved,
               ),
               _buildProgressStep(
                 'INVESTIGATING',
                 incident.status == IncidentStatus.investigating ||
-                incident.status == IncidentStatus.verified ||
-                incident.status == IncidentStatus.resolved,
+                    incident.status == IncidentStatus.verified ||
+                    incident.status == IncidentStatus.resolved,
               ),
               _buildProgressConnector(
                 incident.status == IncidentStatus.verified ||
-                incident.status == IncidentStatus.resolved,
+                    incident.status == IncidentStatus.resolved,
               ),
               _buildProgressStep(
                 'VERIFIED',
                 incident.status == IncidentStatus.verified ||
-                incident.status == IncidentStatus.resolved,
+                    incident.status == IncidentStatus.resolved,
               ),
               _buildProgressConnector(
                 incident.status == IncidentStatus.resolved,
@@ -356,7 +353,12 @@ class IncidentDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProgressStep(String label, bool isActive, {bool isFirst = false, bool isLast = false}) {
+  Widget _buildProgressStep(
+    String label,
+    bool isActive, {
+    bool isFirst = false,
+    bool isLast = false,
+  }) {
     return Expanded(
       child: Column(
         children: [
@@ -372,11 +374,7 @@ class IncidentDetailScreen extends StatelessWidget {
               ),
             ),
             child: isActive
-                ? const Icon(
-                    Icons.check,
-                    size: 16,
-                    color: Colors.white,
-                  )
+                ? const Icon(Icons.check, size: 16, color: Colors.white)
                 : null,
           ),
           SizedBox(height: 8),
@@ -491,7 +489,9 @@ class IncidentDetailScreen extends StatelessWidget {
             ],
           ),
           SizedBox(height: 10),
-          ...incident.communityInsights.map((insight) => _buildInsightCard(insight)),
+          ...incident.communityInsights.map(
+            (insight) => _buildInsightCard(insight),
+          ),
         ],
       ),
     );
@@ -557,10 +557,7 @@ class IncidentDetailScreen extends StatelessWidget {
               ),
               Text(
                 insight.timeAgo,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppColors.mutedText,
-                ),
+                style: TextStyle(fontSize: 12, color: AppColors.mutedText),
               ),
             ],
           ),
@@ -668,25 +665,19 @@ class IncidentDetailScreen extends StatelessWidget {
       case 1:
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => const ReportIncidentScreen(),
-          ),
+          MaterialPageRoute(builder: (context) => const ReportIncidentScreen()),
         );
         break;
       case 2:
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => const AlertsScreen(),
-          ),
+          MaterialPageRoute(builder: (context) => const AlertsScreen()),
         );
         break;
       case 3:
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => const ProfileScreen(),
-          ),
+          MaterialPageRoute(builder: (context) => const ProfileScreen()),
         );
         break;
     }

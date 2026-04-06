@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:campus_compass/theme/app_colors.dart';
+import 'package:campus_compass/utils/map_highlight_position.dart';
 
 class MapPlaceholder extends StatefulWidget {
   final bool showTensionZone;
   final String? tensionZoneLabel;
-  //final Offset? tensionZonePosition;
+  final Offset? tensionZonePosition;
   final bool showZoomControls;
 
   const MapPlaceholder({
     super.key,
     this.showTensionZone = false,
     this.tensionZoneLabel,
-    //this.tensionZonePosition,
+    this.tensionZonePosition,
     this.showZoomControls = true,
   });
 
@@ -60,6 +61,14 @@ class _MapPlaceholderState extends State<MapPlaceholder> {
     });
   }
 
+  Offset _toViewportPosition(Offset source, Size viewport) {
+    final normalizedX = (source.dx / MapHighlightPosition.sourceMapSize.width)
+        .clamp(0.0, 1.0);
+    final normalizedY = (source.dy / MapHighlightPosition.sourceMapSize.height)
+        .clamp(0.0, 1.0);
+    return Offset(viewport.width * normalizedX, viewport.height * normalizedY);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -67,6 +76,10 @@ class _MapPlaceholderState extends State<MapPlaceholder> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final viewport = Size(constraints.maxWidth, constraints.maxHeight);
+          final zoneCenter = _toViewportPosition(
+            widget.tensionZonePosition ?? MapHighlightPosition.defaultPosition,
+            viewport,
+          );
 
           return Stack(
             children: [
@@ -102,60 +115,49 @@ class _MapPlaceholderState extends State<MapPlaceholder> {
                             ),
                           ),
                           // Tension zone overlay
-                          // Tension zone overlay - CENTERED and RESPONSIVE (Fixes #4 and #5)
                           if (widget.showTensionZone)
-                            Positioned.fill(
-                              child: Center(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Container(
-                                      width: 120,
-                                      height: 120,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: AppColors.tensionZone.withOpacity(0.25),
-                                        border: Border.all(
-                                          color: AppColors.tensionZone.withOpacity(0.7),
-                                          width: 3,
-                                        ),
+                            Positioned(
+                              left: zoneCenter.dx - 60,
+                              top: zoneCenter.dy - 60,
+                              child: Column(
+                                children: [
+                                  Container(
+                                    width: 120,
+                                    height: 120,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: AppColors.tensionZone.withOpacity(
+                                        0.25,
                                       ),
-                                      child: Center(
-                                        child: Icon(
-                                          Icons.warning_rounded,
-                                          color: AppColors.tensionZone.withOpacity(0.8),
-                                          size: 40,
+                                      border: Border.all(
+                                        color: AppColors.tensionZone
+                                            .withOpacity(0.7),
+                                        width: 3,
+                                      ),
+                                    ),
+                                  ),
+                                  if (widget.tensionZoneLabel != null) ...[
+                                    SizedBox(height: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.statusHighRisk,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        widget.tensionZoneLabel!,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                     ),
-                                    if (widget.tensionZoneLabel != null) ...[
-                                      SizedBox(height: 8),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.statusHighRisk,
-                                          borderRadius: BorderRadius.circular(6),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black.withOpacity(0.2),
-                                              blurRadius: 4,
-                                              offset: Offset(0, 2),
-                                            ),
-                                          ],
-                                        ),
-                                        child: Text(
-                                          widget.tensionZoneLabel!,
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.bold,
-                                            letterSpacing: 0.5,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
                                   ],
-                                ),
+                                ],
                               ),
                             ),
                         ],
@@ -171,15 +173,9 @@ class _MapPlaceholderState extends State<MapPlaceholder> {
                   top: 100,
                   child: Column(
                     children: [
-                      _buildZoomButton(
-                        icon: Icons.add,
-                        onTap: _zoomIn,
-                      ),
+                      _buildZoomButton(icon: Icons.add, onTap: _zoomIn),
                       SizedBox(height: 8),
-                      _buildZoomButton(
-                        icon: Icons.remove,
-                        onTap: _zoomOut,
-                      ),
+                      _buildZoomButton(icon: Icons.remove, onTap: _zoomOut),
                     ],
                   ),
                 ),
@@ -230,17 +226,10 @@ class _MapPlaceholderState extends State<MapPlaceholder> {
             color: AppColors.white,
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 4,
-              ),
+              BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4),
             ],
           ),
-          child: Icon(
-            icon,
-            color: AppColors.darkText,
-            size: 20,
-          ),
+          child: Icon(icon, color: AppColors.darkText, size: 20),
         ),
       ),
     );
@@ -272,11 +261,7 @@ class MiniMapButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.map,
-              color: Colors.white,
-              size: 16,
-            ),
+            Icon(Icons.map, color: Colors.white, size: 16),
             SizedBox(width: 6),
             Text(
               'View Live Map',

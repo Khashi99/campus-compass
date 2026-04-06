@@ -1,16 +1,18 @@
 import 'package:flutter/widgets.dart';
 
 class MapHighlightPosition {
-  static const Offset defaultPosition = Offset(30, 30);
+  // Coordinates are based on the original floor_plan.png pixel space.
+  static const Size sourceMapSize = Size(1280, 988);
+  static const Offset defaultPosition = Offset(640, 494);
 
-  static const Offset _lounge = Offset(18, 26);
-  static const Offset _hiveCafe = Offset(118, 26);
-  static const Offset _hojoConcordia = Offset(270, 26);
-  static const Offset _studentAssociation = Offset(430, 44);
-  static const Offset _escalators = Offset(78, 170);
-  static const Offset _presentationBooths = Offset(260, 256);
-  static const Offset _reggiesPub = Offset(312, 360);
-  static const Offset _hallEntrance = Offset(24, 300);
+  static const Offset _lounge = Offset(220, 160);
+  static const Offset _hiveCafe = Offset(470, 165);
+  static const Offset _hojoConcordia = Offset(700, 165);
+  static const Offset _studentAssociation = Offset(900, 170);
+  static const Offset _escalators = Offset(340, 390);
+  static const Offset _presentationBooths = Offset(700, 540);
+  static const Offset _reggiesPub = Offset(790, 760);
+  static const Offset _hallEntrance = Offset(70, 360);
 
   static Offset forIncidentLocation(String? location) {
     final normalized = (location ?? '').toLowerCase();
@@ -19,15 +21,19 @@ class MapHighlightPosition {
       return _lounge;
     }
 
-    if (_containsAny(normalized, ['hive', 'cafe', 'café'])) {
+    if (_containsAny(normalized, ['hive', 'hive cafe', 'cafe', 'café'])) {
       return _hiveCafe;
     }
 
-    if (_containsAny(normalized, ['hojo', 'ho jo', 'concordia'])) {
+    if (_containsAny(normalized, ['hojo', 'ho jo', 'hojo concordia'])) {
       return _hojoConcordia;
     }
 
-    if (_containsAny(normalized, ['student association', 'association offices'])) {
+    if (_containsAny(normalized, [
+      'student association',
+      'student association offices',
+      'association offices',
+    ])) {
       return _studentAssociation;
     }
 
@@ -35,11 +41,20 @@ class MapHighlightPosition {
       return _escalators;
     }
 
-    if (_containsAny(normalized, ['presentation booth', 'presentation booths'])) {
+    if (_containsAny(normalized, [
+      'presentation booth',
+      'presentation booths',
+    ])) {
       return _presentationBooths;
     }
 
-    if (_containsAny(normalized, ["reggie", 'reggies', 'regiies', 'pub'])) {
+    if (_containsAny(normalized, [
+      "reggie",
+      "reggie's",
+      'reggies',
+      'regiies',
+      'pub',
+    ])) {
       return _reggiesPub;
     }
 
