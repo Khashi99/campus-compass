@@ -17,7 +17,6 @@ enum IncidentSoundEvent {
 }
 
 class IncidentSounds {
-  static const String _alertStylePreferenceKey = 'profile_alert_style';
   static const String _onboardingSoundKey = 'profile_onboarding_sound';
 
   static Future<void> playForEvent(IncidentSoundEvent event) async {
@@ -38,12 +37,6 @@ class IncidentSounds {
 
   static Future<bool> _allowsSound() async {
     final prefs = await SharedPreferences.getInstance();
-    final alertStyle = _resolveAlertStyle(
-      prefs.getString(_alertStylePreferenceKey),
-    );
-    if (alertStyle == 'silent') {
-      return false;
-    }
 
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -64,16 +57,6 @@ class IncidentSounds {
     }
 
     return prefs.getBool(_onboardingSoundKey) ?? true;
-  }
-
-  static String _resolveAlertStyle(String? style) {
-    if (style == 'haptic' ||
-        style == 'haptic_visual' ||
-        style == 'visual' ||
-        style == 'silent') {
-      return style!;
-    }
-    return 'haptic_visual';
   }
 
   static Future<void> _playSystemAlert(int count) async {
