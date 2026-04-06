@@ -417,19 +417,26 @@ class _MapScreenState extends State<MapScreen> {
   // ============ ACTIONS ============
 
   void _deriveCampusStatusFromIncidents() {
+    final previous = _campusStatus;
+
     if (_activeIncidents.isEmpty) {
       _campusStatus = CampusStatus.normal;
       _showHighRiskOverlay = false;
-      return;
+    } else {
+      final hasHighRisk = _activeIncidents.any(
+        (incident) =>
+            incident.severity >= 2 || incident.status == IncidentStatus.verified,
+      );
+      _campusStatus = hasHighRisk ? CampusStatus.highRisk : CampusStatus.caution;
+      if (!hasHighRisk) {
+        _showHighRiskOverlay = false;
+      }
     }
 
-    final hasHighRisk = _activeIncidents.any(
-      (incident) =>
-          incident.severity >= 2 || incident.status == IncidentStatus.verified,
-    );
-    _campusStatus = hasHighRisk ? CampusStatus.highRisk : CampusStatus.caution;
-    if (!hasHighRisk) {
-      _showHighRiskOverlay = false;
+    // If campus-level status changed, trigger haptic feedback for users
+    // who have haptics enabled.
+    if (previous != _campusStatus) {
+      unawaited(IncidentHaptics.playForEvent(IncidentHapticEvent.campusStatusChanged));
     }
   }
 

@@ -12,6 +12,7 @@ enum IncidentHapticEvent {
   reportApproved,
   reportedToInvestigating,
   escalatedToVerifiedOrResolved,
+  campusStatusChanged,
 }
 
 class IncidentHaptics {
@@ -39,6 +40,7 @@ class IncidentHaptics {
       IncidentHapticEvent.reportApproved => configuredPulseCount,
       IncidentHapticEvent.reportedToInvestigating => 1,
       IncidentHapticEvent.escalatedToVerifiedOrResolved => 2,
+      IncidentHapticEvent.campusStatusChanged => configuredPulseCount,
     };
 
     if (kIsWeb) {
@@ -76,20 +78,23 @@ class IncidentHaptics {
   }
 
   static List<int> _patternForPulseCount(int pulseCount) {
+    // Make vibrations 1 second longer and play two pulses.
+    // Base durations from previous implementation (+1s added):
+    final int singleDur = 80 + 1000; // 1080ms
+    final int doubleDur = 90 + 1000; // 1090ms
+
+    // Return a two-pulse pattern: vibrate, pause, vibrate
     if (pulseCount == 2) {
-      // Slightly longer double-pulse for clearer feedback on phones.
-      return const [90, 140, 90];
+      return [doubleDur, 140, doubleDur];
     }
-    // Single longer pulse.
-    return const [80];
+    return [singleDur, 140, singleDur];
   }
 
   static Future<void> _fallbackImpact(int pulseCount) async {
-    // Use heavier impact and add spacing for multi-pulse feedback.
+    // Use heavier impact and emulate two longer pulses via delays.
     await HapticFeedback.heavyImpact();
-    if (pulseCount == 2) {
-      await Future<void>.delayed(const Duration(milliseconds: 120));
-      await HapticFeedback.heavyImpact();
-    }
+    // Wait 1 second between impacts to mirror the longer vibration length.
+    await Future<void>.delayed(const Duration(milliseconds: 1000));
+    await HapticFeedback.heavyImpact();
   }
 }
