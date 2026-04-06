@@ -7,6 +7,7 @@ import 'package:campus_compass/theme/app_colors.dart';
 import 'package:campus_compass/models/incident.dart';
 import 'package:campus_compass/utils/map_highlight_position.dart';
 import 'package:campus_compass/widgets/bottom_nav_bar.dart';
+import 'package:campus_compass/screens/home_screen.dart';
 import 'package:campus_compass/widgets/map_placeholder.dart';
 
 class IncidentDetailScreen extends StatelessWidget {
@@ -87,10 +88,14 @@ class IncidentDetailScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: 0,
-        onTap: (index) => _handleBottomNavTap(context, index),
-      ),
+      bottomNavigationBar: (context.findAncestorWidgetOfExactType<HomeScreen>()
+              ==
+          null)
+          ? BottomNavBar(
+              currentIndex: 0,
+              onTap: (index) => _handleBottomNavTap(context, index),
+            )
+          : null,
     );
   }
 
