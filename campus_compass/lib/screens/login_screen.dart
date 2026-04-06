@@ -200,36 +200,19 @@ class _MyWidgetState extends State<LoginScreen> {
                             horizontal:
                                 MediaQuery.of(context).size.width / 13,
                           ),
-                          child: Row(
-                            children: [
-                              Checkbox(
-                                value: _isChecked,
-                                onChanged: (bool? newValue) {
-                                  setState(() {
-                                    _isChecked = newValue!;
-                                  });
-                                },
-                              ),
-                              Text('Remember this device'),
-                            ],
-                          ),
+                          // Removed 'Remember this device' option
                         ),
 
-                        SizedBox(height: 10),
+                        SizedBox(height: 24),
 
                         // Login button
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal:
-                                MediaQuery.of(context).size.width / 8,
-                          ),
-                          height:
-                              MediaQuery.of(context).size.height / 17,
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width / 1.25,
+                          height: MediaQuery.of(context).size.height / 17,
                           child: ElevatedButton(
                             onPressed: _isAuthLoading ? null : _login,
                             child: Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 if (_isAuthLoading)
                                   const SizedBox(

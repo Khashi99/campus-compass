@@ -1452,7 +1452,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
 
       await Future<void>.delayed(const Duration(milliseconds: 900));
       if (mounted) {
-        Navigator.pop(context);
+        Navigator.pushNamedAndRemoveUntil(context, '/map', (route) => false);
       }
     } catch (e) {
       _showSnackBar('Failed to submit report: $e');
