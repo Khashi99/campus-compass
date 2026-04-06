@@ -1,4 +1,3 @@
-import 'package:campus_compass/widgets/bottom_nav_bar.dart';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -6,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:campus_compass/models/incident.dart';
 import 'package:campus_compass/theme/app_colors.dart';
+import 'package:campus_compass/theme/app_theme_controller.dart';
 import 'package:campus_compass/utils/campus_time.dart';
 import 'package:campus_compass/utils/incident_haptics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -51,16 +51,21 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.pageBackground,
-      appBar: _buildAppBar(),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: _currentStep == 1 ? _buildStep1() : _buildStep2(),
-        ),
-      ),
-      // bottomNavigationBar removed: handled by HomeScreen
+    return AnimatedBuilder(
+      animation: AppThemeController.instance,
+      builder: (context, _) {
+        return Scaffold(
+          backgroundColor: AppColors.pageBackground,
+          appBar: _buildAppBar(),
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: _currentStep == 1 ? _buildStep1() : _buildStep2(),
+            ),
+          ),
+          // bottomNavigationBar removed: handled by HomeScreen
+        );
+      },
     );
   }
 
@@ -288,6 +293,14 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             hintStyle: TextStyle(color: AppColors.mutedText),
             border: OutlineInputBorder(
               borderSide: BorderSide(color: AppColors.cardBorder),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: AppColors.cardBorder),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: AppColors.primaryBlue, width: 1.4),
               borderRadius: BorderRadius.circular(8),
             ),
             filled: true,

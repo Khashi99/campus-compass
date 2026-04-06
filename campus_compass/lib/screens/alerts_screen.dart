@@ -1,11 +1,9 @@
 import 'package:campus_compass/models/incident.dart';
 import 'package:campus_compass/screens/incident_detail_screen.dart';
-import 'package:campus_compass/screens/profile_screen.dart';
-import 'package:campus_compass/screens/report_incident_screen.dart';
 import 'package:campus_compass/support/report_review_actions.dart';
 import 'package:campus_compass/theme/app_colors.dart';
+import 'package:campus_compass/theme/app_theme_controller.dart';
 import 'package:campus_compass/utils/campus_time.dart';
-import 'package:campus_compass/widgets/bottom_nav_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -43,42 +41,47 @@ class _AlertsScreenState extends State<AlertsScreen> {
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
 
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: AppBar(
-        backgroundColor: AppColors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        title: Text(
-          'Alerts',
-          style: TextStyle(
-            color: AppColors.darkText,
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
-          ),
-        ),
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: Icon(Icons.arrow_back_ios_new, color: AppColors.darkText),
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(
-            height: 1,
-            color: AppColors.cardBorder,
-          ),
-        ),
-      ),
-      body: user == null
-          ? Center(
-              child: Text(
-                'Sign in required to view alerts.',
-                style: TextStyle(color: AppColors.mutedText),
+    return AnimatedBuilder(
+      animation: AppThemeController.instance,
+      builder: (context, _) {
+        return Scaffold(
+          backgroundColor: AppColors.white,
+          appBar: AppBar(
+            backgroundColor: AppColors.white,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            title: Text(
+              'Alerts',
+              style: TextStyle(
+                color: AppColors.darkText,
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
               ),
-            )
-          : _buildAlertFeed(),
-      // bottomNavigationBar removed: handled by HomeScreen
+            ),
+            centerTitle: true,
+            leading: IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: Icon(Icons.arrow_back_ios_new, color: AppColors.darkText),
+            ),
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(1),
+              child: Container(
+                height: 1,
+                color: AppColors.cardBorder,
+              ),
+            ),
+          ),
+          body: user == null
+              ? Center(
+                  child: Text(
+                    'Sign in required to view alerts.',
+                    style: TextStyle(color: AppColors.mutedText),
+                  ),
+                )
+              : _buildAlertFeed(),
+          // bottomNavigationBar removed: handled by HomeScreen
+        );
+      },
     );
   }
 
@@ -1071,36 +1074,6 @@ class _AlertsScreenState extends State<AlertsScreen> {
       });
     }
     await batch.commit();
-  }
-
-  void _handleBottomNavTap(int index) {
-    switch (index) {
-      case 0:
-        if (Navigator.canPop(context)) {
-          Navigator.pop(context);
-        } else {
-          Navigator.pushReplacementNamed(context, '/map');
-        }
-        break;
-      case 1:
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const ReportIncidentScreen(),
-          ),
-        );
-        break;
-      case 2:
-        break;
-      case 3:
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const ProfileScreen(),
-          ),
-        );
-        break;
-    }
   }
 
   Widget _buildErrorState(String message) {

@@ -2,16 +2,13 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:campus_compass/screens/alerts_screen.dart';
-import 'package:campus_compass/screens/profile_screen.dart';
 import 'package:campus_compass/theme/app_colors.dart';
+import 'package:campus_compass/theme/app_theme_controller.dart';
 import 'package:campus_compass/widgets/status_banner.dart';
-import 'package:campus_compass/widgets/bottom_nav_bar.dart';
 import 'package:campus_compass/widgets/map_placeholder.dart';
 import 'package:campus_compass/widgets/incident_card.dart';
 import 'package:campus_compass/models/incident.dart';
 import 'package:campus_compass/screens/incident_detail_screen.dart';
-import 'package:campus_compass/screens/report_incident_screen.dart';
 import 'package:campus_compass/screens/safety_route_screen.dart';
 import 'package:campus_compass/support/report_review_actions.dart';
 import 'package:campus_compass/utils/map_highlight_position.dart';
@@ -158,141 +155,148 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _NetworkStatusBanner(isOffline: _isOffline),
-        Expanded(
-          child: Scaffold(
-            backgroundColor: AppColors.pageBackground,
-            appBar: AppBar(
-              backgroundColor: AppColors.white,
-              elevation: 0,
-              scrolledUnderElevation: 0,
-              centerTitle: true,
-              leading: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Image.asset(
-                  'assets/images/icon_prod_circ.png',
-                  height: 32,
-                  width: 32,
+    assert(_currentNavIndex >= 0);
+    assert(_pendingReviewCount >= 0);
+    return AnimatedBuilder(
+      animation: AppThemeController.instance,
+      builder: (context, _) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _NetworkStatusBanner(isOffline: _isOffline),
+            Expanded(
+              child: Scaffold(
+                backgroundColor: AppColors.pageBackground,
+                appBar: AppBar(
+                  backgroundColor: AppColors.white,
+                  elevation: 0,
+                  scrolledUnderElevation: 0,
+                  centerTitle: true,
+                  leading: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Image.asset(
+                      'assets/images/icon_prod_circ.png',
+                      height: 32,
+                      width: 32,
+                    ),
+                  ),
+                  title: Text(
+                    'Campus Safety Map',
+                    style: TextStyle(
+                      color: AppColors.darkText,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 18,
+                    ),
+                  ),
+                  actions: [],
                 ),
-              ),
-              title: Text(
-                'Campus Safety Map',
-                style: TextStyle(
-                  color: AppColors.darkText,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 18,
-                ),
-              ),
-              actions: [],
-            ),
-            body: Stack(
-              children: [
-                // Main content
-                Column(
+                body: Stack(
                   children: [
-                    // Dynamic status banner
-                    StatusBanner(
-                      status: _campusStatus,
-                      onMoreInfo: () => _showStatusInfo(context),
-                    ),
+                    // Main content
+                    Column(
+                      children: [
+                        // Dynamic status banner
+                        StatusBanner(
+                          status: _campusStatus,
+                          onMoreInfo: () => _showStatusInfo(context),
+                        ),
 
-                    // Map area
-                    Expanded(
-                      child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                        stream: _incidentStream,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            _isLoadingIncidents = true;
-                          } else if (snapshot.hasError) {
-                            _incidentLoadError = snapshot.error.toString();
-                            _isLoadingIncidents = false;
-                          } else {
-                            _incidentLoadError = null;
-                            _isLoadingIncidents = false;
-                            _activeIncidents =
-                                (snapshot.data?.docs ?? const [])
-                                    .where(
-                                      (doc) => _matchesCampusId(
-                                        doc.data()['campusId'] as String?,
-                                      ),
-                                    )
-                                    .map((doc) => Incident.fromFirestore(doc))
-                                    .toList()
-                                  ..sort(
-                                    (a, b) => b.reportedTime.compareTo(
-                                      a.reportedTime,
-                                    ),
-                                  );
-                            _handleIncomingIncidentAlerts(_activeIncidents);
-                            _deriveCampusStatusFromIncidents();
-                          }
+                        // Map area
+                        Expanded(
+                          child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                            stream: _incidentStream,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                _isLoadingIncidents = true;
+                              } else if (snapshot.hasError) {
+                                _incidentLoadError = snapshot.error.toString();
+                                _isLoadingIncidents = false;
+                              } else {
+                                _incidentLoadError = null;
+                                _isLoadingIncidents = false;
+                                _activeIncidents =
+                                    (snapshot.data?.docs ?? const [])
+                                        .where(
+                                          (doc) => _matchesCampusId(
+                                            doc.data()['campusId'] as String?,
+                                          ),
+                                        )
+                                        .map((doc) => Incident.fromFirestore(doc))
+                                        .toList()
+                                      ..sort(
+                                        (a, b) => b.reportedTime.compareTo(
+                                          a.reportedTime,
+                                        ),
+                                      );
+                                _handleIncomingIncidentAlerts(_activeIncidents);
+                                _deriveCampusStatusFromIncidents();
+                              }
 
-                          return Stack(
-                            children: [
-                              // Map with dynamic tension zones
-                              MapPlaceholder(
-                                showTensionZone: _activeIncidents.isNotEmpty,
-                                tensionZoneLabel: _activeIncidents.isNotEmpty
-                                    ? _getTensionZoneLabel()
-                                    : null,
-                                tensionZonePosition: _activeIncidents.isNotEmpty
-                                    ? MapHighlightPosition.forIncidentLocation(
-                                        _activeIncidents.first.location,
-                                      )
-                                    : MapHighlightPosition.defaultPosition,
-                              ),
-
-                              if (_isLoadingIncidents)
-                                const Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-
-                              if (_incidentLoadError != null)
-                                Positioned(
-                                  top: 16,
-                                  left: 16,
-                                  right: 16,
-                                  child: _buildErrorBanner(
-                                    'Unable to load incidents from backend.',
+                              return Stack(
+                                children: [
+                                  // Map with dynamic tension zones
+                                  MapPlaceholder(
+                                    showTensionZone: _activeIncidents.isNotEmpty,
+                                    tensionZoneLabel: _activeIncidents.isNotEmpty
+                                        ? _getTensionZoneLabel()
+                                        : null,
+                                    tensionZonePosition: _activeIncidents.isNotEmpty
+                                        ? MapHighlightPosition.forIncidentLocation(
+                                            _activeIncidents.first.location,
+                                          )
+                                        : MapHighlightPosition.defaultPosition,
                                   ),
-                                ),
 
-                              // Map legend (only show when there are incidents)
-                              if (_activeIncidents.isNotEmpty)
-                                const Positioned(
-                                  right: 4,
-                                  top: 8,
-                                  child: MapLegend(),
-                                ),
+                                  if (_isLoadingIncidents)
+                                    const Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
 
-                              // Dynamic bottom card based on status
-                              Positioned(
-                                left: 0,
-                                right: 0,
-                                bottom: 0,
-                                child: _buildBottomCard(),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
+                                  if (_incidentLoadError != null)
+                                    Positioned(
+                                      top: 16,
+                                      left: 16,
+                                      right: 16,
+                                      child: _buildErrorBanner(
+                                        'Unable to load incidents from backend.',
+                                      ),
+                                    ),
+
+                                  // Map legend (only show when there are incidents)
+                                  if (_activeIncidents.isNotEmpty)
+                                    const Positioned(
+                                      right: 4,
+                                      top: 8,
+                                      child: MapLegend(),
+                                    ),
+
+                                  // Dynamic bottom card based on status
+                                  Positioned(
+                                    left: 0,
+                                    right: 0,
+                                    bottom: 0,
+                                    child: _buildBottomCard(),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                     ),
+
+                    // High risk overlay (appears when user enters danger zone)
+                    if (_showHighRiskOverlay && _activeIncidents.isNotEmpty)
+                      _buildHighRiskOverlay(),
                   ],
                 ),
-
-                // High risk overlay (appears when user enters danger zone)
-                if (_showHighRiskOverlay && _activeIncidents.isNotEmpty)
-                  _buildHighRiskOverlay(),
-              ],
+                // bottomNavigationBar removed: handled by HomeScreen
+              ),
             ),
-            // bottomNavigationBar removed: handled by HomeScreen
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 
@@ -411,39 +415,6 @@ class _MapScreenState extends State<MapScreen> {
     if (!hasHighRisk) {
       _showHighRiskOverlay = false;
     }
-  }
-
-  void _handleNavTap(int index) {
-    switch (index) {
-      case 0: // Map - already here
-        setState(() {
-          _currentNavIndex = 0;
-        });
-        break;
-      case 1: // Report
-        _openScreen(const ReportIncidentScreen());
-        break;
-      case 2: // Alerts
-        _openScreen(const AlertsScreen());
-        break;
-      case 3: // Profile
-        _openScreen(const ProfileScreen());
-        break;
-    }
-  }
-
-  Future<void> _openScreen(Widget screen) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => screen),
-    );
-
-    if (!mounted) {
-      return;
-    }
-    setState(() {
-      _currentNavIndex = 0;
-    });
   }
 
   void _navigateToIncidentDetail(Incident incident) {
@@ -1068,45 +1039,4 @@ class _MoreInfoResource {
   final String link;
   final bool offline;
   final String? priority;
-}
-
-/// Temporary placeholder for incident detail screen
-/// We'll create the full version next
-class _IncidentDetailPlaceholder extends StatelessWidget {
-  final Incident incident;
-
-  const _IncidentDetailPlaceholder({required this.incident});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Incident Detail'),
-        backgroundColor: AppColors.primaryBlue,
-        foregroundColor: Colors.white,
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.construction, size: 64, color: AppColors.mutedText),
-              SizedBox(height: 16),
-              Text(
-                incident.title,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 8),
-              Text(
-                'Full incident detail screen coming next!',
-                style: TextStyle(color: AppColors.mutedText),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }

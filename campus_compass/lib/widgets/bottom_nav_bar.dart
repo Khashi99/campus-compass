@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:campus_compass/theme/app_colors.dart';
+import 'package:campus_compass/theme/app_theme_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class BottomNavBar extends StatelessWidget {
@@ -17,38 +18,67 @@ class BottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isGuest = FirebaseAuth.instance.currentUser?.isAnonymous ?? false;
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: Offset(0, -2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(0, Icons.map_outlined, Icons.map, 'Map'),
-              if (!isGuest)
-                _buildNavItem(1, Icons.add_circle_outline, Icons.add_circle, 'Report'),
-              _buildNavItem(2, Icons.notifications_outlined, Icons.notifications, 'Alerts', badgeCount: alertBadgeCount),
-              _buildNavItem(3, Icons.person_outline, Icons.person, 'Profile'),
+    return AnimatedBuilder(
+      animation: AppThemeController.instance,
+      builder: (context, _) {
+        final isDark = AppColors.white.computeLuminance() < 0.5;
+        return Container(
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            border: Border(top: BorderSide(color: AppColors.cardBorder)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(isDark ? 0.25 : 0.08),
+                blurRadius: 10,
+                offset: Offset(0, -2),
+              ),
             ],
           ),
-        ),
-      ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildNavItem(0, Icons.map_outlined, Icons.map, 'Map'),
+                  if (!isGuest)
+                    _buildNavItem(
+                      1,
+                      Icons.add_circle_outline,
+                      Icons.add_circle,
+                      'Report',
+                    ),
+                  _buildNavItem(
+                    2,
+                    Icons.notifications_outlined,
+                    Icons.notifications,
+                    'Alerts',
+                    badgeCount: alertBadgeCount,
+                  ),
+                  _buildNavItem(
+                    3,
+                    Icons.person_outline,
+                    Icons.person,
+                    'Profile',
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, IconData activeIcon, String label, {int badgeCount = 0}) {
+  Widget _buildNavItem(
+    int index,
+    IconData icon,
+    IconData activeIcon,
+    String label, {
+    int badgeCount = 0,
+  }) {
     final isSelected = currentIndex == index;
-    
+
     return GestureDetector(
       onTap: () => onTap(index),
       behavior: HitTestBehavior.opaque,
@@ -62,7 +92,9 @@ class BottomNavBar extends StatelessWidget {
               children: [
                 Icon(
                   isSelected ? activeIcon : icon,
-                  color: isSelected ? AppColors.primaryBlue : AppColors.mutedText,
+                  color: isSelected
+                      ? AppColors.primaryBlue
+                      : AppColors.mutedText,
                   size: 24,
                 ),
                 if (badgeCount > 0)
@@ -75,10 +107,7 @@ class BottomNavBar extends StatelessWidget {
                         color: AppColors.statusHighRisk,
                         shape: BoxShape.circle,
                       ),
-                      constraints: BoxConstraints(
-                        minWidth: 18,
-                        minHeight: 18,
-                      ),
+                      constraints: BoxConstraints(minWidth: 18, minHeight: 18),
                       child: Text(
                         badgeCount > 9 ? '9+' : badgeCount.toString(),
                         style: TextStyle(

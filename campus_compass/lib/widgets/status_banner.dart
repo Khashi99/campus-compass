@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:campus_compass/theme/app_colors.dart';
 import 'package:campus_compass/theme/app_theme_controller.dart';
 
-enum CampusStatus {
-  normal,
-  caution,
-  highRisk,
-}
+enum CampusStatus { normal, caution, highRisk }
 
 extension CampusStatusExtension on CampusStatus {
   String get displayText {
@@ -58,29 +54,19 @@ class StatusBanner extends StatelessWidget {
   final CampusStatus status;
   final VoidCallback? onMoreInfo;
 
-  const StatusBanner({
-    super.key,
-    required this.status,
-    this.onMoreInfo,
-  });
+  const StatusBanner({super.key, required this.status, this.onMoreInfo});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: status.backgroundColor,
-      ),
+      decoration: BoxDecoration(color: status.backgroundColor),
       child: SafeArea(
         bottom: false,
         child: Row(
           children: [
-            Icon(
-              _getStatusIcon(),
-              color: status.textColor,
-              size: 20,
-            ),
+            Icon(_getStatusIcon(), color: status.textColor, size: 20),
             SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -96,7 +82,10 @@ class StatusBanner extends StatelessWidget {
               GestureDetector(
                 onTap: onMoreInfo,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: status.textColor.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(16),
@@ -137,14 +126,16 @@ class MapLegend extends StatelessWidget {
     return AnimatedBuilder(
       animation: AppThemeController.instance,
       builder: (context, _) {
+        final isDark = AppColors.white.computeLuminance() < 0.5;
         return Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.cardBorder),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withOpacity(isDark ? 0.25 : 0.08),
                 blurRadius: 8,
                 offset: Offset(0, 2),
               ),
@@ -180,19 +171,10 @@ class MapLegend extends StatelessWidget {
         Container(
           width: 12,
           height: 12,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         SizedBox(width: 6),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            color: AppColors.mutedText,
-          ),
-        ),
+        Text(label, style: TextStyle(fontSize: 11, color: AppColors.mutedText)),
       ],
     );
   }
