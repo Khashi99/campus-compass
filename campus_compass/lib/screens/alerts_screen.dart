@@ -976,6 +976,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
           incidentId: incidentDoc.id,
           status: 'resolved',
         );
+        await IncidentHaptics.playForEvent(IncidentHapticEvent.escalatedToVerifiedOrResolved);
         await IncidentSounds.playForEvent(
           IncidentSoundEvent.escalatedToVerifiedOrResolved,
         );
@@ -1000,6 +1001,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
           incidentId: incidentDoc.id,
           status: 'verified',
         );
+        await IncidentHaptics.playForEvent(IncidentHapticEvent.escalatedToVerifiedOrResolved);
         await IncidentSounds.playForEvent(
           IncidentSoundEvent.escalatedToVerifiedOrResolved,
         );

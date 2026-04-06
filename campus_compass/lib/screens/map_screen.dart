@@ -13,6 +13,7 @@ import 'package:campus_compass/screens/incident_detail_screen.dart';
 import 'package:campus_compass/screens/safety_route_screen.dart';
 import 'package:campus_compass/support/report_review_actions.dart';
 import 'package:campus_compass/utils/incident_sounds.dart';
+import 'package:campus_compass/utils/incident_haptics.dart';
 import 'package:campus_compass/utils/map_highlight_position.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -980,10 +981,32 @@ class _MapScreenState extends State<MapScreen> {
     await IncidentSounds.playForEvent(soundEvent);
 
     if (allowHaptic) {
-      if (incident.severity >= 2) {
-        await HapticFeedback.heavyImpact();
-      } else {
-        await HapticFeedback.mediumImpact();
+      // Map sound events to haptic events so user preferences and
+      // configured pulse patterns are respected.
+      try {
+        switch (soundEvent) {
+          case IncidentSoundEvent.reportSubmitted:
+            await IncidentHaptics.playForEvent(IncidentHapticEvent.reportSubmitted);
+            break;
+          case IncidentSoundEvent.reportApproved:
+            await IncidentHaptics.playForEvent(IncidentHapticEvent.reportApproved);
+            break;
+          case IncidentSoundEvent.reportedToInvestigating:
+            await IncidentHaptics.playForEvent(IncidentHapticEvent.reportedToInvestigating);
+            break;
+          case IncidentSoundEvent.escalatedToVerifiedOrResolved:
+            await IncidentHaptics.playForEvent(IncidentHapticEvent.escalatedToVerifiedOrResolved);
+            break;
+          default:
+            await IncidentHaptics.playForEvent(IncidentHapticEvent.reportSubmitted);
+        }
+      } catch (_) {
+        // Fallback to a simple impact if haptics call fails.
+        if (incident.severity >= 2) {
+          await HapticFeedback.heavyImpact();
+        } else {
+          await HapticFeedback.mediumImpact();
+        }
       }
     }
 

@@ -77,16 +77,19 @@ class IncidentHaptics {
 
   static List<int> _patternForPulseCount(int pulseCount) {
     if (pulseCount == 2) {
-      return const [45, 70, 45];
+      // Slightly longer double-pulse for clearer feedback on phones.
+      return const [90, 140, 90];
     }
-    return const [40];
+    // Single longer pulse.
+    return const [80];
   }
 
   static Future<void> _fallbackImpact(int pulseCount) async {
-    await HapticFeedback.mediumImpact();
+    // Use heavier impact and add spacing for multi-pulse feedback.
+    await HapticFeedback.heavyImpact();
     if (pulseCount == 2) {
-      await Future<void>.delayed(const Duration(milliseconds: 90));
-      await HapticFeedback.mediumImpact();
+      await Future<void>.delayed(const Duration(milliseconds: 120));
+      await HapticFeedback.heavyImpact();
     }
   }
 }
