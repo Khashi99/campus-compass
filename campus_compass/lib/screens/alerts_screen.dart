@@ -453,7 +453,10 @@ class _AlertsScreenState extends State<AlertsScreen> {
       MaterialPageRoute(
         builder: (context) => IncidentDetailScreen(
           incident: incident,
-          onViewLiveMap: () => Navigator.pop(context),
+          onViewLiveMap: () {
+            Navigator.pop(context);
+            widget.onBack?.call();
+          },
           onRequestUpdate: () => _requestAlertUpdate(incident),
         ),
       ),
@@ -528,7 +531,10 @@ class _AlertsScreenState extends State<AlertsScreen> {
                         MaterialPageRoute(
                           builder: (context) => IncidentDetailScreen(
                             incident: incident,
-                            onViewLiveMap: () => Navigator.pop(context),
+                            onViewLiveMap: () {
+                              Navigator.pop(context);
+                              widget.onBack?.call();
+                            },
                             onRequestUpdate: () => _requestAlertUpdate(incident),
                           ),
                         ),

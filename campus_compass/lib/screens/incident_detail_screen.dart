@@ -700,6 +700,15 @@ class IncidentDetailScreen extends StatelessWidget {
     }
   }
 
+  void _openLiveMap(BuildContext context) {
+    final callback = onViewLiveMap;
+    if (callback != null) {
+      callback();
+      return;
+    }
+    Navigator.maybePop(context);
+  }
+
   // Helper methods
   Color _getStatusColor() {
     switch (incident.status) {

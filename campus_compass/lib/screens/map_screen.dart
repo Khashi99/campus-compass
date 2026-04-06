@@ -785,11 +785,6 @@ class _MapScreenState extends State<MapScreen> {
                 ),
               if (isHighPriority) ...[
                 SizedBox(width: 6),
-                Icon(
-                  Icons.priority_high_rounded,
-                  size: 18,
-                  color: AppColors.statusHighRisk,
-                ),
               ],
             ],
           ),
