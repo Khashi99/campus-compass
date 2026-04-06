@@ -11,9 +11,10 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AlertsScreen extends StatefulWidget {
-  const AlertsScreen({super.key, this.campusId = 'sgw'});
+  const AlertsScreen({super.key, this.campusId = 'sgw', this.onBack});
 
   final String campusId;
+  final VoidCallback? onBack;
 
   @override
   State<AlertsScreen> createState() => _AlertsScreenState();
@@ -61,7 +62,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
             ),
             centerTitle: true,
             leading: IconButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: _handleBack,
               icon: Icon(Icons.arrow_back_ios_new, color: AppColors.darkText),
             ),
             bottom: PreferredSize(
@@ -134,6 +135,15 @@ class _AlertsScreenState extends State<AlertsScreen> {
         );
       },
     );
+  }
+
+  void _handleBack() {
+    final onBack = widget.onBack;
+    if (onBack != null) {
+      onBack();
+      return;
+    }
+    Navigator.maybePop(context);
   }
 
   Widget _buildAlertFeedContent({

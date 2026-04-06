@@ -16,7 +16,9 @@ import 'package:video_thumbnail/video_thumbnail.dart';
 
 /// Screen for reporting a new incident on campus
 class ReportIncidentScreen extends StatefulWidget {
-  const ReportIncidentScreen({super.key});
+  const ReportIncidentScreen({super.key, this.onBack});
+
+  final VoidCallback? onBack;
 
   @override
   State<ReportIncidentScreen> createState() => _ReportIncidentScreenState();
@@ -78,7 +80,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
       elevation: 0,
       leading: IconButton(
         icon: Icon(Icons.arrow_back_ios_new, color: AppColors.darkText),
-        onPressed: () => Navigator.pop(context),
+        onPressed: _handleBack,
       ),
       title: Text(
         'Report an Incident',
@@ -90,6 +92,15 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
       ),
       centerTitle: true,
     );
+  }
+
+  void _handleBack() {
+    final onBack = widget.onBack;
+    if (onBack != null) {
+      onBack();
+      return;
+    }
+    Navigator.maybePop(context);
   }
 
   // ============ STEP 1: INCIDENT DETAILS ============

@@ -8,7 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  const ProfileScreen({super.key, this.onBack});
+
+  final VoidCallback? onBack;
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -69,7 +71,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         centerTitle: true,
         leading: IconButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: _handleBack,
           icon: Icon(Icons.arrow_back_ios_new, color: AppColors.darkText),
         ),
         bottom: PreferredSize(
@@ -353,6 +355,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _isLoggingOut = false;
       });
     }
+  }
+
+  void _handleBack() {
+    final onBack = widget.onBack;
+    if (onBack != null) {
+      onBack();
+      return;
+    }
+    Navigator.maybePop(context);
   }
 
   // Removed unused _handleBottomNavTap
