@@ -80,8 +80,8 @@ class IncidentHaptics {
   static List<int> _patternForPulseCount(int pulseCount) {
     // Make vibrations 1 second longer and play two pulses.
     // Base durations from previous implementation (+1s added):
-    final int singleDur = 80 + 1000; // 1080ms
-    final int doubleDur = 90 + 1000; // 1090ms
+    final int singleDur = 80 + 2000; // 1080ms
+    final int doubleDur = 90 + 2000; // 1090ms
 
     // Return a two-pulse pattern: vibrate, pause, vibrate
     if (pulseCount == 2) {
