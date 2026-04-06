@@ -8,6 +8,7 @@ import 'package:campus_compass/utils/incident_sounds.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AlertsScreen extends StatefulWidget {
@@ -62,7 +63,13 @@ class _AlertsScreenState extends State<AlertsScreen> {
             ),
             centerTitle: true,
             leading: IconButton(
-              onPressed: _handleBack,
+              onPressed: () {
+                if (Navigator.canPop(context)) {
+                  context.pop();
+                } else {
+                  context.go('/home/map');
+                }
+              },
               icon: Icon(Icons.arrow_back_ios_new, color: AppColors.darkText),
             ),
             bottom: PreferredSize(

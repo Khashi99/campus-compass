@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:campus_compass/support/report_review_actions.dart';
 import 'package:campus_compass/theme/app_colors.dart';
@@ -27,7 +28,13 @@ class StaffReviewScreen extends StatelessWidget {
           ),
         ),
         leading: IconButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              context.pop();
+            } else {
+              context.go('/home/map');
+            }
+          },
           icon: Icon(Icons.arrow_back, color: AppColors.darkText),
         ),
       ),

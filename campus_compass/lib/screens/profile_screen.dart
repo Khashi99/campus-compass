@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key, this.onBack});
@@ -71,7 +72,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         centerTitle: true,
         leading: IconButton(
-          onPressed: _handleBack,
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              context.pop();
+            } else {
+              context.go('/home/map');
+            }
+          },
           icon: Icon(Icons.arrow_back_ios_new, color: AppColors.darkText),
         ),
         bottom: PreferredSize(
@@ -339,7 +346,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (!mounted) {
         return;
       }
-      Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
+      context.go('/login');
     } catch (e) {
       if (!mounted) {
         return;

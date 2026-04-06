@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:campus_compass/screens/alerts_screen.dart';
 import 'package:campus_compass/screens/profile_screen.dart';
 import 'package:campus_compass/screens/report_incident_screen.dart';
@@ -27,13 +28,19 @@ class IncidentDetailScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.pageBackground,
         elevation: 0,
-        leading: IconButton(
+          leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_new,
             color: AppColors.darkText,
             size: 18,
           ),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              context.pop();
+            } else {
+              context.go('/home/map');
+            }
+          },
         ),
         title: Text(
           'Incident Data',
@@ -269,7 +276,13 @@ class IncidentDetailScreen extends StatelessWidget {
             right: 0,
             child: Center(
               child: MiniMapButton(
-                onTap: onViewLiveMap ?? () => Navigator.pop(context),
+                onTap: onViewLiveMap ?? () {
+                  if (Navigator.canPop(context)) {
+                    context.pop();
+                  } else {
+                    context.go('/home/map');
+                  }
+                },
               ),
             ),
           ),
@@ -660,7 +673,11 @@ class IncidentDetailScreen extends StatelessWidget {
   void _handleBottomNavTap(BuildContext context, int index) {
     switch (index) {
       case 0:
-        Navigator.pop(context);
+        if (Navigator.canPop(context)) {
+          context.pop();
+        } else {
+          context.go('/home/map');
+        }
         break;
       case 1:
         Navigator.push(

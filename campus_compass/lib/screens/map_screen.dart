@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:campus_compass/theme/app_colors.dart';
 import 'package:campus_compass/theme/app_theme_controller.dart';
@@ -437,7 +438,13 @@ class _MapScreenState extends State<MapScreen> {
       MaterialPageRoute(
         builder: (context) => IncidentDetailScreen(
           incident: incident,
-          onViewLiveMap: () => Navigator.pop(context),
+          onViewLiveMap: () {
+            if (Navigator.canPop(context)) {
+              context.pop();
+            } else {
+              context.go('/home/map');
+            }
+          },
           onRequestUpdate: () => _requestAlertUpdate(incident),
         ),
       ),

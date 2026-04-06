@@ -3,6 +3,10 @@ import 'package:campus_compass/screens/login_screen.dart';
 import 'package:campus_compass/screens/map_screen.dart';
 import 'package:campus_compass/screens/onboarding_screen.dart';
 import 'package:campus_compass/screens/safety_route_screen.dart';
+import 'package:campus_compass/screens/report_incident_screen.dart';
+import 'package:campus_compass/screens/alerts_screen.dart';
+import 'package:campus_compass/screens/profile_screen.dart';
+import 'package:go_router/go_router.dart';
 import 'package:campus_compass/support/app_prefs_keys.dart';
 import 'package:campus_compass/theme/app_theme.dart';
 import 'package:campus_compass/theme/app_theme_controller.dart';
@@ -19,6 +23,9 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // No automatic anonymous sign-in. Only proceed if user is authenticated.
+  await _ensureUserProfileDocument();
 
   runApp(const MyApp());
 }
@@ -54,23 +61,82 @@ Future<void> _ensureUserProfileDocument() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final GoRouter _router = GoRouter(
+      initialLocation: '/onboarding',
+      redirect: (context, state) {
+        final user = FirebaseAuth.instance.currentUser;
+        final loc = state.uri.toString();
+        final loggingIn = loc == '/login' || loc == '/onboarding';
+        final goingHome = loc == '/home' || loc.startsWith('/home/');
+
+        // If logged in, don't allow visiting onboarding or login
+        if (user != null && loggingIn) {
+          return '/home/map';
+        }
+
+        // If not logged in, don't allow visiting home routes
+        if (user == null && goingHome) {
+          return '/login';
+        }
+
+        return null;
+      },
+      routes: [
+        GoRoute(
+          path: '/onboarding',
+          builder: (context, state) => const OnboardingScreen(),
+        ),
+        GoRoute(
+          path: '/login',
+          builder: (context, state) => const LoginScreen(),
+        ),
+        GoRoute(
+          path: '/home',
+          redirect: (context, state) => '/home/map',
+        ),
+
+        ShellRoute(
+          builder: (context, state, child) => HomeScreen(child: child),
+          routes: [
+            GoRoute(
+              path: '/home/map',
+              builder: (context, state) => const MapScreen(),
+            ),
+            GoRoute(
+              path: '/home/report',
+              builder: (context, state) => const ReportIncidentScreen(),
+            ),
+            GoRoute(
+              path: '/home/alerts',
+              builder: (context, state) => const AlertsScreen(),
+            ),
+            GoRoute(
+              path: '/home/profile',
+              builder: (context, state) => const ProfileScreen(),
+            ),
+          ],
+        ),
+        GoRoute(
+          path: '/map',
+          builder: (context, state) => const MapScreen(),
+        ),
+        GoRoute(
+          path: '/safety-route',
+          builder: (context, state) => const SafetyRouteScreen(),
+        ),
+      ],
+    );
+
     return AnimatedBuilder(
       animation: AppThemeController.instance,
       builder: (context, _) {
-        return MaterialApp(
-          routes: {
-            '/login': (context) => const LoginScreen(),
-            '/map': (context) => const MapScreen(),
-            '/safety-route': (context) => const SafetyRouteScreen(),
-            '/home': (context) => const HomeScreen(),
-          },
+        return MaterialApp.router(
           title: 'Campus Compass',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.themeData,
-          home: const _StartupGate(),
+          routerConfig: _router,
         );
       },
     );

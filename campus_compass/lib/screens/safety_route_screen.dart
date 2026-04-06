@@ -10,6 +10,7 @@ import 'package:campus_compass/widgets/safety_time_bar.dart';
 import 'package:campus_compass/widgets/bottom_nav_bar.dart';
 import 'package:campus_compass/theme/app_colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:go_router/go_router.dart';
 
 class SafetyRouteScreen extends StatefulWidget {
   const SafetyRouteScreen({super.key, this.incident});
@@ -52,31 +53,16 @@ class _SafetyRouteScreenState extends State<SafetyRouteScreen> {
 
     switch (index) {
       case 0:
-        Navigator.pushNamedAndRemoveUntil(context, '/map', (route) => false);
+        context.go('/map');
         break;
       case 1:
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const ReportIncidentScreen(),
-          ),
-        );
+        context.go('/home/report');
         break;
       case 2:
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const AlertsScreen(),
-          ),
-        );
+        context.go('/home/alerts');
         break;
       case 3:
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const ProfileScreen(),
-          ),
-        );
+        context.go('/home/profile');
         break;
     }
   }

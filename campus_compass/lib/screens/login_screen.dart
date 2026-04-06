@@ -5,6 +5,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -289,7 +290,15 @@ class _MyWidgetState extends State<LoginScreen> {
                         GestureDetector(
                             onTap: _isAuthLoading
                               ? null
-                              : _continueAsGuest,
+                              : () {
+                                  if (mounted) {
+                                    // Use go_router for guest access
+                                    // Optionally, you may want to sign in anonymously here
+                                    // await FirebaseAuth.instance.signInAnonymously();
+                                    // ignore: use_build_context_synchronously
+                                    context.go('/home/map');
+                                  }
+                                },
                           child: Container(
                             padding: EdgeInsets.symmetric(
                               horizontal:
@@ -386,7 +395,7 @@ class _MyWidgetState extends State<LoginScreen> {
       if (!mounted) {
         return;
       }
-      Navigator.pushReplacementNamed(context, '/home');
+      context.go('/home/map');
     } on FirebaseAuthException catch (e) {
       _showAuthError(_mapAuthError(e));
     } finally {
@@ -434,7 +443,7 @@ class _MyWidgetState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Account created successfully.')),
       );
-      Navigator.pushReplacementNamed(context, '/home');
+      context.go('/home/map');
     } on FirebaseAuthException catch (e) {
       // If the email already exists, treat this as login so the flow doesn't dead-end.
       if (e.code == 'email-already-in-use' || e.code == 'credential-already-in-use') {
@@ -495,7 +504,7 @@ class _MyWidgetState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Existing account found. Logged in.')),
       );
-      Navigator.pushReplacementNamed(context, '/home');
+      context.go('/home/map');
     } on FirebaseAuthException {
       _showAuthError('Account already exists. Use the correct password to log in.');
     }

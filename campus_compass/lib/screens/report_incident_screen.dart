@@ -13,6 +13,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
+import 'package:go_router/go_router.dart';
 
 /// Screen for reporting a new incident on campus
 class ReportIncidentScreen extends StatefulWidget {
@@ -78,9 +79,15 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
     return AppBar(
       backgroundColor: AppColors.white,
       elevation: 0,
-      leading: IconButton(
+            leading: IconButton(
         icon: Icon(Icons.arrow_back_ios_new, color: AppColors.darkText),
-        onPressed: _handleBack,
+        onPressed: () {
+          if (Navigator.canPop(context)) {
+            context.pop();
+          } else {
+            context.go('/home/map');
+          }
+        },
       ),
       title: Text(
         'Report an Incident',
@@ -1479,8 +1486,8 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
       _showSnackBar('Report submitted successfully!', isSuccess: true);
 
       await Future<void>.delayed(const Duration(milliseconds: 900));
-      if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+          if (mounted) {
+        context.go('/home/map');
       }
     } catch (e) {
       _showSnackBar('Failed to submit report: $e');

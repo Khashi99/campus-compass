@@ -4,6 +4,7 @@ import 'package:campus_compass/support/app_prefs_keys.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'onboarding_contents.dart';
 
@@ -52,7 +53,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       if (!mounted) {
         return;
       }
-      Navigator.pushReplacementNamed(context, '/login');
+      // Use go_router for navigation to login
+      context.go('/login');
     }
   }
 
