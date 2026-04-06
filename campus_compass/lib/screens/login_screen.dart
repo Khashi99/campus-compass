@@ -103,7 +103,7 @@ class _MyWidgetState extends State<LoginScreen> {
                                 Icons.email_outlined,
                                 color: AppColors.mutedText,
                               ),
-                              hintText: 'net_name@live.concordia.ca',
+                              hintText: 'email@example.com',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.all(
                                   Radius.circular(20),
