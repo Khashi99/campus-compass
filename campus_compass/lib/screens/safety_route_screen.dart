@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:campus_compass/models/incident.dart';
 import 'package:campus_compass/models/safety_route_step.dart';
-import 'package:campus_compass/screens/alerts_screen.dart';
-import 'package:campus_compass/screens/profile_screen.dart';
-import 'package:campus_compass/screens/report_incident_screen.dart';
 import 'package:campus_compass/widgets/route_verification_banner.dart';
 import 'package:campus_compass/widgets/safety_route_step_tile.dart';
 import 'package:campus_compass/widgets/safety_time_bar.dart';

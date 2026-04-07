@@ -288,17 +288,7 @@ class _MyWidgetState extends State<LoginScreen> {
 
                         // Guest access
                         GestureDetector(
-                            onTap: _isAuthLoading
-                              ? null
-                              : () {
-                                  if (mounted) {
-                                    // Use go_router for guest access
-                                    // Optionally, you may want to sign in anonymously here
-                                    // await FirebaseAuth.instance.signInAnonymously();
-                                    // ignore: use_build_context_synchronously
-                                    context.go('/home/map');
-                                  }
-                                },
+                            onTap: _isAuthLoading ? null : _continueAsGuest,
                           child: Container(
                             padding: EdgeInsets.symmetric(
                               horizontal:
@@ -546,7 +536,7 @@ class _MyWidgetState extends State<LoginScreen> {
       if (!mounted) {
         return;
       }
-      Navigator.pushReplacementNamed(context, '/home');
+      context.go('/home');
     } on FirebaseAuthException catch (e) {
       _showAuthError(_mapAuthError(e));
     } finally {
