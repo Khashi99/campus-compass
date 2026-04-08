@@ -177,7 +177,7 @@ class MapLegend extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            fontSize: 11,
+            fontSize: 8,
             fontWeight: FontWeight.w600,
             color: color,
           ),

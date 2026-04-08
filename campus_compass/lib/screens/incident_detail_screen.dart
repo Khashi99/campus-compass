@@ -555,7 +555,7 @@ class IncidentDetailScreen extends StatelessWidget {
                             child: Text(
                               insight.authorRole!,
                               style: TextStyle(
-                                fontSize: 11,
+                                fontSize: 8,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.primaryBlue,
                               ),

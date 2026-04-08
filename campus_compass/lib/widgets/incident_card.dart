@@ -76,7 +76,7 @@ class CalmStatusCard extends StatelessWidget {
                             Text(
                               'Verified by Campus Safety',
                               style: TextStyle(
-                                fontSize: 11,
+                                fontSize: 8,
                                 color: AppColors.verifiedBadge,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -468,7 +468,7 @@ class _HighRiskAlertCardState extends State<HighRiskAlertCard> {
                         'VERIFIED BY ${widget.incident.userReports} STUDENTS',
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.9),
-                          fontSize: 11,
+                          fontSize: 8,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 0.5,
                         ),
@@ -535,7 +535,7 @@ class _HighRiskAlertCardState extends State<HighRiskAlertCard> {
                                   Text(
                                     '${widget.incident.verificationProgress}% RELIABILITY',
                                     style: TextStyle(
-                                      fontSize: 11,
+                                      fontSize: 8,
                                       color: AppColors.statusNormal,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -656,7 +656,7 @@ class _IncidentResolutionProgressMini extends StatelessWidget {
               Text(
                 'RESOLUTION PROGRESS',
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 1,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.6,
                   color: AppColors.mutedText,

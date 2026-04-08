@@ -921,7 +921,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                               'Photo',
                               style: TextStyle(
                                 color: Colors.white70,
-                                fontSize: 11,
+                                fontSize: 8,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -1348,7 +1348,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                 child: Text(
                   label,
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 8,
                     fontWeight: FontWeight.w600,
                     color: AppColors.mutedText,
                     letterSpacing: 0.5,
