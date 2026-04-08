@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:campus_compass/theme/app_colors.dart';
 
@@ -66,7 +67,12 @@ class ReportReviewDetails extends StatelessWidget {
                 child: _buildSmallReviewCard(
                   icon: Icons.photo_outlined,
                   label: 'ATTACHMENTS',
-                  value: '${(evidence ?? const []).length} Evidence',
+                  value: (() {
+                    final list = evidence ?? const <Map<String, dynamic>>[];
+                    final imageCount = list.where((e) => (e['type'] as String?) != 'video').length;
+                    final videoCount = list.where((e) => (e['type'] as String?) == 'video').length;
+                    return '${imageCount} image evidence, ${videoCount} video evidence';
+                  })(),
                 ),
               ),
               SizedBox(width: 12),
@@ -91,70 +97,127 @@ class ReportReviewDetails extends StatelessWidget {
               ),
             ),
             SizedBox(height: 8),
-            SizedBox(
-              height: 110,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: evidence!.length,
-                itemBuilder: (context, index) {
-                  final e = evidence![index];
-                  final url = e['downloadUrl'] as String?;
-                  final isVideo = (e['type'] as String?) == 'video';
-                  return Container(
-                    margin: const EdgeInsets.only(right: 8),
-                    width: 100,
-                    height: 100,
+            ListView.separated(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: evidence!.length,
+              separatorBuilder: (context, i) => SizedBox(height: 8),
+              itemBuilder: (context, index) {
+                final e = evidence![index];
+                final url = e['downloadUrl'] as String?;
+                final isVideo = (e['type'] as String?) == 'video';
+
+                // Determine per-type index (Image 1, Image 2, Video 1, ...)
+                final prior = evidence!.sublist(0, index);
+                final typeIndex = prior.where((x) => ((x['type'] as String?) == 'video') == isVideo).length + 1;
+                final label = isVideo ? 'Video $typeIndex' : 'Image $typeIndex';
+
+                return InkWell(
+                  onTap: url != null
+                      ? () async {
+                          try {
+                            await launchUrl(Uri.parse(url), webOnlyWindowName: '_blank');
+                          } catch (_) {}
+                        }
+                      : null,
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: AppColors.cardBorder),
+                      borderRadius: BorderRadius.circular(8),
                       color: AppColors.white,
                     ),
-                    child: Stack(
+                    child: Row(
                       children: [
-                        Positioned.fill(
-                          child: url != null
-                              ? (isVideo
-                                  ? Center(
-                                      child: Icon(
-                                        Icons.videocam,
-                                        color: AppColors.primaryBlue,
-                                        size: 40,
-                                      ),
-                                    )
-                                  : Image.network(url, fit: BoxFit.cover))
-                              : Center(
-                                  child: Icon(
-                                    Icons.photo,
-                                    color: AppColors.primaryBlue,
-                                    size: 40,
-                                  ),
-                                ),
-                        ),
-                        if (isVideo)
-                          Positioned(
-                            bottom: 4,
-                            left: 4,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 4,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.black54,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                Icons.play_arrow,
-                                color: Colors.white,
-                                size: 16,
-                              ),
-                            ),
+                        Container(
+                          width: 48,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: AppColors.white,
                           ),
+                          child: Stack(
+                            children: [
+                              Positioned.fill(
+                                child: url != null
+                                    ? (isVideo
+                                        ? Center(
+                                            child: Icon(
+                                              Icons.videocam,
+                                              color: AppColors.primaryBlue,
+                                              size: 24,
+                                            ),
+                                          )
+                                        : ClipRRect(
+                                            borderRadius: BorderRadius.circular(8),
+                                            child: Image.network(
+                                              url,
+                                              fit: BoxFit.cover,
+                                              loadingBuilder: (context, child, loadingProgress) {
+                                                if (loadingProgress == null) return child;
+                                                return Center(
+                                                  child: SizedBox(
+                                                    width: 24,
+                                                    height: 24,
+                                                    child: CircularProgressIndicator(
+                                                      value: loadingProgress.expectedTotalBytes != null
+                                                          ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
+                                                          : null,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              errorBuilder: (context, error, stackTrace) => Center(
+                                                child: Icon(
+                                                  Icons.broken_image,
+                                                  color: AppColors.primaryBlue,
+                                                  size: 24,
+                                                ),
+                                              ),
+                                            ),
+                                          ))
+                                    : Center(
+                                        child: Icon(
+                                          Icons.photo,
+                                          color: AppColors.primaryBlue,
+                                          size: 40,
+                                        ),
+                                      ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '${isVideo ? 'Video' : 'Image'} Evidence ${typeIndex}',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.darkText,
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: url != null
+                                    ? () async {
+                                        try {
+                                          await launchUrl(Uri.parse(url), webOnlyWindowName: '_blank');
+                                        } catch (_) {}
+                                      }
+                                    : null,
+                                icon: Icon(Icons.open_in_new),
+                                tooltip: 'Open',
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
           ],
         ],

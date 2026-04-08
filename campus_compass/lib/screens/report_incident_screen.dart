@@ -1535,6 +1535,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
     final downloadUrl = await ref.getDownloadURL();
 
     return {
+      'id': storagePath,
       'type': isVideo ? 'video' : 'image',
       'downloadUrl': downloadUrl,
       'storagePath': storagePath,

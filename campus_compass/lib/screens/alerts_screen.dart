@@ -8,6 +8,7 @@ import 'package:campus_compass/utils/incident_haptics.dart';
 import 'package:campus_compass/utils/incident_sounds.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -677,6 +678,12 @@ class _AlertsScreenState extends State<AlertsScreen> {
         ?.map((e) => Map<String, dynamic>.from(e as Map))
         .toList();
 
+    // Ensure evidence entries have download URLs available for preview.
+    final enrichedEvidence = await _ensureEvidenceDownloadUrls(
+      reportDoc,
+      evidence,
+    );
+
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true, // IMPORTANT
@@ -718,7 +725,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                       location: location,
                       description: description,
                       incidentTimeLabel: incidentTimeLabel,
-                      evidence: evidence as List<Map<String, dynamic>>?,
+                      evidence: enrichedEvidence,
                     ),
                   ),
                 ),
@@ -1090,6 +1097,52 @@ class _AlertsScreenState extends State<AlertsScreen> {
       });
     }
     await batch.commit();
+  }
+
+  Future<List<Map<String, dynamic>>?> _ensureEvidenceDownloadUrls(
+    QueryDocumentSnapshot<Map<String, dynamic>> reportDoc,
+    List<Map<String, dynamic>>? entries,
+  ) async {
+    if (entries == null || entries.isEmpty) {
+      return entries;
+    }
+
+    const bucket = 'gs://campus-compas-soen6751.firebasestorage.app';
+    final storage = FirebaseStorage.instanceFor(bucket: bucket);
+    var changed = false;
+
+    for (var i = 0; i < entries.length; i++) {
+      final e = entries[i];
+      final hasUrl = (e['downloadUrl'] as String?)?.isNotEmpty == true;
+      if (hasUrl) continue;
+
+      final storagePath = e['storagePath'] as String?;
+      if (storagePath == null || storagePath.isEmpty) continue;
+
+      // Only attempt to load storage objects that belong to this report.
+      final reportId = reportDoc.id;
+      final segments = storagePath.split('/');
+      if (!segments.contains(reportId)) continue;
+
+      try {
+        final ref = storage.ref().child(storagePath);
+        final url = await ref.getDownloadURL();
+        entries[i] = {...e, 'downloadUrl': url};
+        changed = true;
+      } catch (_) {
+        // Ignore individual failures; leave entry as-is.
+      }
+    }
+
+    if (changed) {
+      try {
+        await reportDoc.reference.update({'evidence': entries});
+      } catch (_) {
+        // Non-fatal: if we can't persist, still return enriched entries for preview.
+      }
+    }
+
+    return entries;
   }
 
   Widget _buildErrorState(String message) {
