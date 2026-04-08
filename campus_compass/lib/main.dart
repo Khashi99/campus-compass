@@ -16,6 +16,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:campus_compass/utils/notification_service.dart';
+import 'package:campus_compass/services/incident_status_monitor.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +25,11 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Initialize local notifications and start status monitor.
+  await NotificationService.instance.init();
+  // Start monitoring incident status changes while the app is running.
+  IncidentStatusMonitor.instance.start();
 
   // No automatic anonymous sign-in. Only proceed if user is authenticated.
   await _ensureUserProfileDocument();
