@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:campus_compass/models/incident.dart';
 import 'package:campus_compass/theme/app_colors.dart';
@@ -10,9 +11,10 @@ import 'package:campus_compass/utils/campus_time.dart';
 import 'package:campus_compass/utils/incident_haptics.dart';
 import 'package:campus_compass/utils/incident_sounds.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
+import 'package:campus_compass/utils/video_thumbnail_factory.dart';
 import 'package:go_router/go_router.dart';
 
 /// Screen for reporting a new incident on campus
@@ -588,7 +590,9 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                             size: 40,
                           ),
                         ))
-                : Image.file(File(evidence.file.path), fit: BoxFit.cover),
+                : (kIsWeb && evidence.thumbnail != null
+                    ? Image.memory(evidence.thumbnail!, fit: BoxFit.cover)
+                    : Image.file(File(evidence.file.path), fit: BoxFit.cover)),
           ),
           if (evidence.isVideo)
             Positioned(
@@ -628,75 +632,88 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
   void _showMediaPickerOptions() {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (BuildContext context) {
-        return Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Add Evidence',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.darkText,
-                ),
-              ),
-              SizedBox(height: 24),
-              _buildMediaOption(
-                icon: Icons.camera_alt_outlined,
-                label: 'Take Photo',
-                onTap: () {
-                  Navigator.pop(context);
-                  _pickImageFromCamera();
-                },
-              ),
-              SizedBox(height: 12),
-              _buildMediaOption(
-                icon: Icons.videocam_outlined,
-                label: 'Take Video',
-                onTap: () {
-                  Navigator.pop(context);
-                  _pickVideoFromCamera();
-                },
-              ),
-              SizedBox(height: 12),
-              _buildMediaOption(
-                icon: Icons.image_outlined,
-                label: 'Pick Photo from Gallery',
-                onTap: () {
-                  Navigator.pop(context);
-                  _pickImageFromGallery();
-                },
-              ),
-              SizedBox(height: 12),
-              _buildMediaOption(
-                icon: Icons.folder_outlined,
-                label: 'Pick Video from Gallery',
-                onTap: () {
-                  Navigator.pop(context);
-                  _pickVideoFromGallery();
-                },
-              ),
-              SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    'Cancel',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.mutedText,
-                    ),
+        final height = MediaQuery.of(context).size.height * 0.5;
+        return SizedBox(
+          height: height,
+          child: ScrollConfiguration(
+            behavior: _NoScrollbarBehavior(),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                  Row(
+                    children: [
+                      Text(
+                        'Add Evidence',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.darkText,
+                        ),
+                      ),
+                      Spacer(),
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          padding: const EdgeInsets.all(6),
+                          child: Icon(Icons.close, color: AppColors.mutedText),
+                        ),
+                      ),
+                    ],
                   ),
+                  SizedBox(height: 24),
+                  _buildMediaOption(
+                    icon: Icons.camera_alt_outlined,
+                    label: 'Take Photo',
+                    onTap: () {
+                      Navigator.pop(context);
+                      _pickImageFromCamera();
+                    },
+                  ),
+                  SizedBox(height: 12),
+                  _buildMediaOption(
+                    icon: Icons.videocam_outlined,
+                    label: 'Take Video',
+                    onTap: () {
+                      Navigator.pop(context);
+                      _pickVideoFromCamera();
+                    },
+                  ),
+                  SizedBox(height: 12),
+                  _buildMediaOption(
+                    icon: Icons.image_outlined,
+                    label: 'Pick Photo from Gallery',
+                    onTap: () {
+                      Navigator.pop(context);
+                      _pickImageFromGallery();
+                    },
+                  ),
+                  SizedBox(height: 12),
+                  _buildMediaOption(
+                    icon: Icons.folder_outlined,
+                    label: 'Pick Video from Gallery',
+                    onTap: () {
+                      Navigator.pop(context);
+                      _pickVideoFromGallery();
+                    },
+                  ),
+                  SizedBox(height: 24),
+                  // Removed bottom Cancel button per UI update
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
         );
       },
@@ -741,8 +758,16 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
         source: ImageSource.camera,
       );
       if (photo != null) {
+        final Uint8List? thumb =
+            kIsWeb ? await photo.readAsBytes() : null;
         setState(
-          () => _evidenceFiles.add(EvidenceFile(file: photo, isVideo: false)),
+          () => _evidenceFiles.add(
+            EvidenceFile(
+              file: photo,
+              isVideo: false,
+              thumbnail: thumb,
+            ),
+          ),
         );
       }
     } catch (e) {
@@ -756,12 +781,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
         source: ImageSource.camera,
       );
       if (video != null) {
-        final thumbnail = await VideoThumbnail.thumbnailData(
-          video: video.path,
-          imageFormat: ImageFormat.JPEG,
-          maxWidth: 128,
-          quality: 70,
-        );
+        final Uint8List? thumbnail = await generateVideoThumbnail(video);
         setState(
           () => _evidenceFiles.add(
             EvidenceFile(file: video, isVideo: true, thumbnail: thumbnail),
@@ -779,8 +799,16 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
         source: ImageSource.gallery,
       );
       if (photo != null) {
+        final Uint8List? thumb =
+            kIsWeb ? await photo.readAsBytes() : null;
         setState(
-          () => _evidenceFiles.add(EvidenceFile(file: photo, isVideo: false)),
+          () => _evidenceFiles.add(
+            EvidenceFile(
+              file: photo,
+              isVideo: false,
+              thumbnail: thumb,
+            ),
+          ),
         );
       }
     } catch (e) {
@@ -794,12 +822,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
         source: ImageSource.gallery,
       );
       if (video != null) {
-        final thumbnail = await VideoThumbnail.thumbnailData(
-          video: video.path,
-          imageFormat: ImageFormat.JPEG,
-          maxWidth: 128,
-          quality: 70,
-        );
+        final Uint8List? thumbnail = await generateVideoThumbnail(video);
         setState(
           () => _evidenceFiles.add(
             EvidenceFile(file: video, isVideo: true, thumbnail: thumbnail),
@@ -816,6 +839,17 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
       context: context,
       builder: (BuildContext context) {
         if (evidence.isVideo) {
+          if (kIsWeb) {
+            return _WebVideoPlaybackDialog(
+              xfile: evidence.file,
+              fileName: evidence.file.name,
+              onDelete: () {
+                setState(() => _evidenceFiles.removeAt(index));
+                Navigator.pop(context);
+              },
+            );
+          }
+
           return _VideoPlaybackDialog(
             file: File(evidence.file.path),
             fileName: evidence.file.name,
@@ -838,10 +872,15 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                   width: double.infinity,
                   height: double.infinity,
                   child: Center(
-                    child: Image.file(
-                      File(evidence.file.path),
-                      fit: BoxFit.contain,
-                    ),
+                    child: (kIsWeb && evidence.thumbnail != null)
+                        ? Image.memory(
+                            evidence.thumbnail!,
+                            fit: BoxFit.contain,
+                          )
+                        : Image.file(
+                            File(evidence.file.path),
+                            fit: BoxFit.contain,
+                          ),
                   ),
                 ),
               ),
@@ -1380,10 +1419,15 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                                         size: 40,
                                       ),
                                     ))
-                            : Image.file(
-                                File(evidence.file.path),
-                                fit: BoxFit.cover,
-                              ),
+                            : (kIsWeb && evidence.thumbnail != null)
+                                ? Image.memory(
+                                    evidence.thumbnail!,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Image.file(
+                                    File(evidence.file.path),
+                                    fit: BoxFit.cover,
+                                  ),
                       ),
                       if (evidence.isVideo)
                         Positioned(
@@ -1417,6 +1461,94 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
   }
 
   // ============ ACTIONS ============
+
+  Future<Map<String, dynamic>> _uploadEvidenceFile(
+    String userUid,
+    String reportId,
+    EvidenceFile evidence,
+    int index,
+  ) async {
+    final isVideo = evidence.isVideo;
+
+    final extension = _inferEvidenceExtension(
+      evidence.file.name,
+      defaultExtension: isVideo ? 'mp4' : 'jpg',
+    );
+
+    final contentType = _inferEvidenceContentType(extension) ??
+        (isVideo ? 'video/mp4' : 'image/jpeg');
+
+    final safeFileName = evidence.file.name.isNotEmpty
+        ? evidence.file.name.replaceAll(
+            RegExp(r'[^a-zA-Z0-9._-]'),
+            '_',
+          )
+        : 'evidence_$index';
+
+    final safeBaseName = (() {
+      final dot = safeFileName.lastIndexOf('.');
+      return (dot != -1 && dot < safeFileName.length - 1)
+          ? safeFileName.substring(0, dot)
+          : safeFileName;
+    })();
+
+    final uniqueName =
+      '${DateTime.now().millisecondsSinceEpoch}_${index}_$safeBaseName.$extension';
+
+    // Must match `backend/storage.rules`.
+    final storagePath = 'incident-reports/$userUid/$reportId/$uniqueName';
+
+    final ref = FirebaseStorage.instance.ref().child(storagePath);
+
+    final SettableMetadata metadata = SettableMetadata(contentType: contentType);
+
+    if (kIsWeb) {
+      final bytes = await evidence.file.readAsBytes();
+      await ref.putData(bytes, metadata);
+    } else {
+      await ref.putFile(File(evidence.file.path), metadata);
+    }
+
+    final downloadUrl = await ref.getDownloadURL();
+
+    return {
+      'type': isVideo ? 'video' : 'image',
+      'downloadUrl': downloadUrl,
+      'storagePath': storagePath,
+      'fileName': evidence.file.name,
+    };
+  }
+
+  String _inferEvidenceExtension(
+    String fileName, {
+    required String defaultExtension,
+  }) {
+    final dot = fileName.lastIndexOf('.');
+    if (dot != -1 && dot < fileName.length - 1) {
+      return fileName.substring(dot + 1).toLowerCase();
+    }
+    return defaultExtension;
+  }
+
+  String? _inferEvidenceContentType(String extension) {
+    switch (extension) {
+      case 'jpg':
+      case 'jpeg':
+        return 'image/jpeg';
+      case 'png':
+        return 'image/png';
+      case 'gif':
+        return 'image/gif';
+      case 'webp':
+        return 'image/webp';
+      case 'mp4':
+        return 'video/mp4';
+      case 'mov':
+        return 'video/quicktime';
+      default:
+        return null;
+    }
+  }
 
   Future<void> _submitReport() async {
     final user = FirebaseAuth.instance.currentUser;
@@ -1457,7 +1589,10 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
       final locationCoordinates = _coordinatesForLocation(_selectedLocation!);
       final firestore = FirebaseFirestore.instance;
 
-      await firestore.collection('incidentReports').add({
+      final reportRef = firestore.collection('incidentReports').doc();
+      final reportId = reportRef.id;
+
+      await reportRef.set({
         'campusId': _campusIdForLocation(_selectedLocation!),
         'title': _titleForType(_selectedType!),
         'description': _descriptionController.text.trim(),
@@ -1472,7 +1607,34 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
         'verificationLevel': 'userReported',
         'createdBy': user.uid,
         'linkedIncidentId': null,
+        'imageUrl': null,
+        'videoUrl': null,
+        'evidence': <Map<String, dynamic>>[],
         'reportedTime': Timestamp.fromDate(reportedAt),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      // Upload evidence media to Firebase Storage under this report.
+      final List<Map<String, dynamic>> evidenceEntries = [];
+      String? imageUrl;
+      String? videoUrl;
+
+      for (var i = 0; i < _evidenceFiles.length; i++) {
+        final evidence = _evidenceFiles[i];
+        final entry = await _uploadEvidenceFile(user.uid, reportId, evidence, i);
+        evidenceEntries.add(entry);
+
+        if (entry['type'] == 'image' && imageUrl == null) {
+          imageUrl = entry['downloadUrl'] as String?;
+        } else if (entry['type'] == 'video' && videoUrl == null) {
+          videoUrl = entry['downloadUrl'] as String?;
+        }
+      }
+
+      await reportRef.update({
+        'imageUrl': imageUrl,
+        'videoUrl': videoUrl,
+        'evidence': evidenceEntries,
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
@@ -1501,7 +1663,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
   String _titleForType(IncidentType type) {
     switch (type) {
       case IncidentType.protest:
-        return 'Protest / Gathering reported';
+        return 'Protest';
       case IncidentType.construction:
         return 'Construction disruption reported';
       case IncidentType.gathering:
@@ -1607,6 +1769,164 @@ class _VideoPlaybackDialog extends StatefulWidget {
   State<_VideoPlaybackDialog> createState() => _VideoPlaybackDialogState();
 }
 
+class _WebVideoPlaybackDialog extends StatefulWidget {
+  final XFile xfile;
+  final String fileName;
+  final VoidCallback onDelete;
+
+  const _WebVideoPlaybackDialog({
+    required this.xfile,
+    required this.fileName,
+    required this.onDelete,
+  });
+
+  @override
+  State<_WebVideoPlaybackDialog> createState() => _WebVideoPlaybackDialogState();
+}
+
+class _WebVideoPlaybackDialogState extends State<_WebVideoPlaybackDialog> {
+  late VideoPlayerController _controller;
+  late Future<void> _initializeVideoPlayerFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeVideoPlayerFuture = widget.xfile.readAsBytes().then((bytes) {
+      final lower = widget.fileName.toLowerCase();
+      final mime = lower.endsWith('.webm') ? 'video/webm' : 'video/mp4';
+      final dataUri = Uri.dataFromBytes(bytes, mimeType: mime).toString();
+      _controller = VideoPlayerController.networkUrl(Uri.parse(dataUri));
+      return _controller.initialize().then((_) {
+        setState(() {});
+        _controller.play();
+      });
+    });
+    // default looping false
+  }
+
+  @override
+  void dispose() {
+    try {
+      _controller.dispose();
+    } catch (_) {}
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: EdgeInsets.zero,
+      child: Stack(
+        children: [
+          Container(
+            color: Colors.black87,
+            width: double.infinity,
+            height: double.infinity,
+            child: Center(
+              child: FutureBuilder<void>(
+                future: _initializeVideoPlayerFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Flexible(
+                          child: AspectRatio(
+                            aspectRatio: _controller.value.aspectRatio,
+                            child: VideoPlayer(_controller),
+                          ),
+                        ),
+                        VideoProgressIndicator(
+                          _controller,
+                          allowScrubbing: true,
+                          colors: VideoProgressColors(
+                            playedColor: AppColors.primaryBlue,
+                            bufferedColor: AppColors.mutedText.withOpacity(0.4),
+                            backgroundColor: AppColors.cardBorder,
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                _controller.value.isPlaying
+                                    ? Icons.pause_circle_filled
+                                    : Icons.play_circle_fill,
+                                color: Colors.white,
+                                size: 40,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _controller.value.isPlaying
+                                      ? _controller.pause()
+                                      : _controller.play();
+                                });
+                              },
+                            ),
+                            SizedBox(width: 12),
+                            Flexible(
+                              child: Text(
+                                widget.fileName,
+                                style: TextStyle(color: Colors.white70),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    );
+                  } else {
+                    return CircularProgressIndicator(
+                      color: AppColors.primaryBlue,
+                    );
+                  }
+                },
+              ),
+            ),
+          ),
+          Positioned(
+            top: 40,
+            right: 16,
+            child: GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                padding: const EdgeInsets.all(8),
+                child: Icon(Icons.close, color: Colors.white, size: 24),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 40,
+            right: 16,
+            child: GestureDetector(
+              onTap: widget.onDelete,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.8),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.all(12),
+                child: Icon(
+                  Icons.delete_outline,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _VideoPlaybackDialogState extends State<_VideoPlaybackDialog> {
   late VideoPlayerController _controller;
   late Future<void> _initializeVideoPlayerFuture;
@@ -1647,9 +1967,11 @@ class _VideoPlaybackDialogState extends State<_VideoPlaybackDialog> {
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        AspectRatio(
-                          aspectRatio: _controller.value.aspectRatio,
-                          child: VideoPlayer(_controller),
+                        Flexible(
+                          child: AspectRatio(
+                            aspectRatio: _controller.value.aspectRatio,
+                            child: VideoPlayer(_controller),
+                          ),
                         ),
                         VideoProgressIndicator(
                           _controller,
@@ -1828,4 +2150,12 @@ class _DashedBorderPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+/// Scroll behavior that disables the default scrollbar widget.
+class _NoScrollbarBehavior extends ScrollBehavior {
+  @override
+  Widget buildScrollbar(BuildContext context, Widget child, ScrollableDetails details) {
+    return child;
+  }
 }

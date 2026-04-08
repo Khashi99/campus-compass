@@ -318,6 +318,7 @@ class _MapScreenState extends State<MapScreen> {
 
   /// Builds the appropriate bottom card based on current status
   Widget _buildBottomCard() {
+    final isGuest = FirebaseAuth.instance.currentUser?.isAnonymous ?? false;
     switch (_campusStatus) {
       case CampusStatus.normal:
         return CalmStatusCard(
@@ -341,7 +342,7 @@ class _MapScreenState extends State<MapScreen> {
           onViewDetails: () =>
               _navigateToIncidentDetail(_activeIncidents.first),
           onNavigateToSafety: () => _navigateToSafety(_activeIncidents.first),
-          onReportTrust: () => _reportTrust(_activeIncidents.first),
+          onReportTrust: isGuest ? null : () => _reportTrust(_activeIncidents.first),
         );
     }
   }
@@ -369,6 +370,7 @@ class _MapScreenState extends State<MapScreen> {
 
   /// Builds the high risk overlay that appears when user enters danger zone
   Widget _buildHighRiskOverlay() {
+    final isGuest = FirebaseAuth.instance.currentUser?.isAnonymous ?? false;
     return Container(
       color: Colors.black.withOpacity(0.5),
       child: SafeArea(
@@ -386,7 +388,7 @@ class _MapScreenState extends State<MapScreen> {
                   _navigateToIncidentDetail(_activeIncidents.first),
               onNavigateToSafety: () =>
                   _navigateToSafety(_activeIncidents.first),
-              onReportTrust: () => _reportTrust(_activeIncidents.first),
+              onReportTrust: isGuest ? null : () => _reportTrust(_activeIncidents.first),
             ),
 
             SizedBox(height: 16),

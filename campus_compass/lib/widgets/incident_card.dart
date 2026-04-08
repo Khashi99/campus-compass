@@ -564,28 +564,31 @@ class _HighRiskAlertCardState extends State<HighRiskAlertCard> {
                         // Action buttons
                         Row(
                           children: [
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: widget.onReportTrust,
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: AppColors.mutedText,
-                                  side: BorderSide(color: AppColors.cardBorder),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
+                            if (widget.onReportTrust != null) ...[
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: widget.onReportTrust,
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: AppColors.mutedText,
+                                    side:
+                                        BorderSide(color: AppColors.cardBorder),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12,
+                                    ),
                                   ),
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
-                                ),
-                                child: Text(
-                                  'REPORT TRUST',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 12,
+                                  child: Text(
+                                    'REPORT TRUST',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
+                            ],
                             if (canNavigateToSafety) ...[
                               SizedBox(width: 12),
                               Expanded(

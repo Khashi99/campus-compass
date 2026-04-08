@@ -16,7 +16,7 @@ extension IncidentTypeExtension on IncidentType {
   String get displayName {
     switch (this) {
       case IncidentType.protest:
-        return 'Protest / Gathering';
+        return 'Protest';
       case IncidentType.construction:
         return 'Construction';
       case IncidentType.gathering:
@@ -116,7 +116,7 @@ class Incident {
   String get typeDisplayName {
     switch (type) {
       case IncidentType.protest:
-        return 'Protest / Gathering';
+        return 'Protest';
       case IncidentType.construction:
         return 'Construction';
       case IncidentType.gathering:

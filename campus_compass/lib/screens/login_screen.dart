@@ -89,6 +89,9 @@ class _MyWidgetState extends State<LoginScreen> {
                           child: TextFormField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
                             validator: (value) {
                               final email = value?.trim() ?? '';
                               if (email.isEmpty) {
@@ -154,6 +157,9 @@ class _MyWidgetState extends State<LoginScreen> {
                           child: TextFormField(
                             controller: _passwordController,
                             obscureText: _obscureText,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
                             validator: (value) {
                               final password = value ?? '';
                               if (password.isEmpty) {

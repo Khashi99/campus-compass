@@ -141,19 +141,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             ),
                           ),
                         ),
-                        item.showSkip
-                            ? TextButton(
-                                onPressed: _skip,
-                                child: Text(
-                                  'Skip',
-                                  style: TextStyle(
-                                    color: AppColors.mutedText,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              )
-                            : SizedBox(width: 52),
+                        // Skip is intentionally removed per requirements.
+                        const SizedBox(width: 52),
                       ],
                     ),
                   ),
