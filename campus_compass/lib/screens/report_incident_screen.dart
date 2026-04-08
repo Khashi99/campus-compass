@@ -1519,7 +1519,9 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
     // Must match `backend/storage.rules`.
     final storagePath = 'incident-reports/$userUid/$reportId/$uniqueName';
 
-    final ref = FirebaseStorage.instance.ref().child(storagePath);
+    final ref = FirebaseStorage.instanceFor(
+      bucket: 'gs://campus-compas-soen6751.firebasestorage.app',
+    ).ref().child(storagePath);
 
     final SettableMetadata metadata = SettableMetadata(contentType: contentType);
 

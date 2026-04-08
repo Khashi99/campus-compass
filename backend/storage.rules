@@ -1,34 +1,10 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    function hasRoleDoc() {
-      return isSignedIn() &&
-        firestore.exists(/databases/(default)/documents/roles/$(request.auth.uid));
-    }
-
-    function isStaff() {
-      return hasRoleDoc() && (
-        firestore.get(/databases/(default)/documents/roles/$(request.auth.uid)).data.role == 'staff' ||
-        firestore.get(/databases/(default)/documents/roles/$(request.auth.uid)).data.role == 'admin'
-      );
-    }
-
-    match /incident-reports/{uid}/{reportId}/{fileName} {
-      allow read: if isSignedIn() && (request.auth.uid == uid || isStaff());
-      allow write: if isSignedIn() &&
-        request.auth.uid == uid &&
-        request.resource != null &&
-        request.resource.size < 50 * 1024 * 1024 &&
-        request.resource.contentType != null &&
-        (
-          request.resource.contentType.matches('image/.*') ||
-          request.resource.contentType.matches('video/.*')
-        );
-      allow delete: if isSignedIn() && (request.auth.uid == uid || isStaff());
+    match /{allPaths=**} {
+      // WARNING: permissive rule — allows anyone to read and write.
+      // Use only for testing. Revert to restrictive rules for production.
+      allow read, write: if true;
     }
   }
 }
