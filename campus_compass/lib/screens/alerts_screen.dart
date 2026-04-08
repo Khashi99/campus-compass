@@ -12,6 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:campus_compass/widgets/report_review_details.dart';
+import 'package:campus_compass/models/alert_feed_item.dart';
+import 'package:campus_compass/widgets/alert_widgets.dart';
+import 'package:campus_compass/utils/alert_helpers.dart';
 
 class AlertsScreen extends StatefulWidget {
   const AlertsScreen({super.key, this.campusId = 'sgw', this.onBack});
@@ -154,7 +157,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
   }
 
   Widget _buildAlertFeedContent({
-    required List<_AlertFeedItem> items,
+    required List<AlertFeedItem> items,
     required bool isLoading,
   }) {
     final groupedItems = _groupItemsByDate(items);
@@ -221,7 +224,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
               if (groupedItems.isEmpty)
                 const SliverFillRemaining(
                   hasScrollBody: false,
-                  child: _EmptyAlertState(),
+                  child: EmptyAlertState(),
                 )
               else
                 ..._buildGroupedActivitySlivers(groupedItems),
@@ -229,7 +232,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(0, 28, 0, 36),
-                    child: _FeedFooter(showMuted: unreadCount == 0),
+                    child: FeedFooter(showMuted: unreadCount == 0),
                   ),
                 ),
             ],
@@ -240,7 +243,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
   }
 
   List<Widget> _buildGroupedActivitySlivers(
-    List<MapEntry<String, List<_AlertFeedItem>>> groupedItems,
+    List<MapEntry<String, List<AlertFeedItem>>> groupedItems,
   ) {
     final slivers = <Widget>[];
 
@@ -282,7 +285,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
 
                 final item = entry.value[childIndex];
                 final isUnread = !_readAlertIds.contains(item.id);
-                return _AlertActivityRow(
+                return AlertActivityRow(
                   item: item,
                   isUnread: isUnread,
                   onTap: () => _handleAlertTap(item),
@@ -298,58 +301,51 @@ class _AlertsScreenState extends State<AlertsScreen> {
     return slivers;
   }
 
-  List<_AlertFeedItem> _buildIncidentItems(
+  List<AlertFeedItem> _buildIncidentItems(
     List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
   ) {
     return docs
-        .where(
-          (doc) => _matchesCampusId(doc.data()['campusId'] as String?),
-        )
+        .where((doc) => _matchesCampusId(doc.data()['campusId'] as String?))
         .map((doc) {
-          final incident = Incident.fromFirestore(doc);
-          final data = doc.data();
-          final updatedAt = _asDateTime(data['updatedAt']) ?? incident.reportedTime;
+      final incident = Incident.fromFirestore(doc);
+      final data = doc.data();
+      final updatedAt = asDateTime(data['updatedAt']) ?? incident.reportedTime;
 
-          return _AlertFeedItem(
-            id: 'incident_${doc.id}',
-            title: _incidentActionLabel(incident),
-            location: incident.location,
-            timestamp: updatedAt,
-            detailLine: _detailLineForTimestamp(updatedAt),
-            kind: _kindForIncident(incident),
-            incident: incident,
-            incidentDoc: doc,
-          );
-        })
-        .toList();
+      return AlertFeedItem(
+        id: 'incident_${doc.id}',
+        title: incidentActionLabel(incident),
+        location: incident.location,
+        timestamp: updatedAt,
+        detailLine: detailLineForTimestamp(updatedAt),
+        kind: kindForIncident(incident),
+        incident: incident,
+        incidentDoc: doc,
+      );
+    }).toList();
   }
 
-  List<_AlertFeedItem> _buildReviewItems(
+  List<AlertFeedItem> _buildReviewItems(
     List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
   ) {
     return docs
         .where((doc) => (doc.data()['status'] as String?) == 'reported')
         .where((doc) => doc.data()['linkedIncidentId'] == null)
-        .where(
-          (doc) => _matchesCampusId(doc.data()['campusId'] as String?),
-        )
+        .where((doc) => _matchesCampusId(doc.data()['campusId'] as String?))
         .map((doc) {
-          final data = doc.data();
-          final timestamp = _asDateTime(data['reportedTime']) ?? DateTime.now().toUtc();
+      final data = doc.data();
+      final timestamp = asDateTime(data['reportedTime']) ?? DateTime.now().toUtc();
 
-          return _AlertFeedItem(
-            id: 'review_${doc.id}',
-            title: 'Incident reported',
-            location: (data['location'] as String?) ?? 'Unknown location',
-            timestamp: timestamp,
-            detailLine: _detailLineForTimestamp(timestamp),
-            kind: _AlertFeedKind.warning,
-            reportDoc: doc,
-            description:
-                (data['description'] as String?) ?? 'No description provided.',
-          );
-        })
-        .toList();
+      return AlertFeedItem(
+        id: 'review_${doc.id}',
+        title: 'Incident reported',
+        location: (data['location'] as String?) ?? 'Unknown location',
+        timestamp: timestamp,
+        detailLine: detailLineForTimestamp(timestamp),
+        kind: AlertFeedKind.warning,
+        reportDoc: doc,
+        description: (data['description'] as String?) ?? 'No description provided.',
+      );
+    }).toList();
   }
 
   bool _matchesCampusId(String? rawCampusId) {
@@ -374,60 +370,20 @@ class _AlertsScreenState extends State<AlertsScreen> {
     return value;
   }
 
-  List<MapEntry<String, List<_AlertFeedItem>>> _groupItemsByDate(
-    List<_AlertFeedItem> items,
+  List<MapEntry<String, List<AlertFeedItem>>> _groupItemsByDate(
+    List<AlertFeedItem> items,
   ) {
-    final grouped = <String, List<_AlertFeedItem>>{};
+    final grouped = <String, List<AlertFeedItem>>{};
     for (final item in items) {
-      final label = _groupLabel(item.timestamp);
-      grouped.putIfAbsent(label, () => <_AlertFeedItem>[]).add(item);
+      final label = groupLabel(item.timestamp);
+      grouped.putIfAbsent(label, () => <AlertFeedItem>[]).add(item);
     }
     return grouped.entries.toList();
   }
 
-  String _groupLabel(DateTime timestamp) {
-    final easternTimestamp = CampusTime.toEastern(timestamp);
-    final nowEastern = CampusTime.toEastern(DateTime.now());
-    final today = DateTime(nowEastern.year, nowEastern.month, nowEastern.day);
-    final yesterday = today.subtract(const Duration(days: 1));
-    final itemDate = DateTime(
-      easternTimestamp.year,
-      easternTimestamp.month,
-      easternTimestamp.day,
-    );
+  // Uses helpers in alert_helpers.dart: groupLabel, detailLineForTimestamp
 
-    if (itemDate == today) {
-      return 'TODAY';
-    }
-    if (itemDate == yesterday) {
-      return 'YESTERDAY';
-    }
-
-    return '${easternTimestamp.day} ${_monthName(easternTimestamp.month).toUpperCase()} ${easternTimestamp.year}';
-  }
-
-  String _detailLineForTimestamp(DateTime timestamp) {
-    final easternTimestamp = CampusTime.toEastern(timestamp);
-    final nowEastern = CampusTime.toEastern(DateTime.now());
-    final today = DateTime(nowEastern.year, nowEastern.month, nowEastern.day);
-    final yesterday = today.subtract(const Duration(days: 1));
-    final itemDate = DateTime(
-      easternTimestamp.year,
-      easternTimestamp.month,
-      easternTimestamp.day,
-    );
-
-    final formattedTime = _formatClock(easternTimestamp);
-    if (itemDate == today) {
-      return formattedTime;
-    }
-    if (itemDate == yesterday) {
-      return 'Yesterday, $formattedTime';
-    }
-    return '${_monthNameShort(easternTimestamp.month)} ${easternTimestamp.day}, $formattedTime';
-  }
-
-  Future<void> _handleAlertTap(_AlertFeedItem item) async {
+  Future<void> _handleAlertTap(AlertFeedItem item) async {
     await _markAsRead(item.id);
 
     if (item.reportDoc != null) {
@@ -445,9 +401,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
       return;
     }
 
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -508,7 +462,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  '$location • ${_prettyStatus(status)}',
+                  '$location • ${prettyStatus(status)}',
                   style: TextStyle(
                     fontSize: 14,
                     color: AppColors.mutedText,
@@ -678,7 +632,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
 
   Future<void> _showReviewSheet(
     QueryDocumentSnapshot<Map<String, dynamic>> reportDoc,
-    _AlertFeedItem item,
+    AlertFeedItem item,
   ) async {
     if (!mounted) {
       return;
@@ -788,7 +742,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
     await prefs.setStringList(_readAlertsKey, updatedIds.toList());
   }
 
-  Future<void> _markAllAsRead(List<_AlertFeedItem> items) async {
+  Future<void> _markAllAsRead(List<AlertFeedItem> items) async {
     setState(() {
       _isMarkingAllRead = true;
     });
@@ -1122,122 +1076,6 @@ class _AlertsScreenState extends State<AlertsScreen> {
       ),
     );
   }
-
-  static _AlertFeedKind _kindForIncident(Incident incident) {
-    if (incident.status == IncidentStatus.resolved) {
-      return _AlertFeedKind.success;
-    }
-    if (incident.type == IncidentType.maintenance && incident.severity <= 1) {
-      return _AlertFeedKind.neutral;
-    }
-    return _AlertFeedKind.warning;
-  }
-
-  static String _incidentActionLabel(Incident incident) {
-    if (incident.status == IncidentStatus.resolved) {
-      switch (incident.type) {
-        case IncidentType.maintenance:
-        case IncidentType.construction:
-          return 'Maintenance completed';
-        case IncidentType.blockage:
-          return 'Route reopened';
-        case IncidentType.gathering:
-        case IncidentType.protest:
-          return 'Crowd dispersed';
-        case IncidentType.emergency:
-          return 'Hazard cleared';
-      }
-    }
-
-    if (incident.status == IncidentStatus.verified) {
-      return 'Incident verified by staff';
-    }
-
-    switch (incident.type) {
-      case IncidentType.protest:
-      case IncidentType.gathering:
-        return 'Suspicious activity';
-      case IncidentType.blockage:
-        return 'Access issue reported';
-      case IncidentType.maintenance:
-        return 'Routine patrol scheduled';
-      case IncidentType.construction:
-        return 'Incident reported';
-      case IncidentType.emergency:
-        return 'Incident reported';
-    }
-  }
-
-  static DateTime? _asDateTime(dynamic value) {
-    if (value is Timestamp) {
-      return value.toDate();
-    }
-    if (value is DateTime) {
-      return value;
-    }
-    return null;
-  }
-
-  static String _formatClock(DateTime timestamp) {
-    final hour = timestamp.hour == 0
-        ? 12
-        : timestamp.hour > 12
-            ? timestamp.hour - 12
-            : timestamp.hour;
-    final minute = timestamp.minute.toString().padLeft(2, '0');
-    final suffix = timestamp.hour >= 12 ? 'PM' : 'AM';
-    return '$hour:$minute $suffix';
-  }
-
-  static String _monthName(int month) {
-    const months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-    return months[month - 1];
-  }
-
-  static String _monthNameShort(int month) {
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return months[month - 1];
-  }
-
-  static String _prettyStatus(String status) {
-    if (status == 'investigating') {
-      return 'Investigating';
-    }
-    if (status == 'verified') {
-      return 'Verified';
-    }
-    if (status == 'resolved') {
-      return 'Resolved';
-    }
-    return 'Reported';
-  }
-
   void _syncUnreadBadge(int unreadCount) {
     if (_visibleUnreadCount == unreadCount) {
       return;
@@ -1253,205 +1091,8 @@ class _AlertsScreenState extends State<AlertsScreen> {
     });
   }
 }
+// Helper functions and widgets moved to:
+// - lib/utils/alert_helpers.dart
+// - lib/widgets/alert_widgets.dart
+// - lib/models/alert_feed_item.dart
 
-class _AlertActivityRow extends StatelessWidget {
-  const _AlertActivityRow({
-    required this.item,
-    required this.isUnread,
-    required this.onTap,
-  });
-
-  final _AlertFeedItem item;
-  final bool isUnread;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: _AlertIndicator(kind: item.kind),
-              ),
-              SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    RichText(
-                      text: TextSpan(
-                        style: TextStyle(
-                          fontSize: 15,
-                          height: 1.35,
-                          color: AppColors.darkText,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: item.title,
-                            style: TextStyle(fontWeight: FontWeight.w700),
-                          ),
-                          if (item.location.trim().isNotEmpty)
-                            TextSpan(
-                              text: ' near ${item.location}',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.mutedText.withValues(alpha: 0.72),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Text(
-                          item.detailLine,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: AppColors.mutedText,
-                          ),
-                        ),
-                        if (isUnread) ...[
-                          SizedBox(width: 8),
-                          Text(
-                            '•',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFFFB923C),
-                            ),
-                          ),
-                          SizedBox(width: 6),
-                          Text(
-                            'UNREAD',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0.5,
-                              color: Color(0xFFFB923C),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _AlertIndicator extends StatelessWidget {
-  const _AlertIndicator({required this.kind});
-
-  final _AlertFeedKind kind;
-
-  @override
-  Widget build(BuildContext context) {
-    final (color, icon) = switch (kind) {
-      _AlertFeedKind.warning => (const Color(0xFFF97316), Icons.priority_high_rounded),
-      _AlertFeedKind.success => (const Color(0xFF22C55E), Icons.check_rounded),
-      _AlertFeedKind.neutral => (const Color(0xFF6B7280), Icons.circle_outlined),
-    };
-
-    return Container(
-      width: 20,
-      height: 20,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: color, width: 1.6),
-      ),
-      alignment: Alignment.center,
-      child: Icon(
-        icon,
-        size: kind == _AlertFeedKind.neutral ? 13 : 12,
-        color: color,
-      ),
-    );
-  }
-}
-
-class _FeedFooter extends StatelessWidget {
-  const _FeedFooter({required this.showMuted});
-
-  final bool showMuted;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        children: [
-          Icon(
-            Icons.notifications_none_rounded,
-            size: 52,
-            color: AppColors.mutedText.withValues(alpha: 0.42),
-          ),
-          SizedBox(height: 8),
-          Text(
-            showMuted ? 'All caught up!' : 'Recent activity synced.',
-            style: TextStyle(
-              fontSize: 16,
-              fontStyle: FontStyle.italic,
-              color: AppColors.mutedText.withValues(alpha: 0.7),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _EmptyAlertState extends StatelessWidget {
-  const _EmptyAlertState();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(18, 32, 18, 0),
-      child: _FeedFooter(showMuted: true),
-    );
-  }
-}
-
-enum _AlertFeedKind {
-  warning,
-  success,
-  neutral,
-}
-
-class _AlertFeedItem {
-  const _AlertFeedItem({
-    required this.id,
-    required this.title,
-    required this.location,
-    required this.timestamp,
-    required this.detailLine,
-    required this.kind,
-    this.incident,
-    this.incidentDoc,
-    this.reportDoc,
-    this.description,
-  });
-
-  final String id;
-  final String title;
-  final String location;
-  final DateTime timestamp;
-  final String detailLine;
-  final _AlertFeedKind kind;
-  final Incident? incident;
-  final QueryDocumentSnapshot<Map<String, dynamic>>? incidentDoc;
-  final QueryDocumentSnapshot<Map<String, dynamic>>? reportDoc;
-  final String? description;
-}
