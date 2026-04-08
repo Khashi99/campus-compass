@@ -69,14 +69,15 @@ class _AlertsScreenState extends State<AlertsScreen> {
             centerTitle: true,
             leading: IconButton(
               onPressed: _handleBack,
-              icon: Icon(Icons.arrow_back_ios_new, color: AppColors.darkText, size: 16),
+              icon: Icon(
+                Icons.arrow_back_ios_new,
+                color: AppColors.darkText,
+                size: 16,
+              ),
             ),
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(1),
-              child: Container(
-                height: 1,
-                color: AppColors.cardBorder,
-              ),
+              child: Container(height: 1, color: AppColors.cardBorder),
             ),
           ),
           body: user == null
@@ -105,7 +106,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
           return _buildErrorState('Unable to load alert activity right now.');
         }
 
-        final incidentItems = _buildIncidentItems(incidentSnapshot.data?.docs ?? const []);
+        final incidentItems = _buildIncidentItems(
+          incidentSnapshot.data?.docs ?? const [],
+        );
 
         if (_canReview) {
           return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
@@ -116,17 +119,23 @@ class _AlertsScreenState extends State<AlertsScreen> {
                 .snapshots(),
             builder: (context, reviewSnapshot) {
               if (reviewSnapshot.hasError) {
-                return _buildErrorState('Unable to load alert activity right now.');
+                return _buildErrorState(
+                  'Unable to load alert activity right now.',
+                );
               }
 
-              final reviewItems = _buildReviewItems(reviewSnapshot.data?.docs ?? const []);
+              final reviewItems = _buildReviewItems(
+                reviewSnapshot.data?.docs ?? const [],
+              );
               final feedItems = [...reviewItems, ...incidentItems]
                 ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
               return _buildAlertFeedContent(
                 items: feedItems,
-                isLoading: _isLoadingRole ||
+                isLoading:
+                    _isLoadingRole ||
                     _isLoadingReadState ||
-                    incidentSnapshot.connectionState == ConnectionState.waiting ||
+                    incidentSnapshot.connectionState ==
+                        ConnectionState.waiting ||
                     reviewSnapshot.connectionState == ConnectionState.waiting,
               );
             },
@@ -135,7 +144,8 @@ class _AlertsScreenState extends State<AlertsScreen> {
 
         return _buildAlertFeedContent(
           items: incidentItems,
-          isLoading: _isLoadingRole ||
+          isLoading:
+              _isLoadingRole ||
               _isLoadingReadState ||
               incidentSnapshot.connectionState == ConnectionState.waiting,
         );
@@ -161,7 +171,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
     required bool isLoading,
   }) {
     final groupedItems = _groupItemsByDate(items);
-    final unreadCount = items.where((item) => !_readAlertIds.contains(item.id)).length;
+    final unreadCount = items
+        .where((item) => !_readAlertIds.contains(item.id))
+        .length;
     _syncUnreadBadge(unreadCount);
 
     if (isLoading && items.isEmpty) {
@@ -207,7 +219,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
                             ? const SizedBox(
                                 width: 16,
                                 height: 16,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
                               )
                             : Text(
                                 'Mark all as read',
@@ -291,7 +305,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
                   onTap: () => _handleAlertTap(item),
                 );
               },
-              childCount: entry.value.isEmpty ? 0 : (entry.value.length * 2) - 1,
+              childCount: entry.value.isEmpty
+                  ? 0
+                  : (entry.value.length * 2) - 1,
             ),
           ),
         ),
@@ -307,21 +323,23 @@ class _AlertsScreenState extends State<AlertsScreen> {
     return docs
         .where((doc) => _matchesCampusId(doc.data()['campusId'] as String?))
         .map((doc) {
-      final incident = Incident.fromFirestore(doc);
-      final data = doc.data();
-      final updatedAt = asDateTime(data['updatedAt']) ?? incident.reportedTime;
+          final incident = Incident.fromFirestore(doc);
+          final data = doc.data();
+          final updatedAt =
+              asDateTime(data['updatedAt']) ?? incident.reportedTime;
 
-      return AlertFeedItem(
-        id: 'incident_${doc.id}',
-        title: incidentActionLabel(incident),
-        location: incident.location,
-        timestamp: updatedAt,
-        detailLine: detailLineForTimestamp(updatedAt),
-        kind: kindForIncident(incident),
-        incident: incident,
-        incidentDoc: doc,
-      );
-    }).toList();
+          return AlertFeedItem(
+            id: 'incident_${doc.id}',
+            title: incidentActionLabel(incident),
+            location: incident.location,
+            timestamp: updatedAt,
+            detailLine: detailLineForTimestamp(updatedAt),
+            kind: kindForIncident(incident),
+            incident: incident,
+            incidentDoc: doc,
+          );
+        })
+        .toList();
   }
 
   List<AlertFeedItem> _buildReviewItems(
@@ -332,20 +350,23 @@ class _AlertsScreenState extends State<AlertsScreen> {
         .where((doc) => doc.data()['linkedIncidentId'] == null)
         .where((doc) => _matchesCampusId(doc.data()['campusId'] as String?))
         .map((doc) {
-      final data = doc.data();
-      final timestamp = asDateTime(data['reportedTime']) ?? DateTime.now().toUtc();
+          final data = doc.data();
+          final timestamp =
+              asDateTime(data['reportedTime']) ?? DateTime.now().toUtc();
 
-      return AlertFeedItem(
-        id: 'review_${doc.id}',
-        title: 'Incident reported',
-        location: (data['location'] as String?) ?? 'Unknown location',
-        timestamp: timestamp,
-        detailLine: detailLineForTimestamp(timestamp),
-        kind: AlertFeedKind.warning,
-        reportDoc: doc,
-        description: (data['description'] as String?) ?? 'No description provided.',
-      );
-    }).toList();
+          return AlertFeedItem(
+            id: 'review_${doc.id}',
+            title: 'Incident reported',
+            location: (data['location'] as String?) ?? 'Unknown location',
+            timestamp: timestamp,
+            detailLine: detailLineForTimestamp(timestamp),
+            kind: AlertFeedKind.warning,
+            reportDoc: doc,
+            description:
+                (data['description'] as String?) ?? 'No description provided.',
+          );
+        })
+        .toList();
   }
 
   bool _matchesCampusId(String? rawCampusId) {
@@ -463,10 +484,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                 SizedBox(height: 8),
                 Text(
                   '$location • ${prettyStatus(status)}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.mutedText,
-                  ),
+                  style: TextStyle(fontSize: 14, color: AppColors.mutedText),
                 ),
                 SizedBox(height: 20),
                 SizedBox(
@@ -483,14 +501,18 @@ class _AlertsScreenState extends State<AlertsScreen> {
                           builder: (context) => IncidentDetailScreen(
                             incident: incident,
                             onViewLiveMap: () => context.go('/home/map'),
-                            onRequestUpdate: () => _requestAlertUpdate(incident),
+                            onRequestUpdate: () =>
+                                _requestAlertUpdate(incident),
                           ),
                         ),
                       );
                     },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.primaryBlue,
-                      side: BorderSide(color: AppColors.primaryBlue, width: 1.0),
+                      side: BorderSide(
+                        color: AppColors.primaryBlue,
+                        width: 1.0,
+                      ),
                       minimumSize: Size.fromHeight(50),
                       padding: const EdgeInsets.symmetric(vertical: 8),
                     ),
@@ -533,7 +555,10 @@ class _AlertsScreenState extends State<AlertsScreen> {
                           },
                           style: OutlinedButton.styleFrom(
                             foregroundColor: AppColors.statusHighRisk,
-                            side: BorderSide(color: AppColors.statusHighRisk, width: 1.0),
+                            side: BorderSide(
+                              color: AppColors.statusHighRisk,
+                              width: 1.0,
+                            ),
                             minimumSize: Size.fromHeight(50),
                             padding: const EdgeInsets.symmetric(vertical: 8),
                           ),
@@ -641,7 +666,8 @@ class _AlertsScreenState extends State<AlertsScreen> {
     final data = reportDoc.data();
     final title = (data['title'] as String?) ?? item.title;
     final location = (data['location'] as String?) ?? item.location;
-    final description = (data['description'] as String?) ?? item.description ?? '';
+    final description =
+        (data['description'] as String?) ?? item.description ?? '';
 
     final reportedTime = data['reportedTime'];
     final incidentTimeLabel = reportedTime is Timestamp
@@ -658,71 +684,99 @@ class _AlertsScreenState extends State<AlertsScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 42,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: AppColors.cardBorder,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.7,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          builder: (context, scrollController) {
+            return Container(
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+                  child: Column(
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 42,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: AppColors.cardBorder,
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 18),
+
+                      /// 👇 THIS FIXES OVERFLOW
+                      Expanded(
+                        child: SingleChildScrollView(
+                          controller: scrollController,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ReportReviewDetails(
+                                title: title,
+                                typeLabel: data['type'] as String?,
+                                location: location,
+                                description: description,
+                                incidentTimeLabel: incidentTimeLabel,
+                                evidence:
+                                    evidence as List<Map<String, dynamic>>?,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(height: 20),
+
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () async {
+                                Navigator.pop(context);
+                                await _dismissReport(reportDoc);
+                              },
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: AppColors.mutedText,
+                                side: BorderSide(
+                                  color: AppColors.cardBorder,
+                                  width: 1.0,
+                                ),
+                                minimumSize: Size.fromHeight(50),
+                              ),
+                              child: Text('Dismiss'),
+                            ),
+                          ),
+                          SizedBox(width: 12),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                Navigator.pop(context);
+                                await _approveReport(reportDoc);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primaryBlue,
+                                foregroundColor: Colors.white,
+                                minimumSize: Size.fromHeight(50),
+                              ),
+                              child: Text('Approve'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(height: 18),
-                ReportReviewDetails(
-                  title: title,
-                  typeLabel: data['type'] as String?,
-                  location: location,
-                  description: description,
-                  incidentTimeLabel: incidentTimeLabel,
-                  evidence: evidence as List<Map<String, dynamic>>?,
-                ),
-                SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () async {
-                          Navigator.pop(context);
-                          await _dismissReport(reportDoc);
-                        },
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.mutedText,
-                          side: BorderSide(color: AppColors.cardBorder, width: 1.0),
-                          minimumSize: Size.fromHeight(50),
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                        ),
-                        child: Text('Dismiss'),
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          Navigator.pop(context);
-                          await _approveReport(reportDoc);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryBlue,
-                          foregroundColor: Colors.white,
-                          minimumSize: Size.fromHeight(50),
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                        ),
-                        child: Text('Approve'),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
@@ -748,10 +802,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
     });
 
     try {
-      final updatedIds = {
-        ..._readAlertIds,
-        ...items.map((item) => item.id),
-      };
+      final updatedIds = {..._readAlertIds, ...items.map((item) => item.id)};
       final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList(_readAlertsKey, updatedIds.toList());
 
@@ -778,7 +829,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
     }
 
     setState(() {
-      _readAlertIds = {...prefs.getStringList(_readAlertsKey) ?? const <String>[]};
+      _readAlertIds = {
+        ...prefs.getStringList(_readAlertsKey) ?? const <String>[],
+      };
       _isLoadingReadState = false;
     });
   }
@@ -842,9 +895,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Approval failed: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Approval failed: $e')));
     }
   }
 
@@ -856,16 +909,16 @@ class _AlertsScreenState extends State<AlertsScreen> {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Report dismissed.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Report dismissed.')));
     } catch (e) {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Dismiss failed: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Dismiss failed: $e')));
     }
   }
 
@@ -882,11 +935,11 @@ class _AlertsScreenState extends State<AlertsScreen> {
         .collection('updateRequests')
         .doc(user.uid)
         .set({
-      'uid': user.uid,
-      'message': 'Requesting a status update for this alert.',
-      'requestedAt': now,
-      'updatedAt': now,
-    }, SetOptions(merge: true));
+          'uid': user.uid,
+          'message': 'Requesting a status update for this alert.',
+          'requestedAt': now,
+          'updatedAt': now,
+        }, SetOptions(merge: true));
   }
 
   Future<void> _setIncidentStatus({
@@ -905,7 +958,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
           incidentId: incidentDoc.id,
           status: 'investigating',
         );
-        await IncidentHaptics.playForEvent(IncidentHapticEvent.reportedToInvestigating);
+        await IncidentHaptics.playForEvent(
+          IncidentHapticEvent.reportedToInvestigating,
+        );
         await IncidentSounds.playForEvent(
           IncidentSoundEvent.reportedToInvestigating,
         );
@@ -930,7 +985,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
           incidentId: incidentDoc.id,
           status: 'resolved',
         );
-        await IncidentHaptics.playForEvent(IncidentHapticEvent.escalatedToVerifiedOrResolved);
+        await IncidentHaptics.playForEvent(
+          IncidentHapticEvent.escalatedToVerifiedOrResolved,
+        );
         await IncidentSounds.playForEvent(
           IncidentSoundEvent.escalatedToVerifiedOrResolved,
         );
@@ -955,7 +1012,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
           incidentId: incidentDoc.id,
           status: 'verified',
         );
-        await IncidentHaptics.playForEvent(IncidentHapticEvent.escalatedToVerifiedOrResolved);
+        await IncidentHaptics.playForEvent(
+          IncidentHapticEvent.escalatedToVerifiedOrResolved,
+        );
         await IncidentSounds.playForEvent(
           IncidentSoundEvent.escalatedToVerifiedOrResolved,
         );
@@ -971,9 +1030,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Status update failed: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Status update failed: $e')));
     }
   }
 
@@ -993,9 +1052,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
       builder: (dialogContext) {
         return AlertDialog(
           title: Text('Delete incident?'),
-          content: Text(
-            'This will permanently remove "$title" from alerts.',
-          ),
+          content: Text('This will permanently remove "$title" from alerts.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext, false),
@@ -1031,9 +1088,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Delete failed: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Delete failed: $e')));
     }
   }
 
@@ -1068,14 +1125,12 @@ class _AlertsScreenState extends State<AlertsScreen> {
         child: Text(
           message,
           textAlign: TextAlign.center,
-          style: TextStyle(
-            color: AppColors.mutedText,
-            height: 1.4,
-          ),
+          style: TextStyle(color: AppColors.mutedText, height: 1.4),
         ),
       ),
     );
   }
+
   void _syncUnreadBadge(int unreadCount) {
     if (_visibleUnreadCount == unreadCount) {
       return;
@@ -1091,8 +1146,3 @@ class _AlertsScreenState extends State<AlertsScreen> {
     });
   }
 }
-// Helper functions and widgets moved to:
-// - lib/utils/alert_helpers.dart
-// - lib/widgets/alert_widgets.dart
-// - lib/models/alert_feed_item.dart
-
