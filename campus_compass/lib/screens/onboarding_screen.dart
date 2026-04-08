@@ -235,7 +235,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                           Text('Vibrations you can feel'),
                                           SizedBox(height: 4),
                                           Text('Get a gentle vibration when an alert is triggered. Great for when your phone is in your pocket or you want a discreet cue.',
-                                            style: TextStyle(fontSize: 13, color: AppColors.mutedText),
+                                            style: TextStyle(fontSize: 14, color: AppColors.mutedText),
                                           ),
                                         ],
                                       ),
@@ -263,7 +263,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                           Text('Audio notifications'),
                                           SizedBox(height: 4),
                                           Text('Play a sound when an alert is triggered. Useful if you want to be notified even when not looking at your device.',
-                                            style: TextStyle(fontSize: 13, color: AppColors.mutedText),
+                                            style: TextStyle(fontSize: 14, color: AppColors.mutedText),
                                           ),
                                         ],
                                       ),
@@ -359,7 +359,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 child: Text(
                                   item.quote!,
                                   style: TextStyle(
-                                    fontSize: 13,
+                                    fontSize: 14,
                                     height: 1.6,
                                     color: AppColors.mutedText,
                                     fontStyle: FontStyle.italic,
@@ -405,7 +405,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           backgroundColor: AppColors.primaryBlue,
                           foregroundColor: Colors.white,
                           elevation: 0,
-                          minimumSize: Size.fromHeight(40),
+                          minimumSize: Size.fromHeight(50),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),

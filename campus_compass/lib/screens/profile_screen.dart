@@ -155,7 +155,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Text(
                               'Customize how you navigate and receive safety information to reduce sensory overload and cognitive stress.',
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: 14,
                                 height: 1.35,
                                 color: AppColors.mutedText,
                               ),
@@ -255,7 +255,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       style: OutlinedButton.styleFrom(
                                         foregroundColor: AppColors.primaryBlue,
                                         side: BorderSide(color: AppColors.primaryBlue, width: 1.0),
-                                        minimumSize: Size.fromHeight(40),
+                                        minimumSize: Size.fromHeight(50),
                                         padding: const EdgeInsets.symmetric(vertical: 8),
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(8),
@@ -573,7 +573,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 backgroundColor: const Color(0xFF242730),
                 foregroundColor: Colors.white,
                 elevation: 0,
-                minimumSize: Size.fromHeight(40),
+                minimumSize: Size.fromHeight(50),
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),

@@ -514,7 +514,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                       Text(
                         'Tap to add photo or video',
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 14,
                           color: AppColors.primaryBlue,
                           fontWeight: FontWeight.w600,
                         ),
@@ -991,24 +991,24 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                     style: TextStyle(
                       color: AppColors.darkText,
                       fontWeight: FontWeight.bold,
-                      fontSize: 13,
+                      fontSize: 14,
                     ),
                   ),
                   TextSpan(
                     text: 'Please contact Campus Security directly at ',
-                    style: TextStyle(color: AppColors.darkText, fontSize: 13),
+                    style: TextStyle(color: AppColors.darkText, fontSize: 14),
                   ),
                   TextSpan(
                     text: '+1 514-555-0199',
                     style: TextStyle(
                       color: AppColors.darkText,
                       fontWeight: FontWeight.bold,
-                      fontSize: 13,
+                      fontSize: 14,
                     ),
                   ),
                   TextSpan(
                     text: ' before filing a report.',
-                    style: TextStyle(color: AppColors.darkText, fontSize: 13),
+                    style: TextStyle(color: AppColors.darkText, fontSize: 14),
                   ),
                 ],
               ),
@@ -1120,7 +1120,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                     Text(
                       'Please ensure the information below is accurate before sharing it with the campus.',
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 14,
                         color: AppColors.darkText,
                         height: 1.4,
                       ),
@@ -1361,7 +1361,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
           Text(
             value,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: FontWeight.w500,
               color: AppColors.darkText,
               height: 1.4,

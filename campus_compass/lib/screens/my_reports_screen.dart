@@ -121,7 +121,7 @@ class MyReportsScreen extends StatelessWidget {
                           Text(
                             location,
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 14,
                               color: AppColors.mutedText,
                               fontWeight: FontWeight.w600,
                             ),

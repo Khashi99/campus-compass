@@ -11,7 +11,7 @@ class AppTheme {
           backgroundColor: AppColors.primaryBlue,
           foregroundColor: Colors.white,
           textStyle: TextStyle(fontSize: 14),
-          minimumSize: Size.fromHeight(40),
+          minimumSize: Size.fromHeight(50),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
@@ -32,7 +32,7 @@ class AppTheme {
   static OutlinedButtonThemeData get outlinedButtonTheme =>
       OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          minimumSize: Size.fromHeight(40),
+          minimumSize: Size.fromHeight(50),
           side: BorderSide(width: 1.0),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
@@ -156,7 +156,7 @@ class AppTheme {
       );
 
   static TextStyle get quoteStyle => TextStyle(
-        fontSize: 13,
+        fontSize: 14,
         height: 1.6,
         color: AppColors.mutedText,
         fontStyle: FontStyle.italic,

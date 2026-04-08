@@ -254,7 +254,7 @@ class StaffReviewScreen extends StatelessWidget {
             '$location • ${_prettyType(type)}',
             style: TextStyle(
               color: AppColors.mutedText,
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -278,7 +278,7 @@ class StaffReviewScreen extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.mutedText,
                     side: BorderSide(color: AppColors.cardBorder, width: 1.0),
-                    minimumSize: Size.fromHeight(40),
+                    minimumSize: Size.fromHeight(50),
                   ),
                   child: Text('Dismiss'),
                 ),
@@ -290,7 +290,7 @@ class StaffReviewScreen extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryBlue,
                     foregroundColor: Colors.white,
-                    minimumSize: Size.fromHeight(40),
+                    minimumSize: Size.fromHeight(50),
                   ),
                   child: Text('Approve'),
                 ),
@@ -302,7 +302,7 @@ class StaffReviewScreen extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.statusNormal,
                     foregroundColor: Colors.white,
-                    minimumSize: Size.fromHeight(40),
+                    minimumSize: Size.fromHeight(50),
                   ),
                   child: Text('Resolved'),
                 ),
@@ -363,7 +363,7 @@ class StaffReviewScreen extends StatelessWidget {
             '$location • ${_prettyType(type)}',
             style: TextStyle(
               color: AppColors.mutedText,
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -386,7 +386,7 @@ class StaffReviewScreen extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryBlue,
                 foregroundColor: Colors.white,
-                minimumSize: Size.fromHeight(40),
+                minimumSize: Size.fromHeight(50),
               ),
               child: Text(actionLabel),
             ),
@@ -437,7 +437,7 @@ class StaffReviewScreen extends StatelessWidget {
             '$location • ${_prettyType(type)}',
             style: TextStyle(
               color: AppColors.mutedText,
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -461,7 +461,7 @@ class StaffReviewScreen extends StatelessWidget {
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.statusHighRisk,
                 side: BorderSide(color: AppColors.statusHighRisk, width: 1.0),
-                minimumSize: Size.fromHeight(40),
+                minimumSize: Size.fromHeight(50),
               ),
               label: Text('Remove from History'),
             ),

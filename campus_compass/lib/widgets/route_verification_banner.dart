@@ -30,7 +30,7 @@ class RouteVerificationBanner extends StatelessWidget {
             child: Text(
               text,
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 14,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF22C55E),
               ),

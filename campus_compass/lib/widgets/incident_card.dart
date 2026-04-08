@@ -266,7 +266,7 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: AppColors.primaryBlue,
                                 side: BorderSide(color: AppColors.primaryBlue, width: 1.0),
-                                minimumSize: Size.fromHeight(40),
+                                minimumSize: Size.fromHeight(50),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -293,7 +293,7 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.statusNormal,
                                   foregroundColor: Colors.white,
-                                  minimumSize: Size.fromHeight(40),
+                                  minimumSize: Size.fromHeight(50),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),
@@ -573,7 +573,7 @@ class _HighRiskAlertCardState extends State<HighRiskAlertCard> {
                                   style: OutlinedButton.styleFrom(
                                       foregroundColor: AppColors.mutedText,
                                       side: BorderSide(color: AppColors.cardBorder, width: 1.0),
-                                      minimumSize: Size.fromHeight(40),
+                                      minimumSize: Size.fromHeight(50),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
@@ -607,7 +607,7 @@ class _HighRiskAlertCardState extends State<HighRiskAlertCard> {
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: AppColors.statusNormal,
                                     foregroundColor: Colors.white,
-                                    minimumSize: Size.fromHeight(40),
+                                    minimumSize: Size.fromHeight(50),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8),
                                     ),

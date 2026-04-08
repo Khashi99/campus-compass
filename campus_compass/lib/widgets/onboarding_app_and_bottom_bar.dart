@@ -92,7 +92,7 @@ class OnboardingBottomBar extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                minimumSize: Size.fromHeight(40),
+                minimumSize: Size.fromHeight(50),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

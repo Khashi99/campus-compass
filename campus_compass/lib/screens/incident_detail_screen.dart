@@ -588,7 +588,7 @@ class IncidentDetailScreen extends StatelessWidget {
               Text(
                 'Helpful',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: AppColors.mutedText,
                 ),
@@ -597,7 +597,7 @@ class IncidentDetailScreen extends StatelessWidget {
               Text(
                 'Flag',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: AppColors.mutedText,
                 ),
@@ -659,7 +659,7 @@ class IncidentDetailScreen extends StatelessWidget {
             foregroundColor: AppColors.darkText,
             side: BorderSide(color: AppColors.cardBorder, width: 1.0),
             backgroundColor: AppColors.white,
-            minimumSize: Size.fromHeight(40),
+            minimumSize: Size.fromHeight(50),
             padding: const EdgeInsets.symmetric(vertical: 8),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),

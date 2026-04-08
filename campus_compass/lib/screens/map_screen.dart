@@ -715,7 +715,7 @@ class _MapScreenState extends State<MapScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryBlue,
                         foregroundColor: Colors.white,
-                        minimumSize: Size.fromHeight(40),
+                        minimumSize: Size.fromHeight(50),
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -815,7 +815,7 @@ class _MapScreenState extends State<MapScreen> {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.primaryBlue,
                     side: BorderSide(color: AppColors.primaryBlue, width: 1.0),
-                    minimumSize: Size.fromHeight(40),
+                    minimumSize: Size.fromHeight(50),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
                       vertical: 8,
@@ -863,7 +863,7 @@ class _MapScreenState extends State<MapScreen> {
           Expanded(
             child: Text(
               text,
-              style: TextStyle(fontSize: 13, color: AppColors.mutedText),
+              style: TextStyle(fontSize: 14, color: AppColors.mutedText),
             ),
           ),
         ],

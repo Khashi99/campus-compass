@@ -536,7 +536,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.primaryBlue,
                       side: BorderSide(color: AppColors.primaryBlue, width: 1.0),
-                      minimumSize: Size.fromHeight(40),
+                      minimumSize: Size.fromHeight(50),
                       padding: const EdgeInsets.symmetric(vertical: 8),
                     ),
                     child: Text('View details'),
@@ -559,7 +559,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primaryBlue,
                             foregroundColor: Colors.white,
-                            minimumSize: Size.fromHeight(40),
+                            minimumSize: Size.fromHeight(50),
                             padding: const EdgeInsets.symmetric(vertical: 8),
                           ),
                           child: Text('Move to Investigating'),
@@ -579,7 +579,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                           style: OutlinedButton.styleFrom(
                             foregroundColor: AppColors.statusHighRisk,
                             side: BorderSide(color: AppColors.statusHighRisk, width: 1.0),
-                            minimumSize: Size.fromHeight(40),
+                            minimumSize: Size.fromHeight(50),
                             padding: const EdgeInsets.symmetric(vertical: 8),
                           ),
                           child: Text('Decline and Delete Incident'),
@@ -601,7 +601,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryBlue,
                         foregroundColor: Colors.white,
-                        minimumSize: Size.fromHeight(40),
+                        minimumSize: Size.fromHeight(50),
                         padding: const EdgeInsets.symmetric(vertical: 8),
                       ),
                       child: Text('Mark as Verified'),
@@ -621,7 +621,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.statusNormal,
                         foregroundColor: Colors.white,
-                        minimumSize: Size.fromHeight(40),
+                        minimumSize: Size.fromHeight(50),
                         padding: const EdgeInsets.symmetric(vertical: 8),
                       ),
                       child: Text('Mark as Resolved'),
@@ -641,7 +641,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryBlue,
                         foregroundColor: Colors.white,
-                        minimumSize: Size.fromHeight(40),
+                        minimumSize: Size.fromHeight(50),
                         padding: const EdgeInsets.symmetric(vertical: 8),
                       ),
                       child: Text('Reopen (Move to Investigating)'),
@@ -750,7 +750,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppColors.mutedText,
                           side: BorderSide(color: AppColors.cardBorder, width: 1.0),
-                          minimumSize: Size.fromHeight(40),
+                          minimumSize: Size.fromHeight(50),
                           padding: const EdgeInsets.symmetric(vertical: 8),
                         ),
                         child: Text('Dismiss'),
@@ -766,7 +766,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primaryBlue,
                           foregroundColor: Colors.white,
-                          minimumSize: Size.fromHeight(40),
+                          minimumSize: Size.fromHeight(50),
                           padding: const EdgeInsets.symmetric(vertical: 8),
                         ),
                         child: Text('Approve'),
@@ -1322,7 +1322,7 @@ class _AlertActivityRow extends StatelessWidget {
                         Text(
                           item.detailLine,
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 14,
                             color: AppColors.mutedText,
                           ),
                         ),
@@ -1331,7 +1331,7 @@ class _AlertActivityRow extends StatelessWidget {
                           Text(
                             '•',
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 14,
                               fontWeight: FontWeight.w700,
                               color: Color(0xFFFB923C),
                             ),

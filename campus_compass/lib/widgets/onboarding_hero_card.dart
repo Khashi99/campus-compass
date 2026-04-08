@@ -121,7 +121,7 @@ class OnboardingHeroCard extends StatelessWidget {
                     'Secure Campus',
                     style: TextStyle(
                       color: AppColors.primaryBlue,
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

@@ -354,7 +354,7 @@ class _MyWidgetState extends State<LoginScreen> {
                           'By continuing, you agree to the safety sharing terms \nand privacy guidelines of Concordia University.',
                           style: TextStyle(
                             color: AppColors.mutedText,
-                            fontSize: 13,
+                            fontSize: 14,
                           ),
                           textAlign: TextAlign.center,
                         ),
