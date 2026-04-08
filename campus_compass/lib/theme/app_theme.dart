@@ -1,5 +1,6 @@
 import 'package:campus_compass/theme/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
@@ -40,17 +41,23 @@ class AppTheme {
         ),
       );
 
-  static TextTheme get textTheme => TextTheme(
-        bodyLarge: GoogleFonts.lexend(
-          fontSize: 16,
-          fontWeight: FontWeight.normal,
-          color: AppColors.primaryBlue,
-        ),
-        bodyMedium: GoogleFonts.lexend(
-          fontSize: 14,
-          color: AppColors.darkText,
-        ),
-      );
+  static TextTheme get textTheme {
+    final base = TextTheme(
+      bodyLarge: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.normal,
+        color: AppColors.primaryBlue,
+      ),
+      bodyMedium: TextStyle(
+        fontSize: 14,
+        color: AppColors.darkText,
+      ),
+    );
+
+    return GoogleFonts.openSansTextTheme(base);
+  }
+
+  static String get _appFontFamily => 'Open Sans';
 
   static ThemeData get themeData {
     final brightness = AppColors.pageBackground.computeLuminance() < 0.2
@@ -75,6 +82,7 @@ class AppTheme {
         onSurface: AppColors.darkText,
         outline: AppColors.cardBorder,
       ),
+      fontFamily: _appFontFamily,
       textTheme: textTheme,
       textButtonTheme: textButtonTheme,
       elevatedButtonTheme: elevatedButtonTheme,
@@ -85,7 +93,7 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
-        titleTextStyle: GoogleFonts.lexend(
+        titleTextStyle: GoogleFonts.openSans(
           fontSize: 18,
           fontWeight: FontWeight.w600,
           color: AppColors.darkText,
@@ -124,45 +132,45 @@ class AppTheme {
         contentTextStyle: textTheme.bodyLarge,
       );
 
-  static TextStyle get titleStyle => TextStyle(
+  static TextStyle get titleStyle => GoogleFonts.openSans(
         fontSize: 22,
         fontWeight: FontWeight.w800,
         color: AppColors.darkText,
         height: 1.2,
       );
 
-  static TextStyle get descriptionStyle => TextStyle(
+  static TextStyle get descriptionStyle => GoogleFonts.openSans(
         fontSize: 14,
         color: AppColors.mutedText,
         height: 1.6,
       );
 
-  static TextStyle get bulletStyle => TextStyle(
+  static TextStyle get bulletStyle => GoogleFonts.openSans(
         fontSize: 16,
         fontWeight: FontWeight.w600,
         color: AppColors.darkText,
       );
 
-  static TextStyle get optionTitleStyle => TextStyle(
+  static TextStyle get optionTitleStyle => GoogleFonts.openSans(
         fontSize: 16,
         fontWeight: FontWeight.w700,
         color: AppColors.darkText,
       );
 
-  static TextStyle get optionSubtitleStyle => TextStyle(
+  static TextStyle get optionSubtitleStyle => GoogleFonts.openSans(
         fontSize: 14,
         color: AppColors.mutedText,
         height: 1.4,
       );
 
-  static TextStyle get quoteStyle => TextStyle(
+  static TextStyle get quoteStyle => GoogleFonts.openSans(
         fontSize: 14,
         height: 1.6,
         color: AppColors.mutedText,
         fontStyle: FontStyle.italic,
       );
 
-  static TextStyle get linkStyle => TextStyle(
+  static TextStyle get linkStyle => GoogleFonts.openSans(
         fontSize: 14.5,
         height: 1.6,
         color: AppColors.primaryBlue,
