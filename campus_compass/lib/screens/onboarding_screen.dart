@@ -114,7 +114,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       children: [
                         if (index == 1)
                           InkWell(
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(8),
                             onTap: () {
                               _controller.previousPage(
                                 duration: const Duration(milliseconds: 250),
@@ -157,7 +157,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (index == 0) ...[
-                            ClipRRect(borderRadius: BorderRadius.circular(20),
+                            ClipRRect(borderRadius: BorderRadius.circular(8),
                             child: Image.asset(
                               'assets/images/instructions_map_vector.png', 
                               width: double.infinity,
@@ -218,7 +218,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               margin: const EdgeInsets.only(bottom: 22),
                               elevation: 0,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(8),
                                 side: BorderSide(color: AppColors.cardBorder),
                               ),
                               child: Padding(
@@ -324,7 +324,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               margin: const EdgeInsets.only(bottom: 22),
                               elevation: 0,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(8),
                                 side: BorderSide(color: AppColors.cardBorder),
                               ),
                               child: Padding(
@@ -353,7 +353,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
                                   color: AppColors.quoteBackground,
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(8),
                                   border: Border.all(color: AppColors.cardBorder),
                                 ),
                                 child: Text(
@@ -387,7 +387,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             color: dotIndex == _currentPage
                                 ? AppColors.primaryBlue
                                 : const Color(0xFFD1D5DB),
-                            borderRadius: BorderRadius.circular(99),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                         ),
                       ),
@@ -398,15 +398,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
                     child: SizedBox(
                       width: double.infinity,
-                      height: 56,
+                      height: 40,
                       child: ElevatedButton(
                         onPressed: _nextPage,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primaryBlue,
                           foregroundColor: Colors.white,
                           elevation: 0,
+                          minimumSize: Size.fromHeight(40),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                         ),
                         child: Row(
@@ -482,7 +483,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: InkWell(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(8),
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
@@ -491,7 +492,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             color: isSelected
                 ? AppColors.secondaryBlue.withValues(alpha: 0.18)
                 : AppColors.white,
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(8),
             border: Border.all(
               color: isSelected ? cardBlue : border,
               width: isSelected ? 1.6 : 1.2,
@@ -570,7 +571,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       height: height,
       decoration: BoxDecoration(
         color: AppColors.quoteBackground,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.cardBorder),
       ),
     );

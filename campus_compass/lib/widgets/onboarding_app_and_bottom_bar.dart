@@ -24,7 +24,7 @@ class OnboardingAppBar extends StatelessWidget {
         children: [
           if (showBackTitle)
             InkWell(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(8),
               onTap: onBack,
               child: Padding(
                 padding: EdgeInsets.all(6),
@@ -82,7 +82,7 @@ class OnboardingBottomBar extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
           child: SizedBox(
             width: double.infinity,
-            height: 56,
+            height: 40,
             child: ElevatedButton(
               onPressed: onPressed,
               style: ElevatedButton.styleFrom(
@@ -90,8 +90,9 @@ class OnboardingBottomBar extends StatelessWidget {
                 foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(8),
                 ),
+                minimumSize: Size.fromHeight(40),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

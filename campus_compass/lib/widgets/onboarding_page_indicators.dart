@@ -26,7 +26,7 @@ class PageIndicator extends StatelessWidget {
             color: index == currentPage
                 ? AppColors.primaryBlue
                 : const Color(0xFFD1D5DB),
-            borderRadius: BorderRadius.circular(99),
+            borderRadius: BorderRadius.circular(8),
           ),
         ),
       ),

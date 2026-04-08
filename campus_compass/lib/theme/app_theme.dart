@@ -11,8 +11,9 @@ class AppTheme {
           backgroundColor: AppColors.primaryBlue,
           foregroundColor: Colors.white,
           textStyle: TextStyle(fontSize: 14),
+          minimumSize: Size.fromHeight(40),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(8),
           ),
           elevation: 1.4,
         ),
@@ -22,9 +23,20 @@ class AppTheme {
         style: TextButton.styleFrom(
           textStyle: linkStyle,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(8),
           ),
           elevation: 1.4,
+        ),
+      );
+
+  static OutlinedButtonThemeData get outlinedButtonTheme =>
+      OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          minimumSize: Size.fromHeight(40),
+          side: BorderSide(width: 1.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
         ),
       );
 
@@ -66,6 +78,7 @@ class AppTheme {
       textTheme: textTheme,
       textButtonTheme: textButtonTheme,
       elevatedButtonTheme: elevatedButtonTheme,
+      outlinedButtonTheme: outlinedButtonTheme,
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.white,
         foregroundColor: AppColors.darkText,
@@ -82,15 +95,15 @@ class AppTheme {
         filled: true,
         fillColor: AppColors.lightCircle,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: AppColors.cardBorder),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: AppColors.cardBorder),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(
             color: AppColors.primaryBlue,
             width: 1.4,

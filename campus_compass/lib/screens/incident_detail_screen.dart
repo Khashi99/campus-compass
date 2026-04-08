@@ -109,7 +109,7 @@ class IncidentDetailScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
               color: _getStatusColor().withOpacity(0.1),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(8),
               border: Border.all(color: _getStatusColor().withOpacity(0.3)),
             ),
             child: Row(
@@ -135,7 +135,7 @@ class IncidentDetailScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: AppColors.verifiedBadge.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -213,7 +213,7 @@ class IncidentDetailScreen extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(16, 14, 16, 0),
       height: 190,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.cardBorder),
       ),
       clipBehavior: Clip.antiAlias,
@@ -251,7 +251,7 @@ class IncidentDetailScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.94),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -296,7 +296,7 @@ class IncidentDetailScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -411,7 +411,7 @@ class IncidentDetailScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
         color: isActive ? AppColors.primaryBlue : AppColors.cardBorder,
-        borderRadius: BorderRadius.circular(2),
+        borderRadius: BorderRadius.circular(8),
       ),
     );
   }
@@ -469,7 +469,7 @@ class IncidentDetailScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: AppColors.cardBorder.withOpacity(0.7),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   '${incident.communityInsights.length}',
@@ -550,7 +550,7 @@ class IncidentDetailScreen extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               color: AppColors.primaryBlue.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(4),
+                              borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               insight.authorRole!,
@@ -657,11 +657,12 @@ class IncidentDetailScreen extends StatelessWidget {
           ),
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.darkText,
-            side: BorderSide(color: AppColors.cardBorder),
+            side: BorderSide(color: AppColors.cardBorder, width: 1.0),
             backgroundColor: AppColors.white,
-            padding: const EdgeInsets.symmetric(vertical: 14),
+            minimumSize: Size.fromHeight(40),
+            padding: const EdgeInsets.symmetric(vertical: 8),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(8),
             ),
           ),
         ),

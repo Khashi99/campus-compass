@@ -252,14 +252,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         soundType: _soundType,
                                       );
                                     },
-                                    style: OutlinedButton.styleFrom(
-                                      foregroundColor: AppColors.primaryBlue,
-                                      side: BorderSide(color: AppColors.primaryBlue),
-                                      padding: const EdgeInsets.symmetric(vertical: 10),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
+                                      style: OutlinedButton.styleFrom(
+                                        foregroundColor: AppColors.primaryBlue,
+                                        side: BorderSide(color: AppColors.primaryBlue, width: 1.0),
+                                        minimumSize: Size.fromHeight(40),
+                                        padding: const EdgeInsets.symmetric(vertical: 8),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
                                       ),
-                                    ),
                                     icon: Icon(Icons.volume_up_rounded, size: 18),
                                     label: Text(
                                       'Test sound',
@@ -347,7 +348,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           height: 34,
           decoration: BoxDecoration(
             color: const Color(0xFFF1F7FF),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
             Icons.music_note_rounded,
@@ -517,7 +518,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.cardBorder.withValues(alpha: 0.9)),
         boxShadow: [
           BoxShadow(
@@ -572,7 +573,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 backgroundColor: const Color(0xFF242730),
                 foregroundColor: Colors.white,
                 elevation: 0,
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                minimumSize: Size.fromHeight(40),
+                padding: const EdgeInsets.symmetric(vertical: 8),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -669,7 +671,7 @@ class _PreferenceCard extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.cardBorder.withValues(alpha: 0.9)),
         boxShadow: [
           BoxShadow(
@@ -712,7 +714,7 @@ class _PreferenceSwitchTile extends StatelessWidget {
           height: 34,
           decoration: BoxDecoration(
             color: const Color(0xFFF1F7FF),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: AppColors.primaryBlue, size: 18),
         ),

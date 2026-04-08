@@ -145,7 +145,7 @@ class _MapPlaceholderState extends State<MapPlaceholder> {
                                       ),
                                       decoration: BoxDecoration(
                                         color: AppColors.statusHighRisk,
-                                        borderRadius: BorderRadius.circular(4),
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Text(
                                         widget.tensionZoneLabel!,
@@ -249,7 +249,7 @@ class MiniMapButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: AppColors.primaryBlue,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
               color: AppColors.primaryBlue.withOpacity(0.3),

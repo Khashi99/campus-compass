@@ -181,7 +181,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                   height: 4,
                   decoration: BoxDecoration(
                     color: AppColors.primaryBlue,
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
               ),
@@ -193,7 +193,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                     color: step == 2
                         ? AppColors.primaryBlue
                         : AppColors.cardBorder,
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
               ),
@@ -602,7 +602,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                 decoration: BoxDecoration(
                   color: Colors.black54,
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(Icons.play_arrow, color: Colors.white, size: 16),
               ),
@@ -617,7 +617,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.red,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 padding: const EdgeInsets.all(4),
                 child: Icon(Icons.close, color: Colors.white, size: 16),
@@ -892,7 +892,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.black54,
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     padding: const EdgeInsets.all(8),
                     child: Icon(Icons.close, color: Colors.white, size: 24),
@@ -1047,7 +1047,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
               : AppColors.cardBorder,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(8),
           ),
         ),
         child: Row(
@@ -1093,7 +1093,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             border: Border.all(
               color: AppColors.primaryBlue.withValues(alpha: 0.3),
             ),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1188,7 +1188,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             border: Border.all(
               color: AppColors.primaryBlue.withValues(alpha: 0.3),
             ),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1226,7 +1226,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
               backgroundColor: AppColors.primaryBlue,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(8),
               ),
             ),
             child: Row(
@@ -1440,7 +1440,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                             ),
                             decoration: BoxDecoration(
                               color: Colors.black54,
-                              borderRadius: BorderRadius.circular(4),
+                              borderRadius: BorderRadius.circular(8),
                             ),
                             child: Icon(
                               Icons.play_arrow,
@@ -1895,7 +1895,7 @@ class _WebVideoPlaybackDialogState extends State<_WebVideoPlaybackDialog> {
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.black54,
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 padding: const EdgeInsets.all(8),
                 child: Icon(Icons.close, color: Colors.white, size: 24),
@@ -2031,7 +2031,7 @@ class _VideoPlaybackDialogState extends State<_VideoPlaybackDialog> {
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.black54,
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 padding: const EdgeInsets.all(8),
                 child: Icon(Icons.close, color: Colors.white, size: 24),

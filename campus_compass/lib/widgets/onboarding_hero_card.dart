@@ -11,7 +11,7 @@ class OnboardingHeroCard extends StatelessWidget {
       height: 255,
       decoration: BoxDecoration(
         color: AppColors.softBackground,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Stack(
         children: [
@@ -108,7 +108,7 @@ class OnboardingHeroCard extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
                     color: AppColors.white,
-                    borderRadius: BorderRadius.circular(18),
+                    borderRadius: BorderRadius.circular(8),
                     boxShadow: [
                       BoxShadow(
                         color: Color(0x14000000),
@@ -151,7 +151,7 @@ class _MapCard extends StatelessWidget {
       height: height,
       decoration: BoxDecoration(
         color: AppColors.quoteBackground,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.cardBorder),
       ),
     );

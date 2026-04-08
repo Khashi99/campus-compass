@@ -45,7 +45,7 @@ class AppColors {
 
   // Status colors for safety screens
   static const statusNormal = Color(0xFF4CAF50);    // Green - campus is calm
-  static const statusCaution = Color(0xFFFFC107);   // Yellow/Amber - caution
+  static const statusCaution = Color(0xFFDCA500);   // Yellow/Amber - caution
   static const statusHighRisk = Color(0xFFF44336);  // Red - high risk
   
   // Additional colors for map and incidents

@@ -20,7 +20,7 @@ class AlertOptionCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: InkWell(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(8),
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
@@ -29,7 +29,7 @@ class AlertOptionCard extends StatelessWidget {
             color: isSelected
                 ? AppColors.secondaryBlue.withValues(alpha: 0.18)
                 : AppColors.white,
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(8),
             border: Border.all(
               color: isSelected
                   ? AppColors.primaryBlue

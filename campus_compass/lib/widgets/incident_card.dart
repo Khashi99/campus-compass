@@ -62,7 +62,7 @@ class CalmStatusCard extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: AppColors.verifiedBadge.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -265,12 +265,13 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
                               onPressed: widget.onViewDetails,
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: AppColors.primaryBlue,
-                                side: BorderSide(color: AppColors.primaryBlue),
+                                side: BorderSide(color: AppColors.primaryBlue, width: 1.0),
+                                minimumSize: Size.fromHeight(40),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 padding: const EdgeInsets.symmetric(
-                                  vertical: 10,
+                                  vertical: 8,
                                 ),
                               ),
                               child: Text(
@@ -292,11 +293,12 @@ class _IncidentPreviewCardState extends State<IncidentPreviewCard>
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.statusNormal,
                                   foregroundColor: Colors.white,
+                                  minimumSize: Size.fromHeight(40),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   padding: const EdgeInsets.symmetric(
-                                    vertical: 10,
+                                    vertical: 8,
                                   ),
                                 ),
                               ),
@@ -519,7 +521,7 @@ class _HighRiskAlertCardState extends State<HighRiskAlertCard> {
                               ),
                               decoration: BoxDecoration(
                                 color: AppColors.statusNormal.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(8),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -569,16 +571,16 @@ class _HighRiskAlertCardState extends State<HighRiskAlertCard> {
                                 child: OutlinedButton(
                                   onPressed: widget.onReportTrust,
                                   style: OutlinedButton.styleFrom(
-                                    foregroundColor: AppColors.mutedText,
-                                    side:
-                                        BorderSide(color: AppColors.cardBorder),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
+                                      foregroundColor: AppColors.mutedText,
+                                      side: BorderSide(color: AppColors.cardBorder, width: 1.0),
+                                      minimumSize: Size.fromHeight(40),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 8,
+                                      ),
                                     ),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 12,
-                                    ),
-                                  ),
                                   child: Text(
                                     'REPORT TRUST',
                                     style: TextStyle(
@@ -605,11 +607,12 @@ class _HighRiskAlertCardState extends State<HighRiskAlertCard> {
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: AppColors.statusNormal,
                                     foregroundColor: Colors.white,
+                                    minimumSize: Size.fromHeight(40),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     padding: const EdgeInsets.symmetric(
-                                      vertical: 12,
+                                      vertical: 8,
                                     ),
                                   ),
                                 ),
@@ -642,7 +645,7 @@ class _IncidentResolutionProgressMini extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.pageBackground,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.cardBorder),
       ),
       child: Column(

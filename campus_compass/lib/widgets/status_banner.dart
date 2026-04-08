@@ -88,7 +88,7 @@ class StatusBanner extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: status.textColor.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     'More Info',
@@ -131,7 +131,7 @@ class MapLegend extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: AppColors.white,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(8),
             border: Border.all(color: AppColors.cardBorder),
             boxShadow: [
               BoxShadow(

@@ -228,7 +228,7 @@ class StaffReviewScreen extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.cardBorder),
       ),
       child: Column(
@@ -277,7 +277,8 @@ class StaffReviewScreen extends StatelessWidget {
                   onPressed: () => _dismissReport(context, doc),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.mutedText,
-                    side: BorderSide(color: AppColors.cardBorder),
+                    side: BorderSide(color: AppColors.cardBorder, width: 1.0),
+                    minimumSize: Size.fromHeight(40),
                   ),
                   child: Text('Dismiss'),
                 ),
@@ -289,6 +290,7 @@ class StaffReviewScreen extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryBlue,
                     foregroundColor: Colors.white,
+                    minimumSize: Size.fromHeight(40),
                   ),
                   child: Text('Approve'),
                 ),
@@ -300,6 +302,7 @@ class StaffReviewScreen extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.statusNormal,
                     foregroundColor: Colors.white,
+                    minimumSize: Size.fromHeight(40),
                   ),
                   child: Text('Resolved'),
                 ),
@@ -334,7 +337,7 @@ class StaffReviewScreen extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.cardBorder),
       ),
       child: Column(
@@ -383,6 +386,7 @@ class StaffReviewScreen extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryBlue,
                 foregroundColor: Colors.white,
+                minimumSize: Size.fromHeight(40),
               ),
               child: Text(actionLabel),
             ),
@@ -407,7 +411,7 @@ class StaffReviewScreen extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.cardBorder),
       ),
       child: Column(
@@ -456,7 +460,8 @@ class StaffReviewScreen extends StatelessWidget {
               icon: Icon(Icons.delete_outline),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.statusHighRisk,
-                side: BorderSide(color: AppColors.statusHighRisk),
+                side: BorderSide(color: AppColors.statusHighRisk, width: 1.0),
+                minimumSize: Size.fromHeight(40),
               ),
               label: Text('Remove from History'),
             ),
@@ -471,7 +476,7 @@ class StaffReviewScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: AppColors.statusCaution.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         label,
@@ -490,7 +495,7 @@ class StaffReviewScreen extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.cardBorder),
       ),
       child: Text(message, style: TextStyle(color: AppColors.mutedText)),

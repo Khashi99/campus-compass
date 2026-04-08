@@ -14,7 +14,7 @@ class RouteVerificationBanner extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: const Color(0xFFEAF9EE),
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: const Color(0xFFB8E7C3)),
       ),
       child: Row(

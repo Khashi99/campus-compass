@@ -597,7 +597,7 @@ class _MapScreenState extends State<MapScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: AppColors.statusCaution.withValues(alpha: 0.12),
+        color: AppColors.statusCaution.withValues(),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: AppColors.statusCaution.withValues(alpha: 0.35),
@@ -715,7 +715,8 @@ class _MapScreenState extends State<MapScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryBlue,
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        minimumSize: Size.fromHeight(40),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -747,7 +748,7 @@ class _MapScreenState extends State<MapScreen> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.pageBackground,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: cardBorderColor),
       ),
       child: Column(
@@ -773,7 +774,7 @@ class _MapScreenState extends State<MapScreen> {
                   ),
                   decoration: BoxDecoration(
                     color: AppColors.statusNormal.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(999),
+                    borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color: AppColors.statusNormal.withOpacity(0.35),
                     ),
@@ -813,7 +814,8 @@ class _MapScreenState extends State<MapScreen> {
                   label: Text(resource.phone!),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.primaryBlue,
-                    side: BorderSide(color: AppColors.primaryBlue),
+                    side: BorderSide(color: AppColors.primaryBlue, width: 1.0),
+                    minimumSize: Size.fromHeight(40),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
                       vertical: 8,
