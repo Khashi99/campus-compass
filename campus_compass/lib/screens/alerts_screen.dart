@@ -679,104 +679,78 @@ class _AlertsScreenState extends State<AlertsScreen> {
 
     await showModalBottomSheet<void>(
       context: context,
+      isScrollControlled: true, // IMPORTANT
       backgroundColor: AppColors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
-        return DraggableScrollableSheet(
-          expand: false,
-          initialChildSize: 0.7,
-          minChildSize: 0.5,
-          maxChildSize: 0.95,
-          builder: (context, scrollController) {
-            return Container(
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-              ),
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
-                  child: Column(
-                    children: [
-                      Center(
-                        child: Container(
-                          width: 42,
-                          height: 4,
-                          decoration: BoxDecoration(
-                            color: AppColors.cardBorder,
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 18),
-
-                      /// 👇 THIS FIXES OVERFLOW
-                      Expanded(
-                        child: SingleChildScrollView(
-                          controller: scrollController,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ReportReviewDetails(
-                                title: title,
-                                typeLabel: data['type'] as String?,
-                                location: location,
-                                description: description,
-                                incidentTimeLabel: incidentTimeLabel,
-                                evidence:
-                                    evidence as List<Map<String, dynamic>>?,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(height: 20),
-
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () async {
-                                Navigator.pop(context);
-                                await _dismissReport(reportDoc);
-                              },
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: AppColors.mutedText,
-                                side: BorderSide(
-                                  color: AppColors.cardBorder,
-                                  width: 1.0,
-                                ),
-                                minimumSize: Size.fromHeight(50),
-                              ),
-                              child: Text('Dismiss'),
-                            ),
-                          ),
-                          SizedBox(width: 12),
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                Navigator.pop(context);
-                                await _approveReport(reportDoc);
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primaryBlue,
-                                foregroundColor: Colors.white,
-                                minimumSize: Size.fromHeight(50),
-                              ),
-                              child: Text('Approve'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+        return SafeArea(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              20,
+              18,
+              20,
+              MediaQuery.of(context).viewInsets.bottom + 24, // keyboard safe
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min, // 👈 KEY: wraps content
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 42,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppColors.cardBorder,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
                   ),
                 ),
-              ),
-            );
-          },
+                SizedBox(height: 18),
+
+                /// Content (scrolls ONLY if too big)
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: ReportReviewDetails(
+                      title: title,
+                      typeLabel: data['type'] as String?,
+                      location: location,
+                      description: description,
+                      incidentTimeLabel: incidentTimeLabel,
+                      evidence: evidence as List<Map<String, dynamic>>?,
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: 20),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          await _dismissReport(reportDoc);
+                        },
+                        child: Text('Dismiss'),
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          await _approveReport(reportDoc);
+                        },
+                        child: Text('Approve'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         );
       },
     );
