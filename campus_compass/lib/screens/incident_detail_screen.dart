@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:campus_compass/widgets/report_review_details.dart';
 import 'package:campus_compass/screens/alerts_screen.dart';
 import 'package:campus_compass/screens/profile_screen.dart';
 import 'package:campus_compass/screens/report_incident_screen.dart';
@@ -44,7 +47,7 @@ class IncidentDetailScreen extends StatelessWidget {
           },
         ),
         title: Text(
-          'Incident Data',
+          'Incident details',
           style: TextStyle(
             color: AppColors.darkText,
             fontWeight: FontWeight.w600,
@@ -77,6 +80,9 @@ class IncidentDetailScreen extends StatelessWidget {
 
             // Description
             _buildDescription(),
+
+            // Full incident fields + evidence (from Firestore)
+            _buildFullDataSection(),
 
             // Community insights
             _buildCommunityInsights(),
@@ -752,5 +758,121 @@ class IncidentDetailScreen extends StatelessWidget {
       case IncidentStatus.resolved:
         return 'This incident has been resolved and normal access has resumed.';
     }
+  }
+
+  Widget _buildFullDataSection() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
+      child: FutureBuilder<List<Map<String, dynamic>>?>(
+        future: _fetchAndEnrichLinkedEvidence(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) return const SizedBox.shrink();
+          if (!snapshot.hasData) return const SizedBox.shrink();
+
+          final evidence = snapshot.data;
+          return ReportReviewDetails(
+            title: incident.title,
+            typeLabel: incident.typeDisplayName,
+            location: incident.location,
+            description: incident.description,
+            incidentTimeLabel: _formatFriendlyDate(incident.reportedTime.toLocal()),
+            evidence: evidence,
+          );
+        },
+      ),
+    );
+  }
+
+  String _formatFriendlyDate(DateTime dt) {
+    final now = DateTime.now();
+    final diff = now.difference(dt);
+    if (diff.inMinutes < 60) {
+      return '${diff.inMinutes}m ago';
+    } else if (diff.inHours < 24) {
+      return '${diff.inHours}h ago';
+    }
+
+    final months = [
+      '',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ];
+
+    String twoDigit(int n) => n.toString().padLeft(2, '0');
+    final hour = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+    final minute = twoDigit(dt.minute);
+    final ampm = dt.hour >= 12 ? 'PM' : 'AM';
+
+    if (dt.year == now.year) {
+      return '${months[dt.month]} ${dt.day} · ${hour}:${minute} $ampm';
+    }
+    return '${months[dt.month]} ${dt.day}, ${dt.year} · ${hour}:${minute} $ampm';
+  }
+
+  Future<List<Map<String, dynamic>>?> _fetchAndEnrichLinkedEvidence() async {
+    final firestore = FirebaseFirestore.instance;
+    final storageBucket = 'gs://campus-compas-soen6751.firebasestorage.app';
+    final storage = FirebaseStorage.instanceFor(bucket: storageBucket);
+
+    final linkedReports = await firestore
+        .collection('incidentReports')
+        .where('linkedIncidentId', isEqualTo: incident.id)
+        .get();
+
+    if (linkedReports.docs.isEmpty) return null;
+
+    final combined = <Map<String, dynamic>>[];
+
+    for (final report in linkedReports.docs) {
+      final data = report.data();
+      final entries = (data['evidence'] as List?)
+          ?.map((e) => Map<String, dynamic>.from(e as Map))
+          .toList();
+      if (entries == null || entries.isEmpty) continue;
+
+      var changed = false;
+      for (var i = 0; i < entries.length; i++) {
+        final e = entries[i];
+        final hasUrl = (e['downloadUrl'] as String?)?.isNotEmpty == true;
+        if (hasUrl) continue;
+
+        final storagePath = e['storagePath'] as String?;
+        if (storagePath == null || storagePath.isEmpty) continue;
+
+        // Only attempt to load storage objects that belong to this report.
+        final reportId = report.id;
+        final segments = storagePath.split('/');
+        if (!segments.contains(reportId)) continue;
+
+        try {
+          final ref = storage.ref().child(storagePath);
+          final url = await ref.getDownloadURL();
+          entries[i] = {...e, 'downloadUrl': url};
+          changed = true;
+        } catch (_) {
+          // ignore
+        }
+      }
+
+      if (changed) {
+        try {
+          await report.reference.update({'evidence': entries});
+        } catch (_) {}
+      }
+
+      combined.addAll(entries);
+    }
+
+    return combined.isEmpty ? null : combined;
   }
 }
