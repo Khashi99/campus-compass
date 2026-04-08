@@ -245,7 +245,9 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
         ),
         SizedBox(height: 12),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          height: 50,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          alignment: Alignment.centerLeft,
           decoration: BoxDecoration(
             border: Border.all(color: AppColors.cardBorder),
             borderRadius: BorderRadius.circular(8),
@@ -365,7 +367,9 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
         ),
         SizedBox(height: 12),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          height: 50,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          alignment: Alignment.centerLeft,
           decoration: BoxDecoration(
             border: Border.all(color: AppColors.cardBorder),
             borderRadius: BorderRadius.circular(8),
@@ -440,7 +444,8 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             }
           },
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            height: 50,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
               border: Border.all(color: AppColors.cardBorder),
               borderRadius: BorderRadius.circular(8),
