@@ -14,10 +14,13 @@ import 'package:campus_compass/screens/home_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:campus_compass/utils/notification_service.dart';
 import 'package:campus_compass/services/incident_status_monitor.dart';
+import 'package:campus_compass/utils/incident_haptics.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,6 +31,40 @@ Future<void> main() async {
 
   // Initialize local notifications and start status monitor.
   await NotificationService.instance.init();
+
+  // Firebase Messaging: background handler and topic subscription
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  // Subscribe to a topic so server functions can broadcast to all users.
+  try {
+    await FirebaseMessaging.instance.subscribeToTopic('incidents');
+  } catch (_) {}
+
+  // On web, obtain an FCM token using your Web Push (VAPID) public key.
+  if (kIsWeb) {
+    const vapidKey = 'BCtYf1Ffni7j4QWJNn_e4u8OThJXV8iTyfeOS-JbfCItUDOfgP99TQCRpkc9gnVkSVzc7v0q425j25ZV5N6gbLk';
+    try {
+      final token = await FirebaseMessaging.instance.getToken(vapidKey: vapidKey);
+      // ignore: avoid_print
+      print('FCM registration token (web): $token');
+    } catch (_) {}
+  }
+
+  // Show incoming messages (foreground) with local notifications + haptics
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+    final title = message.notification?.title ?? 'Incident update';
+    final body = message.notification?.body ?? message.data['body'] ?? '';
+    try {
+      await NotificationService.instance.showNotification(title: title, body: body);
+    } catch (_) {}
+    try {
+      await IncidentStatusMonitor.instance.start();
+    } catch (_) {}
+    try {
+      await IncidentHaptics.playForEvent(IncidentHapticEvent.campusStatusChanged);
+    } catch (_) {}
+  });
+
   // Start monitoring incident status changes while the app is running.
   IncidentStatusMonitor.instance.start();
 
@@ -35,6 +72,20 @@ Future<void> main() async {
   await _ensureUserProfileDocument();
 
   runApp(const MyApp());
+}
+
+/// Top-level background message handler required by `firebase_messaging`.
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await NotificationService.instance.init();
+  try {
+    await IncidentHaptics.playForEvent(IncidentHapticEvent.campusStatusChanged);
+  } catch (_) {}
+  final title = message.notification?.title ?? 'Incident update';
+  final body = message.notification?.body ?? message.data['body'] ?? '';
+  try {
+    await NotificationService.instance.showNotification(title: title, body: body);
+  } catch (_) {}
 }
 
 Future<void> _ensureUserProfileDocument() async {
