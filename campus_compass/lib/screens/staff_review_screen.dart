@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:campus_compass/support/report_review_actions.dart';
+import 'package:campus_compass/widgets/report_review_details.dart';
 import 'package:campus_compass/theme/app_colors.dart';
 import 'package:campus_compass/utils/incident_haptics.dart';
 import 'package:campus_compass/utils/incident_sounds.dart';
@@ -286,7 +287,7 @@ class StaffReviewScreen extends StatelessWidget {
               SizedBox(width: 8),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: () => _approveReport(context, doc),
+                  onPressed: () => _showReportDetailsAndConfirm(context, doc),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryBlue,
                     foregroundColor: Colors.white,
@@ -525,6 +526,97 @@ class StaffReviewScreen extends StatelessWidget {
         context,
       ).showSnackBar(SnackBar(content: Text('Approval failed: $e')));
     }
+  }
+
+  Future<void> _showReportDetailsAndConfirm(
+    BuildContext context,
+    QueryDocumentSnapshot<Map<String, dynamic>> reportDoc,
+  ) async {
+    final data = reportDoc.data();
+    final title = (data['title'] as String?) ?? 'Incident report';
+    final type = (data['type'] as String?) ?? '';
+    final location = (data['location'] as String?) ?? 'Unknown location';
+    final description = (data['description'] as String?) ?? '';
+    final reportedTime = data['reportedTime'];
+    final incidentTimeLabel = reportedTime is Timestamp
+        ? (reportedTime.toDate()).toLocal().toString()
+        : '';
+    final evidence = (data['evidence'] as List?)
+        ?.map((e) => Map<String, dynamic>.from(e as Map))
+        .toList();
+
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 42,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppColors.cardBorder,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 18),
+                ReportReviewDetails(
+                  title: title,
+                  typeLabel: type,
+                  location: location,
+                  description: description,
+                  incidentTimeLabel: incidentTimeLabel,
+                  evidence: evidence as List<Map<String, dynamic>>?,
+                ),
+                SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.mutedText,
+                          side: BorderSide(color: AppColors.cardBorder, width: 1.0),
+                          minimumSize: Size.fromHeight(50),
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                        ),
+                        child: Text('Cancel'),
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          await _approveReport(context, reportDoc);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryBlue,
+                          foregroundColor: Colors.white,
+                          minimumSize: Size.fromHeight(50),
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                        ),
+                        child: Text('Approve'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _dismissReport(

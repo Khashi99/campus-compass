@@ -11,6 +11,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:campus_compass/widgets/report_review_details.dart';
 
 class AlertsScreen extends StatefulWidget {
   const AlertsScreen({super.key, this.campusId = 'sgw', this.onBack});
@@ -688,6 +689,14 @@ class _AlertsScreenState extends State<AlertsScreen> {
     final location = (data['location'] as String?) ?? item.location;
     final description = (data['description'] as String?) ?? item.description ?? '';
 
+    final reportedTime = data['reportedTime'];
+    final incidentTimeLabel = reportedTime is Timestamp
+        ? (reportedTime.toDate()).toLocal().toString()
+        : '';
+    final evidence = (data['evidence'] as List?)
+        ?.map((e) => Map<String, dynamic>.from(e as Map))
+        .toList();
+
     await showModalBottomSheet<void>(
       context: context,
       backgroundColor: AppColors.white,
@@ -713,30 +722,13 @@ class _AlertsScreenState extends State<AlertsScreen> {
                   ),
                 ),
                 SizedBox(height: 18),
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.darkText,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  location,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.mutedText,
-                  ),
-                ),
-                SizedBox(height: 12),
-                Text(
-                  description,
-                  style: TextStyle(
-                    fontSize: 14,
-                    height: 1.45,
-                    color: AppColors.darkText,
-                  ),
+                ReportReviewDetails(
+                  title: title,
+                  typeLabel: data['type'] as String?,
+                  location: location,
+                  description: description,
+                  incidentTimeLabel: incidentTimeLabel,
+                  evidence: evidence as List<Map<String, dynamic>>?,
                 ),
                 SizedBox(height: 20),
                 Row(
