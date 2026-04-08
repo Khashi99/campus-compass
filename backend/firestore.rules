@@ -83,6 +83,8 @@ service cloud.firestore {
 
     match /incidentReports/{reportId} {
       allow read: if isStaff() || isOwner(resource.data.createdBy);
+      // Allow creation from signed-in users. Permit optional media fields
+      // (`imageUrl`, `videoUrl`, `evidence`) while validating basic types.
       allow create: if isSignedIn() &&
         request.resource.data.keys().hasOnly([
           'campusId',
@@ -96,6 +98,9 @@ service cloud.firestore {
           'verificationLevel',
           'createdBy',
           'linkedIncidentId',
+          'imageUrl',
+          'videoUrl',
+          'evidence',
           'reportedTime',
           'updatedAt'
         ]) &&
@@ -109,8 +114,39 @@ service cloud.firestore {
         request.resource.data.title is string &&
         request.resource.data.description is string &&
         request.resource.data.location is string &&
-        isValidCoordinates(request.resource.data.coordinates);
-      allow update, delete: if isStaff();
+        isValidCoordinates(request.resource.data.coordinates) &&
+        // Optional media fields: allow absent or null, otherwise validate types.
+        (!('imageUrl' in request.resource.data) || request.resource.data.imageUrl == null || request.resource.data.imageUrl is string) &&
+        (!('videoUrl' in request.resource.data) || request.resource.data.videoUrl == null || request.resource.data.videoUrl is string) &&
+        (!('evidence' in request.resource.data) || request.resource.data.evidence is list);
+      // Staff can update/delete any report. Report owners may update only
+      // the media-related fields after creation (so the client can upload
+      // files and then `update` the document with URLs/evidence).
+      allow update: if isStaff() || (
+        isOwner(resource.data.createdBy) &&
+        // Owner may only modify these keys on update.
+        request.resource.data.keys().hasOnly([
+          'campusId',
+          'title',
+          'description',
+          'location',
+          'coordinates',
+          'buildingCode',
+          'type',
+          'status',
+          'verificationLevel',
+          'createdBy',
+          'linkedIncidentId',
+          'imageUrl',
+          'videoUrl',
+          'evidence',
+          'reportedTime',
+          'updatedAt'
+        ]) &&
+        // Ensure createdBy cannot be changed and remains the original owner.
+        request.resource.data.createdBy == resource.data.createdBy
+      );
+      allow delete: if isStaff();
     }
 
     match /incidents/{incidentId} {
