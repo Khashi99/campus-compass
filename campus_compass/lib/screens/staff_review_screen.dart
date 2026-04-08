@@ -53,7 +53,7 @@ class StaffReviewScreen extends StatelessWidget {
                   style: TextStyle(
                     color: AppColors.darkText,
                     fontWeight: FontWeight.w700,
-                    fontSize: 18,
+                    fontSize: 16,
                   ),
                 ),
                 SizedBox(height: 10),
@@ -64,7 +64,7 @@ class StaffReviewScreen extends StatelessWidget {
                   style: TextStyle(
                     color: AppColors.darkText,
                     fontWeight: FontWeight.w700,
-                    fontSize: 18,
+                    fontSize: 16,
                   ),
                 ),
                 SizedBox(height: 10),
@@ -75,7 +75,7 @@ class StaffReviewScreen extends StatelessWidget {
                   style: TextStyle(
                     color: AppColors.darkText,
                     fontWeight: FontWeight.w700,
-                    fontSize: 18,
+                    fontSize: 16,
                   ),
                 ),
                 SizedBox(height: 10),

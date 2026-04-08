@@ -59,13 +59,13 @@ class _AlertsScreenState extends State<AlertsScreen> {
               style: TextStyle(
                 color: AppColors.darkText,
                 fontWeight: FontWeight.w600,
-                fontSize: 18,
+                fontSize: 16,
               ),
             ),
             centerTitle: true,
             leading: IconButton(
               onPressed: _handleBack,
-              icon: Icon(Icons.arrow_back_ios_new, color: AppColors.darkText),
+              icon: Icon(Icons.arrow_back_ios_new, color: AppColors.darkText, size: 16),
             ),
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(1),
@@ -500,7 +500,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: AppColors.darkText,
                   ),
@@ -716,7 +716,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: AppColors.darkText,
                   ),
@@ -1409,7 +1409,7 @@ class _FeedFooter extends StatelessWidget {
           Text(
             showMuted ? 'All caught up!' : 'Recent activity synced.',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               fontStyle: FontStyle.italic,
               color: AppColors.mutedText.withValues(alpha: 0.7),
             ),

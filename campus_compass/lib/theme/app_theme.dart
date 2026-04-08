@@ -94,7 +94,7 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         titleTextStyle: GoogleFonts.openSans(
-          fontSize: 18,
+          fontSize: 16,
           fontWeight: FontWeight.w600,
           color: AppColors.darkText,
         ),

@@ -93,7 +93,7 @@ class _SafetyRouteScreenState extends State<SafetyRouteScreen> {
               context.go('/home/map');
             }
           },
-          icon: Icon(Icons.arrow_back_ios_new, color: AppColors.darkText),
+          icon: Icon(Icons.arrow_back_ios_new, color: AppColors.darkText, size: 16),
         ),
         actions: [],
       ),

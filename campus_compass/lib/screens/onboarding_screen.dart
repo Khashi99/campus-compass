@@ -134,7 +134,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             child: Text(
                               index == 1 ? 'Personalize Alerts' : '',
                               style: TextStyle(
-                                fontSize: 18,
+                                fontSize: 16,
                                 fontWeight: FontWeight.w500,
                                 color: AppColors.darkText,
                               ),

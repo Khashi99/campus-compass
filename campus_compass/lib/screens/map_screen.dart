@@ -190,7 +190,7 @@ class _MapScreenState extends State<MapScreen> {
                     style: TextStyle(
                       color: AppColors.darkText,
                       fontWeight: FontWeight.w600,
-                      fontSize: 18,
+                      fontSize: 16,
                     ),
                   ),
                   actions: [],
@@ -661,7 +661,7 @@ class _MapScreenState extends State<MapScreen> {
                       Text(
                         '${_campusStatus.displayText} Status',
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: AppColors.darkText,
                         ),

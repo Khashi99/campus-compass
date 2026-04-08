@@ -238,7 +238,7 @@ class _MyWidgetState extends State<LoginScreen> {
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w900,
-                                      fontSize: 18,
+                                      fontSize: 16,
                                     ),
                                   ),
                                   SizedBox(width: 13),

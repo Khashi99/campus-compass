@@ -38,7 +38,7 @@ class OnboardingAppBar extends StatelessWidget {
               child: Text(
                 showBackTitle ? 'Personalize Alerts' : '',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: FontWeight.w500,
                   color: AppColors.darkText,
                 ),

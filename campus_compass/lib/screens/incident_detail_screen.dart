@@ -48,7 +48,7 @@ class IncidentDetailScreen extends StatelessWidget {
           style: TextStyle(
             color: AppColors.darkText,
             fontWeight: FontWeight.w600,
-            fontSize: 18,
+            fontSize: 16,
           ),
         ),
         centerTitle: true,

@@ -69,13 +69,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           style: TextStyle(
             color: AppColors.darkText,
             fontWeight: FontWeight.w600,
-            fontSize: 18,
+            fontSize: 16,
           ),
         ),
         centerTitle: true,
         leading: IconButton(
           onPressed: _handleBack,
-          icon: Icon(Icons.arrow_back_ios_new, color: AppColors.darkText),
+          icon: Icon(Icons.arrow_back_ios_new, color: AppColors.darkText, size: 16),
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
@@ -133,7 +133,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     Expanded(
                       child: SingleChildScrollView(
-                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 14),
+                        padding: const EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -142,11 +142,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               email: email,
                               user: user,
                             ),
-                            SizedBox(height: 16),
+                            SizedBox(height: 40),
                             Text(
                               'Personalize for Your Comfort',
                               style: TextStyle(
-                                fontSize: 18,
+                                fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.darkText,
                               ),
@@ -155,12 +155,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Text(
                               'Customize how you navigate and receive safety information to reduce sensory overload and cognitive stress.',
                               style: TextStyle(
-                                fontSize: 14,
+                                fontSize: 12,
                                 height: 1.35,
                                 color: AppColors.mutedText,
                               ),
                             ),
-                            SizedBox(height: 10),
+                            SizedBox(height: 32),
                             _SectionLabel('Campus Navigation'),
                             SizedBox(height: 10),
                             _PreferenceCard(
@@ -177,7 +177,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 12),
+                            SizedBox(height: 24),
                             // Visual & Calm Controls section removed
                             _SectionLabel('Alert Preferences'),
                             SizedBox(height: 10),
@@ -205,9 +205,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     }
                                   },
                                 ),
-                                SizedBox(height: 12),
+                                SizedBox(height: 16),
                                 Divider(height: 1, color: AppColors.cardBorder),
-                                SizedBox(height: 12),
+                                SizedBox(height: 16),
                                 _PreferenceSwitchTile(
                                   icon: Icons.volume_up_rounded,
                                   title: 'Sound alerts',
@@ -240,9 +240,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     }
                                   },
                                 ),
-                                SizedBox(height: 12),
+                                SizedBox(height: 16),
+                                Divider(height: 1, color: AppColors.cardBorder),
+                                SizedBox(height: 16),
                                 _buildSoundTypeSelector(),
-                                SizedBox(height: 10),
+                                SizedBox(height: 16),
                                 SizedBox(
                                   width: double.infinity,
                                   child: OutlinedButton.icon(
@@ -256,7 +258,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         foregroundColor: AppColors.primaryBlue,
                                         side: BorderSide(color: AppColors.primaryBlue, width: 1.0),
                                         minimumSize: Size.fromHeight(50),
-                                        padding: const EdgeInsets.symmetric(vertical: 8),
+                                        padding: const EdgeInsets.all(16),
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(8),
                                         ),
@@ -270,7 +272,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 12),
+                            SizedBox(height: 24),
                             _SectionLabel('Display Preferences'),
                             SizedBox(height: 10),
                             _PreferenceCard(
@@ -515,7 +517,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(8),
@@ -564,7 +566,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ],
           ),
-          SizedBox(height: 12),
+          SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -574,7 +576,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 foregroundColor: Colors.white,
                 elevation: 0,
                 minimumSize: Size.fromHeight(50),
-                padding: const EdgeInsets.symmetric(vertical: 8),
+                padding: const EdgeInsets.all(16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -668,7 +670,7 @@ class _PreferenceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(8),

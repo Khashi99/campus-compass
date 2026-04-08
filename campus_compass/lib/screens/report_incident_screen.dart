@@ -82,13 +82,13 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
       backgroundColor: AppColors.white,
       elevation: 0,
       leading: IconButton(
-        icon: Icon(Icons.arrow_back_ios_new, color: AppColors.darkText),
+        icon: Icon(Icons.arrow_back_ios_new, color: AppColors.darkText, size: 16),
         onPressed: _handleBack,
       ),
       title: Text(
         'Report an Incident',
         style: TextStyle(
-          fontSize: 18,
+          fontSize: 16,
           fontWeight: FontWeight.w600,
           color: AppColors.darkText,
         ),
@@ -658,7 +658,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                       Text(
                         'Add Evidence',
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: AppColors.darkText,
                         ),
@@ -978,8 +978,8 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.primaryBlue.withValues(alpha: 0.1),
-        border: Border.all(color: AppColors.primaryBlue.withValues(alpha: 0.3)),
+        color: AppColors.secondaryBlue.withValues(alpha: 0.1),
+        border: Border.all(color: AppColors.secondaryBlue.withValues(alpha: 0.3)),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -988,35 +988,42 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
           Icon(Icons.info_outline, color: AppColors.primaryBlue, size: 24),
           SizedBox(width: 16),
           Expanded(
-            child: RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'Emergency? ',
-                    style: TextStyle(
-                      color: AppColors.darkText,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Emergency?',
+                  style: TextStyle(
+                    color: AppColors.darkText,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
                   ),
-                  TextSpan(
-                    text: 'Please contact Campus Security directly at ',
-                    style: TextStyle(color: AppColors.darkText, fontSize: 14),
+                ),
+                SizedBox(height: 6),
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'Please contact Campus Security directly at ',
+                        style: TextStyle(color: AppColors.darkText, fontSize: 12),
+                      ),
+                      TextSpan(
+                        text: '+1 514-555-0199',
+                        style: TextStyle(
+                          color: AppColors.darkText,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                      TextSpan(
+                        text: ' before filing a report.',
+                        style: TextStyle(color: AppColors.darkText, fontSize: 12),
+                      ),
+                    ],
                   ),
-                  TextSpan(
-                    text: '+1 514-555-0199',
-                    style: TextStyle(
-                      color: AppColors.darkText,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                  TextSpan(
-                    text: ' before filing a report.',
-                    style: TextStyle(color: AppColors.darkText, fontSize: 14),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
@@ -1060,10 +1067,10 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
           children: [
             Text(
               !isReportingOpen
-                  ? 'Reporting Unavailable'
+                  ? 'Campus closed from 12:00 AM to 5:00 AM'
                   : (!isSelectedTimeAllowed ? 'Invalid Incident Time' : 'Next'),
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: isFormValid ? Colors.white : AppColors.mutedText,
               ),
@@ -1094,12 +1101,12 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.primaryBlue.withValues(alpha: 0.1),
-            border: Border.all(
-              color: AppColors.primaryBlue.withValues(alpha: 0.3),
+              color: AppColors.secondaryBlue.withValues(alpha: 0.1),
+              border: Border.all(
+                color: AppColors.secondaryBlue.withValues(alpha: 0.3),
+              ),
+              borderRadius: BorderRadius.circular(8),
             ),
-            borderRadius: BorderRadius.circular(8),
-          ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1125,7 +1132,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                     Text(
                       'Please ensure the information below is accurate before sharing it with the campus.',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 12,
                         color: AppColors.darkText,
                         height: 1.4,
                       ),
@@ -1202,7 +1209,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                 padding: const EdgeInsets.all(4),
                 child: Icon(
                   Icons.security_outlined,
-                  color: AppColors.primaryBlue,
+                  color: AppColors.secondaryBlue,
                   size: 24,
                 ),
               ),
@@ -1222,64 +1229,73 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
         ),
         SizedBox(height: 32),
 
-        // Submit Button
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: _isSubmitting ? null : _submitReport,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryBlue,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (_isSubmitting)
-                  const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+        // Actions row: Back to Edit + Report
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                  onPressed: () {
+                    setState(() => _currentStep = 1);
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: AppColors.cardBorder),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  )
-                else ...[
-                  Text(
-                    'Submit Report',
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: AppColors.mutedText,
+                  ),
+                  child: Text(
+                    'Back to Edit',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      color: AppColors.mutedText,
                     ),
                   ),
-                  SizedBox(width: 8),
-                  Icon(Icons.arrow_forward_rounded, color: Colors.white),
-                ],
-              ],
+                ),
             ),
-          ),
-        ),
-        SizedBox(height: 12),
-
-        // Cancel Button
-        SizedBox(
-          width: double.infinity,
-          child: TextButton(
-            onPressed: () {
-              setState(() => _currentStep = 1);
-            },
-            child: Text(
-              'Back to Edit',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: AppColors.mutedText,
+            SizedBox(width: 12),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: _isSubmitting ? null : _submitReport,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryBlue,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (_isSubmitting)
+                      const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    else ...[
+                      Text(
+                        'Report',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Icon(Icons.arrow_forward_rounded, color: Colors.white),
+                    ],
+                  ],
+                ),
               ),
             ),
-          ),
+          ],
         ),
       ],
     );
@@ -1683,7 +1699,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
   }
 
   bool _isCampusClosedHour(int hour24) {
-    return hour24 < 6;
+    return hour24 < 5;
   }
 
   String _typeToBackendValue(IncidentType type) {
